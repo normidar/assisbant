@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <!-- Dark background gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#1c2128"/>
+    </linearGradient>
+
+    <!-- Orange-amber trace gradient (top to bottom) -->
+    <linearGradient id="trace" x1="512" y1="120" x2="512" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#ffe89a"/>
+      <stop offset="40%"  stop-color="#f0883e"/>
+      <stop offset="100%" stop-color="#c94f1a"/>
+    </linearGradient>
+
+    <!-- Glow filter (soft) -->
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Strong glow filter for apex node -->
+    <filter id="apexGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="28" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="220" fill="url(#bg)"/>
+
+  <!-- Subtle warm ambient glow -->
+  <ellipse cx="512" cy="460" rx="340" ry="300" fill="#f0883e" opacity="0.06"/>
+
+  <!-- A: left leg -->
+  <line x1="512" y1="120" x2="136" y2="892"
+        stroke="url(#trace)" stroke-width="76" stroke-linecap="round"
+        filter="url(#glow)"/>
+
+  <!-- A: right leg -->
+  <line x1="512" y1="120" x2="888" y2="892"
+        stroke="url(#trace)" stroke-width="76" stroke-linecap="round"
+        filter="url(#glow)"/>
+
+  <!-- A: crossbar -->
+  <line x1="300" y1="610" x2="724" y2="610"
+        stroke="url(#trace)" stroke-width="66" stroke-linecap="round"
+        filter="url(#glow)"/>
+
+  <!-- Crossbar left node -->
+  <circle cx="300" cy="610" r="42" fill="#f0883e" filter="url(#glow)"/>
+  <circle cx="300" cy="610" r="22" fill="#ffd07a"/>
+
+  <!-- Crossbar right node -->
+  <circle cx="724" cy="610" r="42" fill="#f0883e" filter="url(#glow)"/>
+  <circle cx="724" cy="610" r="22" fill="#ffd07a"/>
+
+  <!-- Base left node -->
+  <circle cx="136" cy="892" r="36" fill="#c94f1a" filter="url(#glow)"/>
+  <circle cx="136" cy="892" r="18" fill="#f0883e"/>
+
+  <!-- Base right node -->
+  <circle cx="888" cy="892" r="36" fill="#c94f1a" filter="url(#glow)"/>
+  <circle cx="888" cy="892" r="18" fill="#f0883e"/>
+
+  <!-- Apex node (bright, glowing) -->
+  <circle cx="512" cy="120" r="72"  fill="#ffdd80" filter="url(#apexGlow)"/>
+  <circle cx="512" cy="120" r="46"  fill="#fff4cc"/>
+  <circle cx="512" cy="120" r="22"  fill="white"/>
+</svg>
