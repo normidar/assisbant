@@ -47,11 +47,19 @@ class ExecutionService {
           workingDirectory: workdir,
         );
         if (checkout.exitCode != 0) {
-          return ExecutionResult(
-            success: false,
-            output: '',
-            error: 'git checkout: ${checkout.stderr}',
+          // Branch doesn't exist locally — create it
+          final create = await Process.run(
+            '/bin/bash',
+            ['-lc', 'git checkout -b ${_shellQuote(prompt.branch)}'],
+            workingDirectory: workdir,
           );
+          if (create.exitCode != 0) {
+            return ExecutionResult(
+              success: false,
+              output: '',
+              error: 'git checkout: ${create.stderr}',
+            );
+          }
         }
       }
 
