@@ -25,6 +25,11 @@ class ExecutionResult {
 class ExecutionService {
   const ExecutionService();
 
+  /// 1つのプロンプトを実行して結果を返す。
+  ///
+  /// sessionId が設定されているプロンプトは stream-json モードで実行し、
+  /// Claude の質問→回答ループや claudeSessionId の取得に対応する。
+  /// sessionId が空の場合は従来の --print モードで高速実行する。
   Future<ExecutionResult> run(
     PromptEntry prompt,
     AppSettings settings, {
@@ -34,6 +39,7 @@ class ExecutionService {
     Future<String> Function(String question)? onQuestion,
   }) async {
     try {
+      // prompt 個別の projectPath を優先し、未設定ならグローバル workdir を使う
       final rawWorkdir = prompt.projectPath.isNotEmpty
           ? prompt.projectPath
           : settings.workdir;
@@ -47,7 +53,7 @@ class ExecutionService {
           workingDirectory: workdir,
         );
         if (checkout.exitCode != 0) {
-          // Branch doesn't exist locally — create it
+          // ローカルに存在しないブランチは新規作成する
           final create = await Process.run(
             '/bin/bash',
             ['-lc', 'git checkout -b ${_shellQuote(prompt.branch)}'],
@@ -63,6 +69,8 @@ class ExecutionService {
         }
       }
 
+      // sessionId が設定されている = 会話継続が必要なプロンプト
+      // stream-json モードは claudeSessionId を返すため会話の引き継ぎに必須
       final useStreamJson = prompt.sessionId.isNotEmpty;
 
       final modelFlag = _resolveModelFlag(prompt.claudeModel, settings);
@@ -81,6 +89,7 @@ class ExecutionService {
         );
       }
 
+      // sessionId なしの場合はシンプルな --print モード（出力だけ取得）
       final cmdBuf = StringBuffer(
         'exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(prompt.content)}',
       );
@@ -144,7 +153,11 @@ class ExecutionService {
     }
   }
 
-  /// Runs Claude in stream-json mode, handling question→answer loops.
+  /// stream-json モードで Claude を実行し、質問→回答ループを処理する。
+  ///
+  /// Claude が質問を返した場合（_looksLikeQuestion が true）は onQuestion を呼び出し、
+  /// ユーザーの回答を次のリクエストの content として再実行する。
+  /// 質問でない結果が返るか、onQuestion が null なら即座に終了する。
   Future<ExecutionResult> _executeStreamJsonLoop({
     required String content,
     required String cliPath,
@@ -192,7 +205,7 @@ class ExecutionService {
     }
   }
 
-  /// Executes a single round of stream-json and returns the result.
+  /// stream-json を1回実行して結果を返す。質問ループは呼び出し元が担う。
   Future<ExecutionResult> _executeStreamJsonOnce({
     required String content,
     required String cliPath,
@@ -242,6 +255,7 @@ class ExecutionService {
         stdoutBuf.write(chunk);
         lineBuffer += chunk;
 
+        // stream-json は1行1JSONイベント形式。改行が来るたびに解析する
         var idx = lineBuffer.indexOf('\n');
         while (idx >= 0) {
           final line = lineBuffer.substring(0, idx).trim();
@@ -255,6 +269,7 @@ class ExecutionService {
                 '[ExecSvc] stream-json type=$type',
                 name: 'ExecutionService',
               );
+              // 'assistant' イベント: Claude のテキスト応答をリアルタイムで UI に流す
               if (type == 'assistant') {
                 final msg = event['message'] as Map<String, dynamic>?;
                 final contents = msg?['content'];
@@ -266,6 +281,7 @@ class ExecutionService {
                     }
                   }
                 }
+              // 'result' イベント: 実行の最終結果と claudeSessionId が含まれる
               } else if (type == 'result') {
                 capturedSessionId = (event['session_id'] as String?) ?? '';
                 capturedResult = (event['result'] as String?) ?? '';

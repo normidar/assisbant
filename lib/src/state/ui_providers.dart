@@ -139,6 +139,11 @@ class NewPromptDraftNotifier extends Notifier<NewPromptDraft> {
 final settingsStateProvider =
     NotifierProvider<SettingsNotifier, AppSettings>(SettingsNotifier.new);
 
+/// アプリ設定を SharedPreferences に永続化する Notifier。
+///
+/// build() で SharedPreferences から初期値を読み込む。
+/// sharedPreferencesProvider は normal_main.dart で ProviderScope.overrides に
+/// 注入されるため、アプリ起動時に await して確実に初期化済みのインスタンスを渡す。
 class SettingsNotifier extends Notifier<AppSettings> {
   @override
   AppSettings build() {
@@ -157,6 +162,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
     );
   }
 
+  /// state を即時更新してから SharedPreferences に書き込む。
+  /// state を先に更新することで UI がちらつかない。
   Future<void> update(AppSettings s) async {
     state = s;
     final prefs = ref.read(sharedPreferencesProvider);
@@ -170,6 +177,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
   }
 }
 
+/// アプリ全体の設定値を保持するイミュータブルなデータクラス。
 class AppSettings {
   const AppSettings({
     this.cliPath = '',
@@ -181,13 +189,13 @@ class AppSettings {
     this.localModelName = '',
   });
 
-  final String cliPath;
-  final String workdir;
-  final bool autoCheckout;
-  final bool pauseOnFail;
-  final bool commitAfterPrompt;
-  final ModelMode modelMode;
-  final String localModelName;
+  final String cliPath; // claude CLI のパス。空の場合は PATH から検索
+  final String workdir; // デフォルトの作業ディレクトリ（prompt.projectPath で上書き可能）
+  final bool autoCheckout; // 実行前に git checkout を行うか
+  final bool pauseOnFail; // プロンプト失敗時にキューを一時停止するか
+  final bool commitAfterPrompt; // 成功後に自動で git commit するか（グローバル設定）
+  final ModelMode modelMode; // claude モードか local モデルか
+  final String localModelName; // local モード時のモデル名
 
   AppSettings copyWith({
     String? cliPath,

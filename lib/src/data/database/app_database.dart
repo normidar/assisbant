@@ -15,27 +15,30 @@ class PromptStatusConverter extends TypeConverter<PromptStatus, String> {
   String toSql(PromptStatus value) => value.name;
 }
 
+/// プロンプトを格納するメインテーブル。Drift が PromptEntry データクラスを自動生成する。
 @DataClassName('PromptEntry')
 class Prompts extends Table {
-  TextColumn get id => text()();
-  TextColumn get content => text()();
-  TextColumn get branch => text()();
+  TextColumn get id => text()(); // UUID v4
+  TextColumn get content => text()(); // Claude に渡すプロンプト本文
+  TextColumn get branch => text()(); // 実行対象の git ブランチ名
   IntColumn get priority =>
-      integer().withDefault(const Constant(0))();
+      integer().withDefault(const Constant(0))(); // 小さい値が先に実行される
   TextColumn get status => text()
       .withDefault(const Constant('pending'))
-      .map(const PromptStatusConverter())();
+      .map(const PromptStatusConverter())(); // pending/running/done/failed
   BoolColumn get isSkipped =>
-      boolean().withDefault(const Constant(false))();
-  TextColumn get output => text().nullable()();
-  TextColumn get projectPath => text().withDefault(const Constant(''))();
+      boolean().withDefault(const Constant(false))(); // true のとき実行キューをスキップ
+  TextColumn get output => text().nullable()(); // 実行後の stdout/stderr
+  TextColumn get projectPath => text().withDefault(const Constant(''))(); // 空の場合はグローバル workdir を使用
+  // ユーザーが定義する会話グループID。同じ sessionId のプロンプトは Claude の会話を引き継ぐ
   TextColumn get sessionId => text().withDefault(const Constant(''))();
+  // Claude CLI が返す内部セッションID。--resume フラグに渡して会話を継続する
   TextColumn get claudeSessionId => text().withDefault(const Constant(''))();
-  TextColumn get claudeModel => text().withDefault(const Constant(''))();
-  TextColumn get imagePaths => text().withDefault(const Constant(''))();
+  TextColumn get claudeModel => text().withDefault(const Constant(''))(); // 空の場合はデフォルトモデル
+  TextColumn get imagePaths => text().withDefault(const Constant(''))(); // JSON配列文字列
   BoolColumn get commitAfterRun =>
-      boolean().withDefault(const Constant(false))();
-  DateTimeColumn get startedAt => dateTime().nullable()();
+      boolean().withDefault(const Constant(false))(); // 実行後に自動コミットするか
+  DateTimeColumn get startedAt => dateTime().nullable()(); // 実行開始時刻（未実行は null）
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -51,6 +54,9 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 8;
 
+  /// カラム追加のみの段階的マイグレーション。
+  /// スキーマを変更したら schemaVersion を +1 し、新しい if (from < N) ブロックを追加する。
+  /// テーブル再作成なしで ALTER TABLE ADD COLUMN する方針のため、削除・型変更は不可。
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
@@ -64,6 +70,7 @@ class AppDatabase extends _$AppDatabase {
         );
       }
       if (from < 4) {
+        // 会話継続機能の追加 (sessionId: ユーザー定義, claudeSessionId: Claude内部)
         await m.addColumn(
           prompts, prompts.sessionId as GeneratedColumn<Object>);
         await m.addColumn(

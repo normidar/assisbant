@@ -12,6 +12,8 @@ import 'package:flutterapptemp/src/state/ui_providers.dart';
 
 enum ExecStatus { idle, running, paused }
 
+/// プロンプト実行キューの現在状態を保持するイミュータブルなデータクラス。
+/// Riverpod の state として管理され、UI はこれを読み取って表示を更新する。
 class ExecState {
   const ExecState({
     this.status = ExecStatus.idle,
@@ -55,9 +57,20 @@ class ExecState {
 final execNotifierProvider =
     NotifierProvider<ExecNotifier, ExecState>(ExecNotifier.new);
 
+/// プロンプトキューを順番に実行するメインコントローラー。
+///
+/// 内部の非同期制御は Completer で行う:
+/// - [_pauseCompleter]: pause() で生成し、resume()/stop() が complete() することで
+///   _runLoop の待機を解除する。
+/// - [_cancelCurrentRun]: 実行中プロセスをキャンセルするためのシグナル。
+///   pause() や stop() 時に complete() してプロセスを kill させる。
+/// - [_questionCompleter]: Claude が質問を返したとき、UI からの回答を待つ。
 class ExecNotifier extends Notifier<ExecState> {
+  // pause/resume のハンドシェイク用。pause() 時に生成、resume()/stop() で完了させる
   Completer<void>? _pauseCompleter;
+  // 実行中プロセスへのキャンセルシグナル。ExecutionService 側で future を監視している
   Completer<void>? _cancelCurrentRun;
+  // Claude が質問を返したとき、ユーザー回答を非同期で受け取るための bridge
   Completer<String>? _questionCompleter;
   bool _stopRequested = false;
 
@@ -83,6 +96,7 @@ class ExecNotifier extends Notifier<ExecState> {
 
   void pause() {
     if (state.status != ExecStatus.running) return;
+    // Completer を先に作成してから kill する。_runLoop が即座に await するため
     _pauseCompleter = Completer<void>();
     _killCurrentProcess();
     state = state.copyWith(status: ExecStatus.paused);
@@ -91,6 +105,7 @@ class ExecNotifier extends Notifier<ExecState> {
   void resume() {
     if (state.status != ExecStatus.paused) return;
     state = state.copyWith(status: ExecStatus.running);
+    // complete() で _runLoop の await _pauseCompleter?.future が解除される
     _pauseCompleter?.complete();
     _pauseCompleter = null;
   }
@@ -119,14 +134,17 @@ class ExecNotifier extends Notifier<ExecState> {
     if (c != null && !c.isCompleted) c.complete();
   }
 
+  /// プロンプトを順番に実行するメインループ。
+  /// start() から呼ばれ、キューが空になるか stop() されるまで回り続ける。
   Future<void> _runLoop() async {
     while (!_stopRequested) {
+      // pause 中は resume()/stop() が _pauseCompleter を complete するまで待機
       if (state.status == ExecStatus.paused) {
         await _pauseCompleter?.future;
         if (_stopRequested) break;
       }
 
-      // Fetch next pending task dynamically so newly added tasks are picked up
+      // DB から毎回取得することで、実行中に追加されたプロンプトも拾える
       final pending = await _repo.getExecutable();
       if (pending.isEmpty) break;
 
@@ -137,14 +155,16 @@ class ExecNotifier extends Notifier<ExecState> {
         totalCount: state.completedCount + pending.length,
       );
 
-      // Auto-assign a random session ID to prompts that have none
+      // sessionId が未設定のプロンプトには自動でランダムIDを割り当てる。
+      // sessionId は Claude の会話履歴を引き継ぐためのユーザー定義グループID
       if (prompt.sessionId.isEmpty) {
         final newSessionId = generateSessionId();
         await _repo.updateSessionId(prompt.id, newSessionId);
         prompt = prompt.copyWith(sessionId: newSessionId);
       }
 
-      // Look up the claude session ID from a previous prompt in the same session
+      // 同じ sessionId を持つ直前の完了済みプロンプトから claudeSessionId を取得し、
+      // --resume フラグで渡すことで Claude の会話コンテキストを継続する
       String? resumeSessionId;
       if (prompt.sessionId.isNotEmpty) {
         resumeSessionId =
@@ -153,9 +173,12 @@ class ExecNotifier extends Notifier<ExecState> {
 
       await _repo.updateStatus(prompt.id, PromptStatus.running);
       await _repo.updateStartedAt(prompt.id);
+      // UI のリストに running 状態を即時反映させる
       ref.invalidate(promptListNotifierProvider);
       state = state.copyWith(currentOutput: '');
 
+      // _cancelCurrentRun を ExecutionService に渡し、pause()/stop() 時に
+      // complete() してプロセスを kill できるようにする
       _cancelCurrentRun = Completer<void>();
       final result = await _svc.run(
         prompt,
@@ -167,9 +190,11 @@ class ExecNotifier extends Notifier<ExecState> {
         },
         cancelToken: _cancelCurrentRun!.future,
         resumeSessionId: resumeSessionId,
+        // stop() 後は質問ハンドラを渡さない（ループを早期終了させるため）
         onQuestion: _stopRequested ? null : (question) async {
           _questionCompleter = Completer<String>();
           state = state.copyWith(pendingQuestion: question);
+          // answerQuestion() が呼ばれるまで待機
           final answer = await _questionCompleter!.future;
           _questionCompleter = null;
           return answer;
@@ -179,13 +204,14 @@ class ExecNotifier extends Notifier<ExecState> {
 
       if (_stopRequested) break;
 
-      // Paused mid-run: reset prompt to pending and wait for resume
+      // pause() で実行中プロセスを kill した場合: プロンプトを pending に戻して
+      // resume を待つ。continue で先頭から再取得するためこのプロンプトが再実行される
       if (result.cancelled && state.status == ExecStatus.paused) {
         await _repo.updateStatus(prompt.id, PromptStatus.pending);
         ref.invalidate(promptListNotifierProvider);
         await _pauseCompleter?.future;
         if (_stopRequested) break;
-        continue; // re-fetch from DB; this prompt is pending again
+        continue;
       }
 
       final newStatus = result.success ? PromptStatus.done : PromptStatus.failed;
@@ -196,9 +222,11 @@ class ExecNotifier extends Notifier<ExecState> {
               .join('\n\n');
       await _repo.updateStatus(prompt.id, newStatus);
       await _repo.updateOutput(prompt.id, output);
+      // Claude が返した内部セッションIDを保存し、次のプロンプトで --resume に使う
       if (result.claudeSessionId.isNotEmpty) {
         await _repo.updateClaudeSessionId(prompt.id, result.claudeSessionId);
       }
+      // prompt 個別フラグ OR グローバル設定のどちらかが true なら自動コミット
       if (result.success && (prompt.commitAfterRun || _settings.commitAfterPrompt)) {
         await _svc.commitChanges(prompt, _settings);
       }
@@ -206,6 +234,7 @@ class ExecNotifier extends Notifier<ExecState> {
 
       state = state.copyWith(completedCount: state.completedCount + 1);
 
+      // pauseOnFail 設定が有効かつ失敗した場合、ユーザーが確認するまで停止する
       if (!result.success && _settings.pauseOnFail) {
         pause();
         await _pauseCompleter?.future;
@@ -213,6 +242,7 @@ class ExecNotifier extends Notifier<ExecState> {
       }
     }
 
+    // stop() 以外でループを抜けた場合（キュー完了）は完了カウントを維持して idle に戻す
     if (!_stopRequested) {
       state = ExecState(
         completedCount: state.completedCount,
