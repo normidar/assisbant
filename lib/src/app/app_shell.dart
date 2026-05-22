@@ -464,8 +464,6 @@ class _SidebarState extends ConsumerState<_Sidebar> {
     final tab = ref.watch(currentTabProvider);
     final promptsAsync = ref.watch(promptListNotifierProvider);
     final settings = ref.watch(settingsStateProvider);
-    final lang = ref.watch(langNotifierProvider);
-
     final exec = ref.watch(execNotifierProvider);
     final isRunning = exec.status == ExecStatus.running;
 
@@ -803,8 +801,6 @@ class _SidebarState extends ConsumerState<_Sidebar> {
                     ],
                   ),
                 ),
-                // Language toggle
-                _LangToggle(lang: lang, c: c, ref: ref),
               ],
             ),
           ),
@@ -965,40 +961,6 @@ class _RunningTopBar extends StatelessWidget {
         backgroundColor: c.stRunningBg,
         valueColor: AlwaysStoppedAnimation<Color>(c.stRunning),
         borderRadius: BorderRadius.zero,
-      ),
-    );
-  }
-}
-
-class _LangToggle extends StatelessWidget {
-  const _LangToggle({
-    required this.lang,
-    required this.c,
-    required this.ref,
-  });
-  final String lang;
-  final AppColors c;
-  final WidgetRef ref;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => ref.read(langNotifierProvider.notifier).toggle(),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: c.surface3,
-          border: Border.all(color: c.border),
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          lang == 'zh' ? '中文' : lang == 'ja' ? '日本語' : 'EN',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: c.ink2,
-          ),
-        ),
       ),
     );
   }
