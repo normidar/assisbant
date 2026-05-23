@@ -10,6 +10,7 @@ import 'package:flutterapptemp/src/data/database/app_database.dart';
 import 'package:flutterapptemp/src/i18n/app_strings.dart';
 import 'package:flutterapptemp/src/providers/database_providers.dart';
 import 'package:flutterapptemp/src/screens/prompts/prompt_form_shared.dart';
+import 'package:flutterapptemp/src/state/exec_notifier.dart';
 import 'package:flutterapptemp/src/state/ui_providers.dart';
 import 'package:flutterapptemp/src/utils/session_id_generator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,6 +27,7 @@ class PromptEditModal extends ConsumerStatefulWidget {
     this.initialBranch,
     this.initialProjectPath,
     this.onBatchCreate,
+    this.onSaveAndStart,
     super.key,
   });
 
@@ -47,6 +49,17 @@ class PromptEditModal extends ConsumerStatefulWidget {
     required String imagePaths,
     required bool commitAfterRun,
   }) onSave;
+  final void Function({
+    required String content,
+    required String branch,
+    required String projectPath,
+    required int priority,
+    required bool isSkipped,
+    required String sessionId,
+    required String claudeModel,
+    required String imagePaths,
+    required bool commitAfterRun,
+  })? onSaveAndStart;
   final VoidCallback onCancel;
   final VoidCallback? onBatchCreate;
 
@@ -245,6 +258,28 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal> {
     _submitted = true;
     if (_isNew) ref.read(newPromptDraftProvider.notifier).clear();
     widget.onSave(
+      content: content,
+      branch: branch,
+      projectPath: projectPath,
+      priority: priority,
+      isSkipped: _isSkipped,
+      sessionId: sessionId,
+      claudeModel: _claudeModel,
+      imagePaths: _imagePaths.isEmpty ? '' : jsonEncode(_imagePaths),
+      commitAfterRun: _isNew && _commitAfterAgent,
+    );
+  }
+
+  void _saveAndStart() {
+    final content = _content.text.trim();
+    final branch = _branch.text.trim();
+    final projectPath = _projectPath.text.trim();
+    final priority = int.tryParse(_priority.text) ?? (widget.maxPriority + 1);
+    final sessionId = _sessionId.text.trim();
+    if (!_canSave) return;
+    _submitted = true;
+    if (_isNew) ref.read(newPromptDraftProvider.notifier).clear();
+    widget.onSaveAndStart?.call(
       content: content,
       branch: branch,
       projectPath: projectPath,
@@ -703,34 +738,50 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal> {
                       ),
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                    decoration: BoxDecoration(
-                      color: c.surface2,
-                      border: Border(top: BorderSide(color: c.border2)),
-                      borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(14)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        FormModalBtn(
-                          label: s.cancel,
-                          ghost: true,
-                          onTap: widget.onCancel,
-                          c: c,
-                        ),
-                        const SizedBox(width: 8),
-                        FormModalBtn(
-                          label: _isNew ? s.create : s.save,
-                          primary: true,
-                          enabled: _canSave,
-                          onTap: _canSave ? _save : () {},
-                          c: c,
-                        ),
-                      ],
-                    ),
-                  ),
+                  Builder(builder: (context) {
+                    final execStatus = ref.watch(execNotifierProvider).status;
+                    final showCreateAndStart = _isNew &&
+                        widget.onSaveAndStart != null &&
+                        execStatus == ExecStatus.idle;
+                    return Container(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                      decoration: BoxDecoration(
+                        color: c.surface2,
+                        border: Border(top: BorderSide(color: c.border2)),
+                        borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(14)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          FormModalBtn(
+                            label: s.cancel,
+                            ghost: true,
+                            onTap: widget.onCancel,
+                            c: c,
+                          ),
+                          const SizedBox(width: 8),
+                          FormModalBtn(
+                            label: _isNew ? s.create : s.save,
+                            primary: true,
+                            enabled: _canSave,
+                            onTap: _canSave ? _save : () {},
+                            c: c,
+                          ),
+                          if (showCreateAndStart) ...[
+                            const SizedBox(width: 8),
+                            FormModalBtn(
+                              label: s.createAndStart,
+                              primary: true,
+                              enabled: _canSave,
+                              onTap: _canSave ? _saveAndStart : () {},
+                              c: c,
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),

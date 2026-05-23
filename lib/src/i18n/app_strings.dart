@@ -143,6 +143,7 @@ class AppStrings {
     required this.exportFormat,
     required this.attachImages,
     required this.noImages,
+    required this.createAndStart,
   });
 
   final String prompts;
@@ -287,6 +288,7 @@ class AppStrings {
   final String exportFormat;
   final String attachImages;
   final String noImages;
+  final String createAndStart;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -453,6 +455,7 @@ class AppStrings {
     exportFormat: 'Export format',
     attachImages: 'Attach images',
     noImages: 'No images attached',
+    createAndStart: 'Create & Start',
   );
 
   static const _zh = AppStrings(
@@ -598,6 +601,7 @@ class AppStrings {
     exportFormat: '导出格式',
     attachImages: '附加图片',
     noImages: '未附加图片',
+    createAndStart: '创建并开始',
   );
 
   static const _ja = AppStrings(
@@ -743,5 +747,6 @@ class AppStrings {
     exportFormat: 'エクスポート形式',
     attachImages: '画像を添付',
     noImages: '画像なし',
+    createAndStart: '作成して開始',
   );
 }
