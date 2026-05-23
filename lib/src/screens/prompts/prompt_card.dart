@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutterapptemp/src/app/theme.dart';
 import 'package:flutterapptemp/src/data/database/app_database.dart';
@@ -44,9 +46,40 @@ class PromptCard extends StatefulWidget {
 
 class _PromptCardState extends State<PromptCard> {
   bool _hovered = false;
+  Timer? _runningTimer;
 
   bool get _canReorder =>
       widget.prompt.status == PromptStatus.pending && !widget.prompt.isSkipped;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncTimer();
+  }
+
+  @override
+  void didUpdateWidget(PromptCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncTimer();
+  }
+
+  void _syncTimer() {
+    final isRunning = widget.prompt.status == PromptStatus.running &&
+        widget.prompt.startedAt != null;
+    if (isRunning) {
+      _runningTimer ??=
+          Timer.periodic(const Duration(seconds: 1), (_) => setState(() {}));
+    } else {
+      _runningTimer?.cancel();
+      _runningTimer = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _runningTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +138,16 @@ class _PromptCardState extends State<PromptCard> {
                               isSkipped: p.isSkipped,
                               strings: widget.strings,
                             ),
+                            if (p.startedAt != null &&
+                                (p.status == PromptStatus.done ||
+                                    p.status == PromptStatus.failed ||
+                                    p.status == PromptStatus.running))
+                              _DurationBadge(
+                                duration: p.status == PromptStatus.running
+                                    ? DateTime.now().difference(p.startedAt!)
+                                    : p.updatedAt.difference(p.startedAt!),
+                                isRunning: p.status == PromptStatus.running,
+                              ),
                             if (p.sessionId.isNotEmpty)
                               _SessionChip(sessionId: p.sessionId),
                           ],
@@ -360,6 +403,56 @@ class _SessionChip extends StatelessWidget {
             sessionId,
             style: GoogleFonts.ibmPlexMono(
                 fontSize: 11, color: const Color(0xFF4F5FA0)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DurationBadge extends StatelessWidget {
+  const _DurationBadge({required this.duration, this.isRunning = false});
+  final Duration duration;
+  final bool isRunning;
+
+  // 0s = green, 300s (5 min) = red
+  Color _color() {
+    const green = Color(0xFF22C55E);
+    const red = Color(0xFFEF4444);
+    final t = (duration.inSeconds / 300).clamp(0.0, 1.0);
+    return Color.lerp(green, red, t)!;
+  }
+
+  String _label() {
+    if (duration.inSeconds < 60) return '${duration.inSeconds}s';
+    if (duration.inMinutes < 60) {
+      return '${duration.inMinutes}m${duration.inSeconds % 60}s';
+    }
+    return '${duration.inHours}h${duration.inMinutes % 60}m';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _color();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.40)),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isRunning ? Icons.timer_rounded : Icons.timer_outlined,
+            size: 11,
+            color: color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            _label(),
+            style: GoogleFonts.ibmPlexMono(fontSize: 11, color: color),
           ),
         ],
       ),
