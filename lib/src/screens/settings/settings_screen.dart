@@ -220,21 +220,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 : 'Language and theme',
                         c: c,
                         children: [
-                          _SetRowWidget(
+                          _LangPickerRow(
                             label: s.language,
                             description: s.languageDesc,
                             c: c,
-                            child: _SegControl(
-                              items: const [
-                                ('en', 'English'),
-                                ('zh', '中文'),
-                                ('ja', '日本語'),
-                              ],
-                              selected: lang,
-                              onSelect: (v) =>
-                                  ref.read(langNotifierProvider.notifier).set(v),
-                              c: c,
-                            ),
                           ),
                           _SetRowWidget(
                             label: s.theme,
@@ -1075,6 +1064,164 @@ class _Toast extends StatelessWidget {
       child: Text(
         message,
         style: const TextStyle(color: Colors.white, fontSize: 12.5),
+      ),
+    );
+  }
+}
+
+// ─── Language picker ──────────────────────────────────────────────────────────
+
+// Add entries here when adding new languages — the picker dialog reflects this list automatically.
+const _kLanguages = [
+  ('en', 'English'),
+  ('zh', '中文'),
+  ('ja', '日本語'),
+];
+
+class _LangPickerRow extends ConsumerWidget {
+  const _LangPickerRow({
+    required this.label,
+    required this.description,
+    required this.c,
+  });
+  final String label;
+  final String description;
+  final AppColors c;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(langNotifierProvider);
+    final langLabel =
+        _kLanguages.firstWhere((e) => e.$1 == lang, orElse: () => ('en', 'English')).$2;
+
+    return GestureDetector(
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (_) => _LangPickerDialog(c: c),
+      ),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: c.border2)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w500)),
+                  const SizedBox(height: 2),
+                  Text(description,
+                      style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(langLabel,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: c.ink2)),
+                const SizedBox(width: 4),
+                Icon(Icons.chevron_right_rounded, size: 16, color: c.ink3),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LangPickerDialog extends ConsumerWidget {
+  const _LangPickerDialog({required this.c});
+  final AppColors c;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(langNotifierProvider);
+    final s = AppStrings.forLang(lang);
+
+    return Dialog(
+      backgroundColor: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: c.border),
+      ),
+      child: SizedBox(
+        width: 300,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+              child: Text(
+                s.language,
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: c.ink),
+              ),
+            ),
+            Divider(color: c.border, height: 1),
+            ..._kLanguages.map((entry) {
+              final (key, label) = entry;
+              final selected = lang == key;
+              return GestureDetector(
+                onTap: () {
+                  ref.read(langNotifierProvider.notifier).set(key);
+                  Navigator.of(context).pop();
+                },
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+                  decoration: BoxDecoration(
+                    color: selected ? c.surface2 : Colors.transparent,
+                    border: Border(bottom: BorderSide(color: c.border2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(label,
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: c.ink,
+                                fontWeight: selected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal)),
+                      ),
+                      if (selected)
+                        Icon(Icons.check_rounded, size: 16, color: c.ink),
+                    ],
+                  ),
+                ),
+              );
+            }),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 9),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: c.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(s.cancel,
+                        style: TextStyle(fontSize: 13, color: c.ink3)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
