@@ -23,8 +23,14 @@ Never run bare `flutter` or `dart` — it may pick up the wrong SDK version.
 
 ## Important Rules
 
-毎回変更が発生した後に、実行できるファイルをビルドしてください。
-Run `fvm flutter build macos` after every code change to produce an up-to-date executable.
+**MANDATORY: ファイルを変更したら必ず毎回ビルドを実行してください。**
+**MANDATORY: Run `fvm flutter build macos` after EVERY code change, no exceptions.**
+
+```bash
+fvm flutter build macos
+```
+
+This must be the last step of every task involving code changes. Do not report a task as complete without a successful build.
 
 `prompt_edit_modal.dart` (Create/Edit Prompt screen) に変更を加えた場合、同じ変更を `batch_create_modal.dart` (Batch Create screen) にも必ず適用してください。両ファイルは同じフォームUI（project path, branch, session ID 等）を持つため、常に同期して変更する必要があります。
 
