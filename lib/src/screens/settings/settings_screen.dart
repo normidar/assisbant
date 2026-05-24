@@ -8,6 +8,7 @@ import 'package:flutterapptemp/src/data/database/app_database.dart';
 import 'package:flutterapptemp/src/data/services/import_export_service.dart';
 import 'package:flutterapptemp/src/i18n/app_strings.dart';
 import 'package:flutterapptemp/src/providers/database_providers.dart';
+import 'package:flutterapptemp/src/screens/settings/connection_settings_modal.dart';
 import 'package:flutterapptemp/src/state/prompt_notifier.dart';
 import 'package:flutterapptemp/src/state/ui_providers.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -52,6 +53,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     Future.delayed(const Duration(milliseconds: 2200), () {
       if (mounted) setState(() => _toastMessage = null);
     });
+  }
+
+  Future<void> _openConnectionSettings() async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => ConnectionSettingsModal(
+        c: context.ac,
+        s: widget.strings,
+      ),
+    );
   }
 
   Future<void> _openEnvOverridesDialog() async {
@@ -151,93 +162,64 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             : lang == 'ja'
                                 ? '実行設定'
                                 : 'Execution',
-                        subtitle: s.cliToolDesc,
+                        subtitle: lang == 'zh'
+                            ? '控制 AI 工具如何被调用'
+                            : lang == 'ja'
+                                ? 'プロンプトの実行設定'
+                                : 'Prompt execution settings',
                         c: c,
                         children: [
-                          // ─ ツール選択 ─────────────────────────────────────
-                          _SetRowWidget(
-                            label: s.cliTool,
-                            description: s.cliToolDesc,
-                            c: c,
-                            child: _SegControl(
-                              items: [
-                                (CliTool.claudeCode.name, s.cliToolClaudeCode),
-                                (CliTool.aider.name, s.cliToolAider),
-                              ],
-                              selected: settings.cliTool.name,
-                              onSelect: (v) => upd(
-                                settings.copyWith(
-                                  cliTool: CliTool.values.firstWhere(
-                                    (t) => t.name == v,
-                                  ),
-                                ),
+                          // ─ Connect Settings ───────────────────────────────
+                          GestureDetector(
+                            onTap: _openConnectionSettings,
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                    bottom: BorderSide(color: c.border2)),
                               ),
-                              c: c,
-                            ),
-                          ),
-                          // ─ Claude Code 固有設定 ──────────────────────────
-                          if (settings.cliTool == CliTool.claudeCode) ...[
-                            _SetRowInput(
-                              label: s.cli,
-                              description: s.cliDesc,
-                              placeholder: '/usr/local/bin/claude',
-                              value: settings.cliPath,
-                              onChanged: (v) =>
-                                  upd(settings.copyWith(cliPath: v)),
-                              c: c,
-                            ),
-                            _SetRowWidget(
-                              label: s.modelMode,
-                              description: s.modelModeDesc,
-                              c: c,
-                              child: _SegControl(
-                                items: [
-                                  (ModelMode.claude.name, s.modelModeClaude),
-                                  (ModelMode.local.name, s.modelModeLocal),
-                                ],
-                                selected: settings.modelMode.name,
-                                onSelect: (v) => upd(
-                                  settings.copyWith(
-                                    modelMode: ModelMode.values.firstWhere(
-                                      (m) => m.name == v,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          s.connectSettings,
+                                          style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          s.connectSettingsDesc,
+                                          style: TextStyle(
+                                              fontSize: 11.5, color: c.ink3),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                                c: c,
+                                  const SizedBox(width: 14),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        modeSummary(settings),
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            color: c.ink2),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(Icons.chevron_right_rounded,
+                                          size: 16, color: c.ink3),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                            if (settings.modelMode == ModelMode.local)
-                              _SetRowInput(
-                                label: s.localModelName,
-                                description: s.localModelNameDesc,
-                                placeholder: s.localModelNamePlaceholder,
-                                value: settings.localModelName,
-                                onChanged: (v) =>
-                                    upd(settings.copyWith(localModelName: v)),
-                                c: c,
-                              ),
-                          ],
-                          // ─ Aider 固有設定 ────────────────────────────────
-                          if (settings.cliTool == CliTool.aider) ...[
-                            _SetRowInput(
-                              label: s.aiderPath,
-                              description: s.aiderPathDesc,
-                              placeholder: '/usr/local/bin/aider',
-                              value: settings.aiderPath,
-                              onChanged: (v) =>
-                                  upd(settings.copyWith(aiderPath: v)),
-                              c: c,
-                            ),
-                            _SetRowInput(
-                              label: s.localModelName,
-                              description: s.localModelNameDesc,
-                              placeholder: s.localModelNamePlaceholder,
-                              value: settings.localModelName,
-                              onChanged: (v) =>
-                                  upd(settings.copyWith(localModelName: v)),
-                              c: c,
-                            ),
-                          ],
+                          ),
                           // ─ 共通設定 ──────────────────────────────────────
                           _SetRowSwitch(
                             label: s.autoCheckout,
