@@ -25,6 +25,15 @@ class ExecutionResult {
 class ExecutionService {
   const ExecutionService();
 
+  // ユーザーのデフォルトシェル。GUI アプリ起動時に SHELL が引き継がれるので
+  // zsh/fish 等のプロファイルを読ませるためにそちらを優先する。
+  static String get _userShell => Platform.environment['SHELL'] ?? '/bin/bash';
+
+  // claude がよくインストールされるパスを PATH の先頭に追加する。
+  // GUI アプリは PATH が最小限なため、明示的に補完する必要がある。
+  static String get _pathSetup =>
+      r'export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"; ';
+
   /// 1つのプロンプトを実行して結果を返す。
   ///
   /// sessionId が設定されているプロンプトは stream-json モードで実行し、
@@ -81,6 +90,7 @@ class ExecutionService {
           cliPath: cliPath,
           workdir: workdir,
           modelFlag: _resolveModelFlag(prompt.claudeModel, settings),
+          envPrefix: _buildEnvPrefix(settings.envOverrides),
           imagePaths: _decodeImagePaths(prompt.imagePaths),
           resumeSessionId: resumeSessionId,
           onOutput: onOutput,
@@ -90,8 +100,9 @@ class ExecutionService {
       }
 
       // sessionId なしの場合はシンプルな --print モード（出力だけ取得）
+      final envPrefix = _buildEnvPrefix(settings.envOverrides);
       final cmdBuf = StringBuffer(
-        'exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(prompt.content)}',
+        '${_pathSetup}${envPrefix}exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(prompt.content)}',
       );
       for (final imgPath in _decodeImagePaths(prompt.imagePaths)) {
         cmdBuf.write(' --image ${_shellQuote(imgPath)}');
@@ -103,7 +114,7 @@ class ExecutionService {
       dev.log('[ExecSvc] cmd: $cmdBuf', name: 'ExecutionService');
 
       final process = await Process.start(
-        '/bin/bash',
+        _userShell,
         ['-lc', cmdBuf.toString()],
         workingDirectory: workdir,
       );
@@ -163,6 +174,7 @@ class ExecutionService {
     required String cliPath,
     required String workdir,
     required String modelFlag,
+    required String envPrefix,
     List<String> imagePaths = const [],
     String? resumeSessionId,
     void Function(String)? onOutput,
@@ -178,6 +190,7 @@ class ExecutionService {
         cliPath: cliPath,
         workdir: workdir,
         modelFlag: modelFlag,
+        envPrefix: envPrefix,
         imagePaths: imagePaths,
         resumeSessionId: currentResumeId,
         onOutput: onOutput,
@@ -211,13 +224,14 @@ class ExecutionService {
     required String cliPath,
     required String workdir,
     required String modelFlag,
+    required String envPrefix,
     List<String> imagePaths = const [],
     String? resumeSessionId,
     void Function(String)? onOutput,
     Future<void>? cancelToken,
   }) async {
     final cmdBuf = StringBuffer(
-      'exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(content)} --output-format stream-json --verbose',
+      '${_pathSetup}${envPrefix}exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(content)} --output-format stream-json --verbose',
     );
     for (final imgPath in imagePaths) {
       cmdBuf.write(' --image ${_shellQuote(imgPath)}');
@@ -228,9 +242,9 @@ class ExecutionService {
 
     dev.log('[ExecSvc] cmd: $cmdBuf', name: 'ExecutionService');
 
-    // exec replaces bash with claude directly so kill() reaches the claude process
+    // exec replaces the shell with claude directly so kill() reaches the claude process
     final process = await Process.start(
-      '/bin/bash',
+      _userShell,
       ['-lc', cmdBuf.toString()],
       workingDirectory: workdir,
     );
@@ -397,6 +411,21 @@ class ExecutionService {
         name: 'ExecutionService',
       );
     }
+  }
+
+  /// 環境変数オーバーライドから bash コマンド先頭に挿入するシェルスクリプト片を生成する。
+  /// 値が '__UNSET__' のキーは unset コマンドに変換される。
+  String _buildEnvPrefix(Map<String, String> envOverrides) {
+    if (envOverrides.isEmpty) return '';
+    final buf = StringBuffer();
+    for (final entry in envOverrides.entries) {
+      if (entry.value == '__UNSET__') {
+        buf.write('unset ${entry.key}; ');
+      } else {
+        buf.write('export ${entry.key}=${_shellQuote(entry.value)}; ');
+      }
+    }
+    return buf.toString();
   }
 
   /// Returns the `--model <name>` fragment to inject into the CLI command.
