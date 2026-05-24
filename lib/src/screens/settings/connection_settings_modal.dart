@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapptemp/src/app/theme.dart';
 import 'package:flutterapptemp/src/i18n/app_strings.dart';
+import 'package:flutterapptemp/src/screens/settings/env_overrides_dialog.dart';
 import 'package:flutterapptemp/src/state/ui_providers.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -118,6 +119,24 @@ class _ConnectionSettingsModalState
   bool _aiderOk() =>
       _aiderPath != null || _aiderCtrl.text.trim().isNotEmpty;
   bool _canSave() => _mode.usesAider ? _aiderOk() : _claudeOk();
+
+  Future<void> _openEnvOverrides(BuildContext ctx) async {
+    final settings = ref.read(settingsStateProvider);
+    final result = await showDialog<Map<String, String>>(
+      context: ctx,
+      builder: (_) => EnvOverridesDialog(
+        initial: settings.envOverrides,
+        strings: widget.s,
+        c: widget.c,
+      ),
+    );
+    if (result != null) {
+      ref.read(settingsStateProvider.notifier).update(
+            settings.copyWith(envOverrides: result),
+          );
+      setState(() {});
+    }
+  }
 
   void _save() {
     if (!_canSave()) return;
@@ -243,6 +262,72 @@ class _ConnectionSettingsModalState
                         ),
                       ],
                     ),
+                    // ─ Env Overrides ──────────────────────────────────────
+                    const SizedBox(height: 10),
+                    Builder(builder: (ctx) {
+                      final overrides =
+                          ref.watch(settingsStateProvider).envOverrides;
+                      return GestureDetector(
+                        onTap: () => _openEnvOverrides(ctx),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                          decoration: BoxDecoration(
+                            color: c.surface,
+                            border: Border.all(color: c.border),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      s.envOverrides,
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      s.envOverridesDesc,
+                                      style: TextStyle(
+                                          fontSize: 11.5, color: c.ink3),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: overrides.isEmpty
+                                      ? c.surface3
+                                      : c.accent.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  overrides.isEmpty
+                                      ? s.envOverridesNone
+                                      : 'Active (${overrides.length})',
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                    color: overrides.isEmpty
+                                        ? c.ink3
+                                        : c.accent,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(Icons.chevron_right_rounded,
+                                  size: 16, color: c.ink3),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
