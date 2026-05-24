@@ -55,6 +55,19 @@ class ExecutionService {
       final workdir = _expandHome(rawWorkdir);
       final cliPath = settings.cliPath.isEmpty ? 'claude' : settings.cliPath;
 
+      // Aider モードは専用の実行パスへ
+      if (settings.cliTool == CliTool.aider) {
+        return _executeAider(
+          content: prompt.content,
+          aiderPath: settings.aiderPath.isEmpty ? 'aider' : settings.aiderPath,
+          modelName: settings.localModelName,
+          workdir: workdir,
+          envPrefix: _buildEnvPrefix(settings.envOverrides),
+          onOutput: onOutput,
+          cancelToken: cancelToken,
+        );
+      }
+
       if (settings.autoCheckout) {
         final checkout = await Process.run(
           '/bin/bash',
@@ -363,6 +376,70 @@ class ExecutionService {
         lower.contains('(y/n)') ||
         lower.contains('(yes/no)')) return true;
     return false;
+  }
+
+  /// Aider を --message モードで実行して結果を返す。
+  ///
+  /// --yes で確認を自動スキップ、--no-auto-commits でコミットを抑制する
+  /// （コミットはアプリ側の commitChanges で管理する）。
+  Future<ExecutionResult> _executeAider({
+    required String content,
+    required String aiderPath,
+    required String modelName,
+    required String workdir,
+    required String envPrefix,
+    void Function(String)? onOutput,
+    Future<void>? cancelToken,
+  }) async {
+    final modelFlag =
+        modelName.isNotEmpty ? ' --model ${_shellQuote(modelName)}' : '';
+    final cmd =
+        '${_pathSetup}${envPrefix}exec ${_shellQuote(aiderPath)} --yes --no-auto-commits --message ${_shellQuote(content)}$modelFlag';
+
+    dev.log('[ExecSvc] aider cmd: $cmd', name: 'ExecutionService');
+
+    final process = await Process.start(
+      _userShell,
+      ['-lc', cmd],
+      workingDirectory: workdir,
+    );
+    unawaited(process.stdin.close());
+
+    var cancelled = false;
+    unawaited(cancelToken?.then((_) {
+      cancelled = true;
+      process.kill();
+    }));
+
+    final stdoutBuf = StringBuffer();
+    final stderrBuf = StringBuffer();
+
+    await Future.wait([
+      process.stdout.transform(utf8.decoder).forEach((chunk) {
+        stdoutBuf.write(chunk);
+        onOutput?.call(chunk);
+      }),
+      process.stderr.transform(utf8.decoder).forEach((chunk) {
+        stderrBuf.write(chunk);
+        onOutput?.call(chunk);
+      }),
+    ]);
+
+    final exitCode = await process.exitCode;
+
+    if (cancelled) {
+      return const ExecutionResult(success: false, output: '', cancelled: true);
+    }
+
+    final stdout = stdoutBuf.toString();
+    final stderr = stderrBuf.toString();
+    final ok = exitCode == 0;
+
+    return ExecutionResult(
+      success: ok,
+      output: ok ? stdout : '$stdout\n$stderr'.trim(),
+      error: ok ? null : (stderr.isNotEmpty ? stderr : 'exit $exitCode'),
+    );
   }
 
   /// Stages all changes and commits with [prompt.content] as the message.

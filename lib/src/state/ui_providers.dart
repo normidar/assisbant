@@ -7,6 +7,8 @@ enum AppTab { prompts, branches, logs, settings }
 
 enum ModelMode { claude, local }
 
+enum CliTool { claudeCode, aider }
+
 // ─── Tab ─────────────────────────────────────────────────────────────────────
 
 final currentTabProvider = NotifierProvider<CurrentTabNotifier, AppTab>(
@@ -162,6 +164,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
       ),
       localModelName: prefs.getString('localModelName') ?? '',
       envOverrides: _parseEnvOverrides(prefs.getString('envOverrides') ?? ''),
+      cliTool: CliTool.values.firstWhere(
+        (t) => t.name == (prefs.getString('cliTool') ?? ''),
+        orElse: () => CliTool.claudeCode,
+      ),
+      aiderPath: prefs.getString('aiderPath') ?? '',
     );
   }
 
@@ -178,6 +185,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
     await prefs.setString('modelMode', s.modelMode.name);
     await prefs.setString('localModelName', s.localModelName);
     await prefs.setString('envOverrides', jsonEncode(s.envOverrides));
+    await prefs.setString('cliTool', s.cliTool.name);
+    await prefs.setString('aiderPath', s.aiderPath);
   }
 
   static Map<String, String> _parseEnvOverrides(String raw) {
@@ -202,6 +211,8 @@ class AppSettings {
     this.modelMode = ModelMode.claude,
     this.localModelName = '',
     this.envOverrides = const {},
+    this.cliTool = CliTool.claudeCode,
+    this.aiderPath = '',
   });
 
   final String cliPath; // claude CLI のパス。空の場合は PATH から検索
@@ -209,10 +220,12 @@ class AppSettings {
   final bool autoCheckout; // 実行前に git checkout を行うか
   final bool pauseOnFail; // プロンプト失敗時にキューを一時停止するか
   final bool commitAfterPrompt; // 成功後に自動で git commit するか（グローバル設定）
-  final ModelMode modelMode; // claude モードか local モデルか
-  final String localModelName; // local モード時のモデル名
+  final ModelMode modelMode; // claude モードか local モデルか（claudeCode 時のみ有効）
+  final String localModelName; // local モード / Aider 時のモデル名
   // CLI 実行前に注入する環境変数。値が '__UNSET__' のキーは unset される。
   final Map<String, String> envOverrides;
+  final CliTool cliTool; // 使用する AI ツール（Claude Code または Aider）
+  final String aiderPath; // aider 実行ファイルのパス。空の場合は PATH から検索
 
   AppSettings copyWith({
     String? cliPath,
@@ -223,6 +236,8 @@ class AppSettings {
     ModelMode? modelMode,
     String? localModelName,
     Map<String, String>? envOverrides,
+    CliTool? cliTool,
+    String? aiderPath,
   }) =>
       AppSettings(
         cliPath: cliPath ?? this.cliPath,
@@ -233,5 +248,7 @@ class AppSettings {
         modelMode: modelMode ?? this.modelMode,
         localModelName: localModelName ?? this.localModelName,
         envOverrides: envOverrides ?? this.envOverrides,
+        cliTool: cliTool ?? this.cliTool,
+        aiderPath: aiderPath ?? this.aiderPath,
       );
 }

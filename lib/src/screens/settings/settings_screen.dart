@@ -151,49 +151,83 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             : lang == 'ja'
                                 ? '実行設定'
                                 : 'Execution',
-                        subtitle: lang == 'zh'
-                            ? '控制 Claude Code 如何被调用'
-                            : lang == 'ja'
-                                ? 'Claude Code の呼び出し方法'
-                                : 'How Claude Code is invoked',
+                        subtitle: s.cliToolDesc,
                         c: c,
                         children: [
-                          _SetRowInput(
-                            label: s.cli,
-                            description: s.cliDesc,
-                            placeholder: '/usr/local/bin/claude',
-                            value: settings.cliPath,
-                            onChanged: (v) =>
-                                upd(settings.copyWith(cliPath: v)),
-                            c: c,
-                          ),
+                          // ─ ツール選択 ─────────────────────────────────────
                           _SetRowWidget(
-                            label: s.modelMode,
-                            description: s.modelModeDesc,
+                            label: s.cliTool,
+                            description: s.cliToolDesc,
                             c: c,
                             child: _SegControl(
                               items: [
-                                (
-                                  ModelMode.claude.name,
-                                  s.modelModeClaude,
-                                ),
-                                (
-                                  ModelMode.local.name,
-                                  s.modelModeLocal,
-                                ),
+                                (CliTool.claudeCode.name, s.cliToolClaudeCode),
+                                (CliTool.aider.name, s.cliToolAider),
                               ],
-                              selected: settings.modelMode.name,
+                              selected: settings.cliTool.name,
                               onSelect: (v) => upd(
                                 settings.copyWith(
-                                  modelMode: ModelMode.values.firstWhere(
-                                    (m) => m.name == v,
+                                  cliTool: CliTool.values.firstWhere(
+                                    (t) => t.name == v,
                                   ),
                                 ),
                               ),
                               c: c,
                             ),
                           ),
-                          if (settings.modelMode == ModelMode.local)
+                          // ─ Claude Code 固有設定 ──────────────────────────
+                          if (settings.cliTool == CliTool.claudeCode) ...[
+                            _SetRowInput(
+                              label: s.cli,
+                              description: s.cliDesc,
+                              placeholder: '/usr/local/bin/claude',
+                              value: settings.cliPath,
+                              onChanged: (v) =>
+                                  upd(settings.copyWith(cliPath: v)),
+                              c: c,
+                            ),
+                            _SetRowWidget(
+                              label: s.modelMode,
+                              description: s.modelModeDesc,
+                              c: c,
+                              child: _SegControl(
+                                items: [
+                                  (ModelMode.claude.name, s.modelModeClaude),
+                                  (ModelMode.local.name, s.modelModeLocal),
+                                ],
+                                selected: settings.modelMode.name,
+                                onSelect: (v) => upd(
+                                  settings.copyWith(
+                                    modelMode: ModelMode.values.firstWhere(
+                                      (m) => m.name == v,
+                                    ),
+                                  ),
+                                ),
+                                c: c,
+                              ),
+                            ),
+                            if (settings.modelMode == ModelMode.local)
+                              _SetRowInput(
+                                label: s.localModelName,
+                                description: s.localModelNameDesc,
+                                placeholder: s.localModelNamePlaceholder,
+                                value: settings.localModelName,
+                                onChanged: (v) =>
+                                    upd(settings.copyWith(localModelName: v)),
+                                c: c,
+                              ),
+                          ],
+                          // ─ Aider 固有設定 ────────────────────────────────
+                          if (settings.cliTool == CliTool.aider) ...[
+                            _SetRowInput(
+                              label: s.aiderPath,
+                              description: s.aiderPathDesc,
+                              placeholder: '/usr/local/bin/aider',
+                              value: settings.aiderPath,
+                              onChanged: (v) =>
+                                  upd(settings.copyWith(aiderPath: v)),
+                              c: c,
+                            ),
                             _SetRowInput(
                               label: s.localModelName,
                               description: s.localModelNameDesc,
@@ -203,6 +237,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   upd(settings.copyWith(localModelName: v)),
                               c: c,
                             ),
+                          ],
+                          // ─ 共通設定 ──────────────────────────────────────
                           _SetRowSwitch(
                             label: s.autoCheckout,
                             description: s.autoCheckoutDesc,

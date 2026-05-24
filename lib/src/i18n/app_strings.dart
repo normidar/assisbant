@@ -151,6 +151,12 @@ class AppStrings {
     required this.envOverridesNone,
     required this.envOverridesClearAll,
     required this.envOverridesUnsetApiKey,
+    required this.cliTool,
+    required this.cliToolDesc,
+    required this.cliToolClaudeCode,
+    required this.cliToolAider,
+    required this.aiderPath,
+    required this.aiderPathDesc,
   });
 
   final String prompts;
@@ -303,6 +309,12 @@ class AppStrings {
   final String envOverridesNone;
   final String envOverridesClearAll;
   final String envOverridesUnsetApiKey;
+  final String cliTool;
+  final String cliToolDesc;
+  final String cliToolClaudeCode;
+  final String cliToolAider;
+  final String aiderPath;
+  final String aiderPathDesc;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -471,12 +483,18 @@ class AppStrings {
     noImages: 'No images attached',
     createAndStart: 'Create & Start',
     envOverrides: 'Env Overrides',
-    envOverridesDesc: 'Custom env vars injected before each Claude CLI run.',
+    envOverridesDesc: 'Custom env vars injected before each CLI run.',
     envOverridesTitle: 'Environment Variables',
     envOverridesDs4Btn: 'Set DS4',
     envOverridesNone: 'None',
     envOverridesClearAll: 'Clear all',
     envOverridesUnsetApiKey: 'Unset ANTHROPIC_API_KEY',
+    cliTool: 'AI Tool',
+    cliToolDesc: 'Choose the AI coding tool used to run prompts.',
+    cliToolClaudeCode: 'Claude Code',
+    cliToolAider: 'Aider',
+    aiderPath: 'Aider Path',
+    aiderPathDesc: 'Custom path to the aider executable. Leave empty to use PATH.',
   );
 
   static const _zh = AppStrings(
@@ -630,6 +648,12 @@ class AppStrings {
     envOverridesNone: '未设置',
     envOverridesClearAll: '清除全部',
     envOverridesUnsetApiKey: '取消 ANTHROPIC_API_KEY',
+    cliTool: 'AI 工具',
+    cliToolDesc: '选择用于执行 Prompt 的 AI 编码工具。',
+    cliToolClaudeCode: 'Claude Code',
+    cliToolAider: 'Aider',
+    aiderPath: 'Aider 路径',
+    aiderPathDesc: '自定义 aider 可执行文件路径，留空则使用 PATH。',
   );
 
   static const _ja = AppStrings(
@@ -783,5 +807,11 @@ class AppStrings {
     envOverridesNone: '未設定',
     envOverridesClearAll: 'すべてクリア',
     envOverridesUnsetApiKey: 'ANTHROPIC_API_KEY を削除',
+    cliTool: 'AI ツール',
+    cliToolDesc: 'プロンプトを実行する AI コーディングツールを選択します。',
+    cliToolClaudeCode: 'Claude Code',
+    cliToolAider: 'Aider',
+    aiderPath: 'Aider パス',
+    aiderPathDesc: 'aider 実行ファイルのカスタムパス。空欄の場合は PATH を使用します。',
   );
 }
