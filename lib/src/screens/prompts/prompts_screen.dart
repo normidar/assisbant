@@ -10,6 +10,7 @@ import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/screens/prompts/batch_create_modal.dart';
 import 'package:assibant/src/screens/prompts/prompt_card.dart';
 import 'package:assibant/src/screens/prompts/prompt_edit_modal.dart';
+import 'package:assibant/src/state/exec_notifier.dart';
 import 'package:assibant/src/state/prompt_notifier.dart';
 import 'package:assibant/src/state/ui_providers.dart';
 import 'package:assibant/src/widgets/branch_chip.dart';
