@@ -1308,6 +1308,32 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
                       imagePaths: imagePaths,
                       commitAfterRun: commitAfterRun,
                     ),
+                onSaveAndStart: _editingPrompt == null
+                    ? ({
+                        required content,
+                        required branch,
+                        required projectPath,
+                        required priority,
+                        required isSkipped,
+                        required sessionId,
+                        required claudeModel,
+                        required imagePaths,
+                        required commitAfterRun,
+                      }) =>
+                        _savePrompt(
+                          content,
+                          branch,
+                          projectPath,
+                          priority,
+                          isSkipped,
+                          sessionId,
+                          allPrompts,
+                          claudeModel: claudeModel,
+                          imagePaths: imagePaths,
+                          commitAfterRun: commitAfterRun,
+                          startAfterSave: true,
+                        )
+                    : null,
                 onCancel: _closeModal,
                 onBatchCreate: _editingPrompt == null ? _openBatch : null,
               ),
@@ -1447,6 +1473,7 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
     String claudeModel = '',
     String imagePaths = '',
     bool commitAfterRun = false,
+    bool startAfterSave = false,
   }) async {
     final notifier = ref.read(promptListNotifierProvider.notifier);
     if (_editingPrompt == null) {
@@ -1477,6 +1504,9 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
       _showToast(widget.strings.saved);
     }
     _closeModal();
+    if (startAfterSave) {
+      ref.read(execNotifierProvider.notifier).start();
+    }
   }
 
   void _showToast(String msg) {

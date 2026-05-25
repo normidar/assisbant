@@ -53,6 +53,8 @@ class PromptRepository {
     return rows.map((r) => r.read(_db.prompts.branch)!).toList();
   }
 
+  /// 全プロンプトをブランチ名でグループ化して BranchSummary リストを返す。
+  /// BranchSummary はDBに保存せず毎回集計する（ブランチごとの統計表示に使用）。
   Future<List<BranchSummary>> getBranchSummaries() async {
     final all = await getAll();
     final grouped = <String, List<PromptEntry>>{};
@@ -190,8 +192,8 @@ class PromptRepository {
         ),
       );
 
-  /// Returns distinct non-empty sessionId values used for the given
-  /// projectPath and branch, ordered by most recent updatedAt.
+  /// 指定された projectPath と branch で使用された sessionId を重複なしで返す。
+  /// プロンプト作成フォームのドロップダウン候補として使用する。
   Future<List<String>> getSessionIds(String projectPath, String branch) async {
     final rows = await (_db.select(_db.prompts)
           ..where(

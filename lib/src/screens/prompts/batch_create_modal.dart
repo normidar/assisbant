@@ -60,6 +60,7 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
   bool _commitAfterRun = true;
   List<String> _gitBranches = [];
   bool _loadingBranches = false;
+  static final Map<String, List<String>> _branchCache = {};
   List<String> _sessionIdCandidates = [];
   bool _showAllSessionIds = false;
 
@@ -110,6 +111,10 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
       setState(() => _gitBranches = []);
       return;
     }
+    if (_branchCache.containsKey(expanded)) {
+      setState(() => _gitBranches = _branchCache[expanded]!);
+      return;
+    }
     setState(() => _loadingBranches = true);
     try {
       final result = await Process.run(
@@ -135,6 +140,7 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
           lines.remove(current);
           lines.insert(0, current!);
         }
+        _branchCache[expanded] = lines;
         setState(() => _gitBranches = lines);
       } else {
         setState(() => _gitBranches = []);
@@ -359,16 +365,23 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                     ),
                                   ] else if (_gitBranches.isNotEmpty) ...[
                                     const SizedBox(height: 8),
-                                    FormChip(
-                                      label: _gitBranches.first,
-                                      selected:
-                                          _branch.text == _gitBranches.first,
-                                      onTap: () {
-                                        setState(() =>
-                                            _branch.text = _gitBranches.first);
-                                        unawaited(_fetchSessionIds());
-                                      },
-                                      c: c,
+                                    Wrap(
+                                      spacing: 6,
+                                      runSpacing: 6,
+                                      children: _gitBranches
+                                          .map(
+                                            (b) => FormChip(
+                                              label: b,
+                                              selected: _branch.text == b,
+                                              onTap: () {
+                                                setState(
+                                                    () => _branch.text = b);
+                                                unawaited(_fetchSessionIds());
+                                              },
+                                              c: c,
+                                            ),
+                                          )
+                                          .toList(),
                                     ),
                                   ],
                                 ],

@@ -1,14 +1,16 @@
 ﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/data/database/app_database.dart';
 import 'package:assibant/src/data/database/prompt_status.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
+import 'package:assibant/src/providers/prefs_provider.dart';
 import 'package:assibant/src/state/exec_notifier.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ExecBar extends StatefulWidget {
+class ExecBar extends ConsumerStatefulWidget {
   const ExecBar({
     required this.exec,
     required this.prompts,
@@ -29,15 +31,60 @@ class ExecBar extends StatefulWidget {
   final VoidCallback onStop;
 
   @override
-  State<ExecBar> createState() => _ExecBarState();
+  ConsumerState<ExecBar> createState() => _ExecBarState();
 }
 
-class _ExecBarState extends State<ExecBar> {
+class _ExecBarState extends ConsumerState<ExecBar> {
+  static const _kScheduledTimeKey = 'scheduled_start_time';
   bool _outputExpanded = true;
   final ScrollController _scrollCtrl = ScrollController();
 
   DateTime? _scheduledTime;
   Timer? _tickTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreScheduledTime();
+  }
+
+  void _restoreScheduledTime() {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final millis = prefs.getInt(_kScheduledTimeKey);
+    if (millis == null) return;
+
+    final saved = DateTime.fromMillisecondsSinceEpoch(millis);
+    if (saved.isBefore(DateTime.now())) {
+      prefs.remove(_kScheduledTimeKey);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onStart();
+      });
+      return;
+    }
+
+    setState(() => _scheduledTime = saved);
+    _startTickTimer();
+  }
+
+  void _startTickTimer() {
+    _tickTimer?.cancel();
+    _tickTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) {
+        _tickTimer?.cancel();
+        return;
+      }
+      final remaining = _scheduledTime?.difference(DateTime.now());
+      if (remaining == null || remaining.inSeconds <= 0) {
+        _tickTimer?.cancel();
+        final hadSchedule = _scheduledTime != null;
+        setState(() => _scheduledTime = null);
+        ref.read(sharedPreferencesProvider).remove(_kScheduledTimeKey);
+        if (hadSchedule) widget.onStart();
+      } else {
+        setState(() {});
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -54,6 +101,7 @@ class _ExecBarState extends State<ExecBar> {
       _tickTimer?.cancel();
       _tickTimer = null;
       _scheduledTime = null;
+      ref.read(sharedPreferencesProvider).remove(_kScheduledTimeKey);
     }
     // Auto-scroll to bottom when new output arrives
     if (widget.exec.currentOutput != old.exec.currentOutput && _outputExpanded) {
@@ -78,28 +126,16 @@ class _ExecBarState extends State<ExecBar> {
     if (target == null || !mounted) return;
 
     setState(() => _scheduledTime = target);
-    _tickTimer?.cancel();
-    _tickTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted) {
-        _tickTimer?.cancel();
-        return;
-      }
-      final remaining = _scheduledTime?.difference(DateTime.now());
-      if (remaining == null || remaining.inSeconds <= 0) {
-        _tickTimer?.cancel();
-        final hadSchedule = _scheduledTime != null;
-        setState(() => _scheduledTime = null);
-        if (hadSchedule) widget.onStart();
-      } else {
-        setState(() {});
-      }
-    });
+    ref.read(sharedPreferencesProvider).setInt(
+      _kScheduledTimeKey, target.millisecondsSinceEpoch);
+    _startTickTimer();
   }
 
   void _cancelTimer() {
     _tickTimer?.cancel();
     _tickTimer = null;
     setState(() => _scheduledTime = null);
+    ref.read(sharedPreferencesProvider).remove(_kScheduledTimeKey);
   }
 
   String _formatCountdown() {
