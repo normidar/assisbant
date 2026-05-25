@@ -1,19 +1,19 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/app/theme.dart';
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
-import 'package:flutterapptemp/src/i18n/app_strings.dart';
-import 'package:flutterapptemp/src/screens/prompts/batch_create_modal.dart';
-import 'package:flutterapptemp/src/screens/prompts/prompt_card.dart';
-import 'package:flutterapptemp/src/screens/prompts/prompt_edit_modal.dart';
-import 'package:flutterapptemp/src/state/prompt_notifier.dart';
-import 'package:flutterapptemp/src/state/ui_providers.dart';
-import 'package:flutterapptemp/src/widgets/branch_chip.dart';
-import 'package:flutterapptemp/src/widgets/status_badge.dart';
+import 'package:assibant/src/app/theme.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
+import 'package:assibant/src/i18n/app_strings.dart';
+import 'package:assibant/src/screens/prompts/batch_create_modal.dart';
+import 'package:assibant/src/screens/prompts/prompt_card.dart';
+import 'package:assibant/src/screens/prompts/prompt_edit_modal.dart';
+import 'package:assibant/src/state/prompt_notifier.dart';
+import 'package:assibant/src/state/ui_providers.dart';
+import 'package:assibant/src/widgets/branch_chip.dart';
+import 'package:assibant/src/widgets/status_badge.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PromptsScreen extends ConsumerStatefulWidget {

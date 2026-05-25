@@ -1,9 +1,9 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutterapptemp/src/app/theme.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
-import 'package:flutterapptemp/src/i18n/app_strings.dart';
+import 'package:assibant/src/app/theme.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
+import 'package:assibant/src/i18n/app_strings.dart';
 
 class StatusBadge extends StatelessWidget {
   const StatusBadge({

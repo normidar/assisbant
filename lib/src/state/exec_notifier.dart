@@ -1,14 +1,14 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
-import 'package:flutterapptemp/src/utils/session_id_generator.dart';
-import 'package:flutterapptemp/src/data/repositories/prompt_repository.dart';
-import 'package:flutterapptemp/src/data/services/execution_service.dart';
-import 'package:flutterapptemp/src/providers/database_providers.dart';
-import 'package:flutterapptemp/src/state/prompt_notifier.dart';
-import 'package:flutterapptemp/src/state/ui_providers.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
+import 'package:assibant/src/utils/session_id_generator.dart';
+import 'package:assibant/src/data/repositories/prompt_repository.dart';
+import 'package:assibant/src/data/services/execution_service.dart';
+import 'package:assibant/src/providers/database_providers.dart';
+import 'package:assibant/src/state/prompt_notifier.dart';
+import 'package:assibant/src/state/ui_providers.dart';
 
 enum ExecStatus { idle, running, paused }
 

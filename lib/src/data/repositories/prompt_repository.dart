@@ -1,7 +1,7 @@
-import 'package:drift/drift.dart';
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
-import 'package:flutterapptemp/src/data/models/branch_summary.dart';
+﻿import 'package:drift/drift.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
+import 'package:assibant/src/data/models/branch_summary.dart';
 import 'package:uuid/uuid.dart';
 
 class PromptRepository {
