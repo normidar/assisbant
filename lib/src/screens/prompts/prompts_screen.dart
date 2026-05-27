@@ -1211,6 +1211,8 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
                                                     _confirmDelete(p.id),
                                                 onReset: () =>
                                                     _resetPrompt(p.id),
+                                                onDuplicate: () =>
+                                                    _duplicatePrompt(p.id),
                                                 canMoveUp: idx > 0,
                                                 canMoveDown:
                                                     idx >= 0 &&
@@ -1435,6 +1437,11 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
   Future<void> _resetPrompt(String id) async {
     await ref.read(promptListNotifierProvider.notifier).reset(id);
     _showToast(widget.strings.resetToast);
+  }
+
+  Future<void> _duplicatePrompt(String id) async {
+    await ref.read(promptListNotifierProvider.notifier).duplicate(id);
+    _showToast(widget.strings.duplicated);
   }
 
   Future<void> _saveBatch({

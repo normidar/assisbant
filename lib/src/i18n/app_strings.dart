@@ -165,6 +165,8 @@ class AppStrings {
     required this.optionalOverride,
     required this.toolFound,
     required this.toolNotFound,
+    required this.duplicate,
+    required this.duplicated,
   });
 
   final String prompts;
@@ -331,6 +333,8 @@ class AppStrings {
   final String optionalOverride;
   final String toolFound;
   final String toolNotFound;
+  final String duplicate;
+  final String duplicated;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -519,6 +523,8 @@ class AppStrings {
     optionalOverride: 'optional override',
     toolFound: 'Found',
     toolNotFound: 'Not found',
+    duplicate: 'Duplicate',
+    duplicated: 'Prompt duplicated',
   );
 
   static const _zh = AppStrings(
@@ -686,6 +692,8 @@ class AppStrings {
     optionalOverride: '可选覆盖',
     toolFound: '已找到',
     toolNotFound: '未找到',
+    duplicate: '复制',
+    duplicated: 'Prompt 已复制',
   );
 
   static const _ja = AppStrings(
@@ -853,5 +861,7 @@ class AppStrings {
     optionalOverride: '任意のカスタムパス',
     toolFound: '検出済み',
     toolNotFound: '未検出',
+    duplicate: '複製',
+    duplicated: 'プロンプトを複製しました',
   );
 }
