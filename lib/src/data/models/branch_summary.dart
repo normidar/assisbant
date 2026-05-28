@@ -1,5 +1,5 @@
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
+﻿import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
 
 class BranchSummary {
   const BranchSummary({

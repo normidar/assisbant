@@ -1,5 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/providers/prefs_provider.dart';
+import 'package:assibant/src/providers/prefs_provider.dart';
 
 enum AppTab { prompts, branches, logs, settings }
 
@@ -159,6 +161,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
         orElse: () => ModelMode.claude,
       ),
       localModelName: prefs.getString('localModelName') ?? '',
+      envOverrides: _parseEnvOverrides(prefs.getString('envOverrides') ?? ''),
     );
   }
 
@@ -174,6 +177,17 @@ class SettingsNotifier extends Notifier<AppSettings> {
     await prefs.setBool('commitAfterPrompt', s.commitAfterPrompt);
     await prefs.setString('modelMode', s.modelMode.name);
     await prefs.setString('localModelName', s.localModelName);
+    await prefs.setString('envOverrides', jsonEncode(s.envOverrides));
+  }
+
+  static Map<String, String> _parseEnvOverrides(String raw) {
+    if (raw.isEmpty) return const {};
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return map.map((k, v) => MapEntry(k, v as String));
+    } catch (_) {
+      return const {};
+    }
   }
 }
 
@@ -187,6 +201,7 @@ class AppSettings {
     this.commitAfterPrompt = true,
     this.modelMode = ModelMode.claude,
     this.localModelName = '',
+    this.envOverrides = const {},
   });
 
   final String cliPath; // claude CLI のパス。空の場合は PATH から検索
@@ -196,6 +211,8 @@ class AppSettings {
   final bool commitAfterPrompt; // 成功後に自動で git commit するか（グローバル設定）
   final ModelMode modelMode; // claude モードか local モデルか
   final String localModelName; // local モード時のモデル名
+  // CLI 実行前に注入する環境変数。値が '__UNSET__' のキーは unset される。
+  final Map<String, String> envOverrides;
 
   AppSettings copyWith({
     String? cliPath,
@@ -205,6 +222,7 @@ class AppSettings {
     bool? commitAfterPrompt,
     ModelMode? modelMode,
     String? localModelName,
+    Map<String, String>? envOverrides,
   }) =>
       AppSettings(
         cliPath: cliPath ?? this.cliPath,
@@ -214,5 +232,6 @@ class AppSettings {
         commitAfterPrompt: commitAfterPrompt ?? this.commitAfterPrompt,
         modelMode: modelMode ?? this.modelMode,
         localModelName: localModelName ?? this.localModelName,
+        envOverrides: envOverrides ?? this.envOverrides,
       );
 }

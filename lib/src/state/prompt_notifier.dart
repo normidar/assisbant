@@ -1,8 +1,8 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
-import 'package:flutterapptemp/src/data/repositories/prompt_repository.dart';
-import 'package:flutterapptemp/src/providers/database_providers.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
+import 'package:assibant/src/data/repositories/prompt_repository.dart';
+import 'package:assibant/src/providers/database_providers.dart';
 
 final promptListNotifierProvider =
     AsyncNotifierProvider<PromptListNotifier, List<PromptEntry>>(

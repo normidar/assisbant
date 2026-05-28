@@ -1,6 +1,6 @@
-import 'package:easy_localization/easy_localization.dart';
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterapptemp/src/app/theme.dart' as app_theme;
+import 'package:assibant/src/app/theme.dart' as app_theme;
 
 class BaseMain extends StatelessWidget {
   const BaseMain({

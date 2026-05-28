@@ -1,6 +1,6 @@
-import 'package:drift/drift.dart';
+﻿import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
 
 part 'app_database.g.dart';
 

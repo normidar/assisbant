@@ -179,6 +179,14 @@ build_web_release: ## Build web release and copy to specified path: `make build_
 		echo "\033[0;32mBuild completed and copied to $$DEST_PATH successfully!"; \
 	fi
 
+.PHONY: build_windows
+build_windows: ## Build Windows release and copy to build/exe/: `make build_windows`
+	fvm flutter build windows --release && \
+	mkdir -p build/exe && \
+	rm -rf build/exe/* && \
+	cp -r build/windows/x64/runner/Release/. build/exe/ && \
+	echo "Build copied to build/exe/"
+
 .PHONY: init_macos
 init_macos: ## Initialize macos project: `make init_macos`
 	fvm flutter create --platforms=macos .

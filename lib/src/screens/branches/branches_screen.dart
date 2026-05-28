@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/app/theme.dart';
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
-import 'package:flutterapptemp/src/i18n/app_strings.dart';
-import 'package:flutterapptemp/src/state/prompt_notifier.dart';
-import 'package:flutterapptemp/src/state/ui_providers.dart';
+import 'package:assibant/src/app/theme.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
+import 'package:assibant/src/i18n/app_strings.dart';
+import 'package:assibant/src/state/prompt_notifier.dart';
+import 'package:assibant/src/state/ui_providers.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class BranchesScreen extends ConsumerWidget {

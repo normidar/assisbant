@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutterapptemp/src/app/theme.dart';
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/database/prompt_status.dart';
-import 'package:flutterapptemp/src/i18n/app_strings.dart';
-import 'package:flutterapptemp/src/widgets/branch_chip.dart';
-import 'package:flutterapptemp/src/widgets/status_badge.dart';
+import 'package:assibant/src/app/theme.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
+import 'package:assibant/src/i18n/app_strings.dart';
+import 'package:assibant/src/widgets/branch_chip.dart';
+import 'package:assibant/src/widgets/status_badge.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart' as p;
 
