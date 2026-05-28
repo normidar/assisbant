@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/state/exec_notifier.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/state/exec_notifier.dart';
 
 // ─── Message types (server → client) ────────────────────────────────────────
 

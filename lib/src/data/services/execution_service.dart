@@ -462,13 +462,6 @@ class ExecutionService {
 
   // ─── Platform helpers ────────────────────────────────────────────────────────
 
-  /// ユーザーのデフォルトシェル（_executeAider で使用）。
-  static String get _userShell => Platform.environment['SHELL'] ?? '/bin/bash';
-
-  /// claude / aider がよくインストールされるパスを PATH に追加（_executeAider で使用）。
-  static String get _pathSetup =>
-      r'export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"; ';
-
   /// Builds Claude CLI args as a proper list (no shell quoting).
   List<String> _buildClaudeArgs({
     required String content,

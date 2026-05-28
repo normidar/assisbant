@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/app/mobile_shell.dart';
+import 'package:assibant/src/app/mobile_shell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutterapptemp/src/providers/prefs_provider.dart';
+import 'package:assibant/src/providers/prefs_provider.dart';
 
 Future<void> mobileMain() async {
   WidgetsFlutterBinding.ensureInitialized();

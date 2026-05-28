@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/remote/client/remote_discovery_service.dart';
-import 'package:flutterapptemp/src/remote/client/remote_client_service.dart';
-import 'package:flutterapptemp/src/state/mobile/remote_connection_notifier.dart';
+import 'package:assibant/src/remote/client/remote_discovery_service.dart';
+import 'package:assibant/src/remote/client/remote_client_service.dart';
+import 'package:assibant/src/state/mobile/remote_connection_notifier.dart';
 
 class ConnectionScreen extends ConsumerStatefulWidget {
   const ConnectionScreen({super.key});

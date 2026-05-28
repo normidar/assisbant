@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/remote/remote_protocol.dart';
-import 'package:flutterapptemp/src/screens/mobile/remote_prompt_form.dart';
-import 'package:flutterapptemp/src/state/mobile/remote_connection_notifier.dart';
-import 'package:flutterapptemp/src/state/mobile/remote_exec_notifier.dart';
-import 'package:flutterapptemp/src/state/mobile/remote_prompt_notifier.dart';
+import 'package:assibant/src/remote/remote_protocol.dart';
+import 'package:assibant/src/screens/mobile/remote_prompt_form.dart';
+import 'package:assibant/src/state/mobile/remote_connection_notifier.dart';
+import 'package:assibant/src/state/mobile/remote_exec_notifier.dart';
+import 'package:assibant/src/state/mobile/remote_prompt_notifier.dart';
 
 class RemotePromptsScreen extends ConsumerWidget {
   const RemotePromptsScreen({super.key});
