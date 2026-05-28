@@ -24,18 +24,19 @@ Never run bare `flutter` or `dart` — it may pick up the wrong SDK version.
 ## Important Rules
 
 毎回変更が発生した後に、実行できるファイルをビルドしてください。
-Run `fvm flutter build macos` after every code change to produce an up-to-date executable.
+Run `make build_windows` after every code change to build the Windows executable and copy it to `build/exe/`.
 
 `prompt_edit_modal.dart` (Create/Edit Prompt screen) に変更を加えた場合、同じ変更を `batch_create_modal.dart` (Batch Create screen) にも必ず適用してください。両ファイルは同じフォームUI（project path, branch, session ID 等）を持つため、常に同期して変更する必要があります。
 
 ## Commands
 
 ```bash
-make get          # fvm dart pub get
-make build        # build_runner codegen (required after Drift schema or @Riverpod changes)
-make analyze      # fvm dart analyze
-make format       # dart format + prettier for markdown
-make ci           # full CI: get → localization → build → analyze → format → gen_icons
+make get            # fvm dart pub get
+make build          # build_runner codegen (required after Drift schema or @Riverpod changes)
+make build_windows  # build Windows release and copy to build/exe/
+make analyze        # fvm dart analyze
+make format         # dart format + prettier for markdown
+make ci             # full CI: get → localization → build → analyze → format → gen_icons
 ```
 
 **Tests:**
