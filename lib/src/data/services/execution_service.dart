@@ -25,6 +25,15 @@ class ExecutionResult {
 class ExecutionService {
   const ExecutionService();
 
+  // ユーザーのデフォルトシェル。GUI アプリ起動時に SHELL が引き継がれるので
+  // zsh/fish 等のプロファイルを読ませるためにそちらを優先する。
+  static String get _userShell => Platform.environment['SHELL'] ?? '/bin/bash';
+
+  // claude がよくインストールされるパスを PATH の先頭に追加する。
+  // GUI アプリは PATH が最小限なため、明示的に補完する必要がある。
+  static String get _pathSetup =>
+      r'export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"; ';
+
   /// 1つのプロンプトを実行して結果を返す。
   ///
   /// sessionId が設定されているプロンプトは stream-json モードで実行し、
@@ -45,6 +54,19 @@ class ExecutionService {
           : settings.workdir;
       final workdir = _expandHome(rawWorkdir);
       final cliPath = settings.cliPath.isEmpty ? 'claude' : settings.cliPath;
+
+      // Aider モードは専用の実行パスへ
+      if (settings.cliTool == CliTool.aider) {
+        return _executeAider(
+          content: prompt.content,
+          aiderPath: settings.aiderPath.isEmpty ? 'aider' : settings.aiderPath,
+          modelName: settings.localModelName,
+          workdir: workdir,
+          envPrefix: _buildEnvPrefix(settings.envOverrides),
+          onOutput: onOutput,
+          cancelToken: cancelToken,
+        );
+      }
 
       if (settings.autoCheckout) {
         final checkout = await _runGit(
@@ -337,6 +359,70 @@ class ExecutionService {
     return false;
   }
 
+  /// Aider を --message モードで実行して結果を返す。
+  ///
+  /// --yes で確認を自動スキップ、--no-auto-commits でコミットを抑制する
+  /// （コミットはアプリ側の commitChanges で管理する）。
+  Future<ExecutionResult> _executeAider({
+    required String content,
+    required String aiderPath,
+    required String modelName,
+    required String workdir,
+    required String envPrefix,
+    void Function(String)? onOutput,
+    Future<void>? cancelToken,
+  }) async {
+    final modelFlag =
+        modelName.isNotEmpty ? ' --model ${_shellQuote(modelName)}' : '';
+    final cmd =
+        '${_pathSetup}${envPrefix}exec ${_shellQuote(aiderPath)} --yes --no-auto-commits --message ${_shellQuote(content)}$modelFlag';
+
+    dev.log('[ExecSvc] aider cmd: $cmd', name: 'ExecutionService');
+
+    final process = await Process.start(
+      _userShell,
+      ['-lc', cmd],
+      workingDirectory: workdir,
+    );
+    unawaited(process.stdin.close());
+
+    var cancelled = false;
+    unawaited(cancelToken?.then((_) {
+      cancelled = true;
+      process.kill();
+    }));
+
+    final stdoutBuf = StringBuffer();
+    final stderrBuf = StringBuffer();
+
+    await Future.wait([
+      process.stdout.transform(utf8.decoder).forEach((chunk) {
+        stdoutBuf.write(chunk);
+        onOutput?.call(chunk);
+      }),
+      process.stderr.transform(utf8.decoder).forEach((chunk) {
+        stderrBuf.write(chunk);
+        onOutput?.call(chunk);
+      }),
+    ]);
+
+    final exitCode = await process.exitCode;
+
+    if (cancelled) {
+      return const ExecutionResult(success: false, output: '', cancelled: true);
+    }
+
+    final stdout = stdoutBuf.toString();
+    final stderr = stderrBuf.toString();
+    final ok = exitCode == 0;
+
+    return ExecutionResult(
+      success: ok,
+      output: ok ? stdout : '$stdout\n$stderr'.trim(),
+      error: ok ? null : (stderr.isNotEmpty ? stderr : 'exit $exitCode'),
+    );
+  }
+
   /// Stages all changes and commits with [prompt.content] as the message.
   Future<void> commitChanges(
     PromptEntry prompt,
@@ -376,6 +462,13 @@ class ExecutionService {
 
   // ─── Platform helpers ────────────────────────────────────────────────────────
 
+  /// ユーザーのデフォルトシェル（_executeAider で使用）。
+  static String get _userShell => Platform.environment['SHELL'] ?? '/bin/bash';
+
+  /// claude / aider がよくインストールされるパスを PATH に追加（_executeAider で使用）。
+  static String get _pathSetup =>
+      r'export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"; ';
+
   /// Builds Claude CLI args as a proper list (no shell quoting).
   List<String> _buildClaudeArgs({
     required String content,
@@ -396,10 +489,6 @@ class ExecutionService {
   }
 
   /// Spawns the Claude CLI process cross-platform.
-  ///
-  /// On Windows: runs the executable directly (PATH is inherited from the OS).
-  /// On macOS/Linux: wraps in a login shell so ~/.bashrc / /usr/local/bin are
-  /// on PATH, and uses `exec` so kill() reaches claude directly.
   Future<Process> _spawnClaude(
     String cliPath,
     List<String> args,
@@ -428,6 +517,20 @@ class ExecutionService {
       return Process.run('git', args, workingDirectory: workdir);
     }
     return Process.run('/usr/bin/git', args, workingDirectory: workdir);
+  }
+
+  /// 環境変数オーバーライドからシェルコマンド先頭に挿入するスクリプト片を生成する（Aider 用）。
+  String _buildEnvPrefix(Map<String, String> envOverrides) {
+    if (envOverrides.isEmpty) return '';
+    final buf = StringBuffer();
+    for (final entry in envOverrides.entries) {
+      if (entry.value == '__UNSET__') {
+        buf.write('unset ${entry.key}; ');
+      } else {
+        buf.write('export ${entry.key}=${_shellQuote(entry.value)}; ');
+      }
+    }
+    return buf.toString();
   }
 
   /// Returns `['--model', name]` args when a model override is active.

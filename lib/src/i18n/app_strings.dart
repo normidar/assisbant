@@ -151,6 +151,22 @@ class AppStrings {
     required this.envOverridesNone,
     required this.envOverridesClearAll,
     required this.envOverridesUnsetApiKey,
+    required this.cliTool,
+    required this.cliToolDesc,
+    required this.cliToolClaudeCode,
+    required this.cliToolAider,
+    required this.aiderPath,
+    required this.aiderPathDesc,
+    required this.connectSettings,
+    required this.connectSettingsDesc,
+    required this.connectModeClaudeDesc,
+    required this.connectModeLocalDesc,
+    required this.connectModeAiderDesc,
+    required this.optionalOverride,
+    required this.toolFound,
+    required this.toolNotFound,
+    required this.duplicate,
+    required this.duplicated,
   });
 
   final String prompts;
@@ -303,6 +319,22 @@ class AppStrings {
   final String envOverridesNone;
   final String envOverridesClearAll;
   final String envOverridesUnsetApiKey;
+  final String cliTool;
+  final String cliToolDesc;
+  final String cliToolClaudeCode;
+  final String cliToolAider;
+  final String aiderPath;
+  final String aiderPathDesc;
+  final String connectSettings;
+  final String connectSettingsDesc;
+  final String connectModeClaudeDesc;
+  final String connectModeLocalDesc;
+  final String connectModeAiderDesc;
+  final String optionalOverride;
+  final String toolFound;
+  final String toolNotFound;
+  final String duplicate;
+  final String duplicated;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -471,12 +503,28 @@ class AppStrings {
     noImages: 'No images attached',
     createAndStart: 'Create & Start',
     envOverrides: 'Env Overrides',
-    envOverridesDesc: 'Custom env vars injected before each Claude CLI run.',
+    envOverridesDesc: 'Custom env vars injected before each CLI run.',
     envOverridesTitle: 'Environment Variables',
     envOverridesDs4Btn: 'Set DS4',
     envOverridesNone: 'None',
     envOverridesClearAll: 'Clear all',
     envOverridesUnsetApiKey: 'Unset ANTHROPIC_API_KEY',
+    cliTool: 'AI Tool',
+    cliToolDesc: 'Choose the AI coding tool used to run prompts.',
+    cliToolClaudeCode: 'Claude Code',
+    cliToolAider: 'Aider',
+    aiderPath: 'Aider Path',
+    aiderPathDesc: 'Custom path to the aider executable. Leave empty to use PATH.',
+    connectSettings: 'Connect Settings',
+    connectSettingsDesc: 'AI tool and model configuration',
+    connectModeClaudeDesc: 'Use Anthropic Claude via the Claude Code CLI',
+    connectModeLocalDesc: 'Use Claude Code with a local or custom model',
+    connectModeAiderDesc: 'Use Aider with a local or custom model',
+    optionalOverride: 'optional override',
+    toolFound: 'Found',
+    toolNotFound: 'Not found',
+    duplicate: 'Duplicate',
+    duplicated: 'Prompt duplicated',
   );
 
   static const _zh = AppStrings(
@@ -630,6 +678,22 @@ class AppStrings {
     envOverridesNone: '未设置',
     envOverridesClearAll: '清除全部',
     envOverridesUnsetApiKey: '取消 ANTHROPIC_API_KEY',
+    cliTool: 'AI 工具',
+    cliToolDesc: '选择用于执行 Prompt 的 AI 编码工具。',
+    cliToolClaudeCode: 'Claude Code',
+    cliToolAider: 'Aider',
+    aiderPath: 'Aider 路径',
+    aiderPathDesc: '自定义 aider 可执行文件路径，留空则使用 PATH。',
+    connectSettings: '连接设置',
+    connectSettingsDesc: 'AI 工具和模型配置',
+    connectModeClaudeDesc: '通过 Claude Code CLI 使用 Anthropic Claude',
+    connectModeLocalDesc: '使用 Claude Code 配合本地或自定义模型',
+    connectModeAiderDesc: '使用 Aider 配合本地或自定义模型',
+    optionalOverride: '可选覆盖',
+    toolFound: '已找到',
+    toolNotFound: '未找到',
+    duplicate: '复制',
+    duplicated: 'Prompt 已复制',
   );
 
   static const _ja = AppStrings(
@@ -783,5 +847,21 @@ class AppStrings {
     envOverridesNone: '未設定',
     envOverridesClearAll: 'すべてクリア',
     envOverridesUnsetApiKey: 'ANTHROPIC_API_KEY を削除',
+    cliTool: 'AI ツール',
+    cliToolDesc: 'プロンプトを実行する AI コーディングツールを選択します。',
+    cliToolClaudeCode: 'Claude Code',
+    cliToolAider: 'Aider',
+    aiderPath: 'Aider パス',
+    aiderPathDesc: 'aider 実行ファイルのカスタムパス。空欄の場合は PATH を使用します。',
+    connectSettings: '接続設定',
+    connectSettingsDesc: 'AI ツールとモデルの設定',
+    connectModeClaudeDesc: 'Claude Code CLI 経由で Anthropic Claude を使用',
+    connectModeLocalDesc: 'Claude Code でローカルモデルを使用',
+    connectModeAiderDesc: 'Aider でローカルモデルを使用',
+    optionalOverride: '任意のカスタムパス',
+    toolFound: '検出済み',
+    toolNotFound: '未検出',
+    duplicate: '複製',
+    duplicated: 'プロンプトを複製しました',
   );
 }

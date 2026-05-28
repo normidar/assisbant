@@ -20,6 +20,7 @@ class PromptCard extends StatefulWidget {
     required this.onSkip,
     required this.onDelete,
     required this.onReset,
+    required this.onDuplicate,
     this.canMoveUp = false,
     this.canMoveDown = false,
     this.onMoveUp,
@@ -35,6 +36,7 @@ class PromptCard extends StatefulWidget {
   final VoidCallback onSkip;
   final VoidCallback onDelete;
   final VoidCallback onReset;
+  final VoidCallback onDuplicate;
   final bool canMoveUp;
   final bool canMoveDown;
   final VoidCallback? onMoveUp;
@@ -182,6 +184,7 @@ class _PromptCardState extends State<PromptCard> {
                       onSkip: widget.onSkip,
                       onDelete: widget.onDelete,
                       onReset: widget.onReset,
+                      onDuplicate: widget.onDuplicate,
                     ),
                   ),
                 ],
@@ -293,6 +296,7 @@ class _Actions extends StatelessWidget {
     required this.onSkip,
     required this.onDelete,
     required this.onReset,
+    required this.onDuplicate,
   });
 
   final PromptEntry prompt;
@@ -301,6 +305,7 @@ class _Actions extends StatelessWidget {
   final VoidCallback onSkip;
   final VoidCallback onDelete;
   final VoidCallback onReset;
+  final VoidCallback onDuplicate;
 
   @override
   Widget build(BuildContext context) {
@@ -336,6 +341,12 @@ class _Actions extends StatelessWidget {
             color: c.ink3,
             onTap: onReset,
           ),
+        _IconBtn(
+          icon: Icons.copy_outlined,
+          tooltip: strings.duplicate,
+          color: c.ink3,
+          onTap: onDuplicate,
+        ),
         _IconBtn(
           icon: Icons.delete_outline,
           tooltip: strings.delete,

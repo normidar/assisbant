@@ -740,9 +740,15 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal> {
                   ),
                   Builder(builder: (context) {
                     final execStatus = ref.watch(execNotifierProvider).status;
+                    final allPrompts =
+                        ref.watch(promptListNotifierProvider).value ??
+                            <PromptEntry>[];
+                    final hasPending = allPrompts.any(
+                        (p) => p.status == PromptStatus.pending && !p.isSkipped);
                     final showCreateAndStart = _isNew &&
                         widget.onSaveAndStart != null &&
-                        execStatus == ExecStatus.idle;
+                        execStatus == ExecStatus.idle &&
+                        !hasPending;
                     return Container(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                       decoration: BoxDecoration(

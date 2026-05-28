@@ -124,4 +124,19 @@ class PromptListNotifier extends AsyncNotifier<List<PromptEntry>> {
     await _repo.resetStatus(id);
     ref.invalidateSelf();
   }
+
+  Future<void> duplicate(String id) async {
+    final all = await _repo.getAll();
+    final src = all.firstWhere((p) => p.id == id);
+    await _repo.insert(
+      content: src.content,
+      branch: src.branch,
+      projectPath: src.projectPath,
+      sessionId: src.sessionId,
+      claudeModel: src.claudeModel,
+      imagePaths: src.imagePaths,
+      commitAfterRun: src.commitAfterRun,
+    );
+    ref.invalidateSelf();
+  }
 }
