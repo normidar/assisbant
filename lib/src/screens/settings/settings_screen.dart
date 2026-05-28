@@ -1,15 +1,16 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/app/theme.dart';
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/services/import_export_service.dart';
-import 'package:flutterapptemp/src/i18n/app_strings.dart';
-import 'package:flutterapptemp/src/providers/database_providers.dart';
-import 'package:flutterapptemp/src/state/prompt_notifier.dart';
-import 'package:flutterapptemp/src/state/ui_providers.dart';
+import 'package:assibant/src/app/theme.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/services/import_export_service.dart';
+import 'package:assibant/src/i18n/app_strings.dart';
+import 'package:assibant/src/providers/database_providers.dart';
+import 'package:assibant/src/state/prompt_notifier.dart';
+import 'package:assibant/src/state/ui_providers.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 enum ExportFormat {
@@ -161,7 +162,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           _SetRowInput(
                             label: s.cli,
                             description: s.cliDesc,
-                            placeholder: '/usr/local/bin/claude',
+                            placeholder: defaultTargetPlatform == TargetPlatform.windows
+                                ? 'claude'
+                                : '/usr/local/bin/claude',
                             value: settings.cliPath,
                             onChanged: (v) =>
                                 upd(settings.copyWith(cliPath: v)),

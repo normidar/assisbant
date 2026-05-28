@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutterapptemp/src/providers/prefs_provider.dart';
+import 'package:assibant/src/providers/prefs_provider.dart';
 
 enum AppTab { prompts, branches, logs, settings }
 

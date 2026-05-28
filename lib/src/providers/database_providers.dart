@@ -1,6 +1,6 @@
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/data/repositories/prompt_repository.dart';
-import 'package:flutterapptemp/src/data/services/execution_service.dart';
+﻿import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/repositories/prompt_repository.dart';
+import 'package:assibant/src/data/services/execution_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'database_providers.g.dart';

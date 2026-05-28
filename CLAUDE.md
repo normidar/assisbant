@@ -1,4 +1,4 @@
-# CLAUDE.md
+﻿# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **assisbant** is a macOS-focused Flutter desktop application for managing and executing Claude Code CLI prompts across git branches. Users create prompts with target branches and priorities, then the app executes them sequentially via `claude --print "<content>"` in a configured working directory.
 
-The package name in Dart imports is still `flutterapptemp` (template not yet renamed). The app targets **macOS only** — Android, iOS, and other platform directories have been removed.
+The package name in Dart imports is `assibant`. The app targets **macOS only** — Android, iOS, and other platform directories have been removed.
 
 ## FVM (Flutter Version Manager)
 

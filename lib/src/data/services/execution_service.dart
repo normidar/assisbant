@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:io';
 
-import 'package:flutterapptemp/src/data/database/app_database.dart';
-import 'package:flutterapptemp/src/state/ui_providers.dart';
+import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/state/ui_providers.dart';
 
 class ExecutionResult {
   const ExecutionResult({
@@ -56,17 +56,15 @@ class ExecutionService {
       final cliPath = settings.cliPath.isEmpty ? 'claude' : settings.cliPath;
 
       if (settings.autoCheckout) {
-        final checkout = await Process.run(
-          '/bin/bash',
-          ['-lc', 'git checkout ${_shellQuote(prompt.branch)}'],
-          workingDirectory: workdir,
+        final checkout = await _runGit(
+          ['checkout', prompt.branch],
+          workdir,
         );
         if (checkout.exitCode != 0) {
           // ローカルに存在しないブランチは新規作成する
-          final create = await Process.run(
-            '/bin/bash',
-            ['-lc', 'git checkout -b ${_shellQuote(prompt.branch)}'],
-            workingDirectory: workdir,
+          final create = await _runGit(
+            ['checkout', '-b', prompt.branch],
+            workdir,
           );
           if (create.exitCode != 0) {
             return ExecutionResult(
@@ -81,16 +79,17 @@ class ExecutionService {
       // sessionId が設定されている = 会話継続が必要なプロンプト
       // stream-json モードは claudeSessionId を返すため会話の引き継ぎに必須
       final useStreamJson = prompt.sessionId.isNotEmpty;
+      final modelArgs = _resolveModelArgs(prompt.claudeModel, settings);
 
-      final modelFlag = _resolveModelFlag(prompt.claudeModel, settings);
+      final env = _buildEnvironment(settings.envOverrides);
 
       if (useStreamJson) {
         return _executeStreamJsonLoop(
           content: prompt.content,
           cliPath: cliPath,
           workdir: workdir,
-          modelFlag: _resolveModelFlag(prompt.claudeModel, settings),
-          envPrefix: _buildEnvPrefix(settings.envOverrides),
+          modelArgs: modelArgs,
+          environment: env,
           imagePaths: _decodeImagePaths(prompt.imagePaths),
           resumeSessionId: resumeSessionId,
           onOutput: onOutput,
@@ -99,25 +98,16 @@ class ExecutionService {
         );
       }
 
-      // sessionId なしの場合はシンプルな --print モード（出力だけ取得）
-      final envPrefix = _buildEnvPrefix(settings.envOverrides);
-      final cmdBuf = StringBuffer(
-        '${_pathSetup}${envPrefix}exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(prompt.content)}',
+      final args = _buildClaudeArgs(
+        content: prompt.content,
+        modelArgs: modelArgs,
+        imagePaths: _decodeImagePaths(prompt.imagePaths),
+        resumeSessionId: resumeSessionId,
       );
-      for (final imgPath in _decodeImagePaths(prompt.imagePaths)) {
-        cmdBuf.write(' --image ${_shellQuote(imgPath)}');
-      }
-      if (resumeSessionId != null && resumeSessionId.isNotEmpty) {
-        cmdBuf.write(' --resume ${_shellQuote(resumeSessionId)}');
-      }
 
-      dev.log('[ExecSvc] cmd: $cmdBuf', name: 'ExecutionService');
+      dev.log('[ExecSvc] args: $args', name: 'ExecutionService');
 
-      final process = await Process.start(
-        _userShell,
-        ['-lc', cmdBuf.toString()],
-        workingDirectory: workdir,
-      );
+      final process = await _spawnClaude(cliPath, args, workdir, environment: env);
       unawaited(process.stdin.close());
 
       var cancelled = false;
@@ -173,8 +163,8 @@ class ExecutionService {
     required String content,
     required String cliPath,
     required String workdir,
-    required String modelFlag,
-    required String envPrefix,
+    required List<String> modelArgs,
+    Map<String, String>? environment,
     List<String> imagePaths = const [],
     String? resumeSessionId,
     void Function(String)? onOutput,
@@ -189,8 +179,8 @@ class ExecutionService {
         content: currentContent,
         cliPath: cliPath,
         workdir: workdir,
-        modelFlag: modelFlag,
-        envPrefix: envPrefix,
+        modelArgs: modelArgs,
+        environment: environment,
         imagePaths: imagePaths,
         resumeSessionId: currentResumeId,
         onOutput: onOutput,
@@ -223,31 +213,24 @@ class ExecutionService {
     required String content,
     required String cliPath,
     required String workdir,
-    required String modelFlag,
-    required String envPrefix,
+    required List<String> modelArgs,
+    Map<String, String>? environment,
     List<String> imagePaths = const [],
     String? resumeSessionId,
     void Function(String)? onOutput,
     Future<void>? cancelToken,
   }) async {
-    final cmdBuf = StringBuffer(
-      '${_pathSetup}${envPrefix}exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(content)} --output-format stream-json --verbose',
+    final args = _buildClaudeArgs(
+      content: content,
+      modelArgs: modelArgs,
+      imagePaths: imagePaths,
+      resumeSessionId: resumeSessionId,
+      streamJson: true,
     );
-    for (final imgPath in imagePaths) {
-      cmdBuf.write(' --image ${_shellQuote(imgPath)}');
-    }
-    if (resumeSessionId != null && resumeSessionId.isNotEmpty) {
-      cmdBuf.write(' --resume ${_shellQuote(resumeSessionId)}');
-    }
 
-    dev.log('[ExecSvc] cmd: $cmdBuf', name: 'ExecutionService');
+    dev.log('[ExecSvc] args: $args', name: 'ExecutionService');
 
-    // exec replaces the shell with claude directly so kill() reaches the claude process
-    final process = await Process.start(
-      _userShell,
-      ['-lc', cmdBuf.toString()],
-      workingDirectory: workdir,
-    );
+    final process = await _spawnClaude(cliPath, args, workdir, environment: environment);
     unawaited(process.stdin.close());
 
     var cancelled = false;
@@ -354,9 +337,7 @@ class ExecutionService {
     final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
     if (lines.isEmpty) return false;
     final last = lines.last.trim();
-    // Ends with a question mark (ASCII or fullwidth)
     if (last.endsWith('?') || last.endsWith('？')) return true;
-    // Common yes/no option patterns
     final lower = last.toLowerCase();
     if (lower.contains('[y/n]') ||
         lower.contains('[yes/no]') ||
@@ -366,8 +347,6 @@ class ExecutionService {
   }
 
   /// Stages all changes and commits with [prompt.content] as the message.
-  /// Does nothing if there are no uncommitted changes or the directory is
-  /// not a git repository.
   Future<void> commitChanges(
     PromptEntry prompt,
     AppSettings settings,
@@ -377,11 +356,7 @@ class ExecutionService {
         : settings.workdir;
     final workdir = _expandHome(rawWorkdir);
 
-    final status = await Process.run(
-      '/usr/bin/git',
-      ['status', '--porcelain'],
-      workingDirectory: workdir,
-    );
+    final status = await _runGit(['status', '--porcelain'], workdir);
 
     if (status.exitCode != 0 || (status.stdout as String).trim().isEmpty) {
       dev.log(
@@ -391,14 +366,9 @@ class ExecutionService {
       return;
     }
 
-    await Process.run('/usr/bin/git', ['add', '-A'],
-        workingDirectory: workdir);
+    await _runGit(['add', '-A'], workdir);
 
-    final commit = await Process.run(
-      '/usr/bin/git',
-      ['commit', '-m', prompt.content],
-      workingDirectory: workdir,
-    );
+    final commit = await _runGit(['commit', '-m', prompt.content], workdir);
 
     if (commit.exitCode == 0) {
       dev.log(
@@ -413,33 +383,87 @@ class ExecutionService {
     }
   }
 
-  /// 環境変数オーバーライドから bash コマンド先頭に挿入するシェルスクリプト片を生成する。
-  /// 値が '__UNSET__' のキーは unset コマンドに変換される。
-  String _buildEnvPrefix(Map<String, String> envOverrides) {
-    if (envOverrides.isEmpty) return '';
-    final buf = StringBuffer();
-    for (final entry in envOverrides.entries) {
-      if (entry.value == '__UNSET__') {
-        buf.write('unset ${entry.key}; ');
-      } else {
-        buf.write('export ${entry.key}=${_shellQuote(entry.value)}; ');
-      }
-    }
-    return buf.toString();
+  // ─── Platform helpers ────────────────────────────────────────────────────────
+
+  /// Builds Claude CLI args as a proper list (no shell quoting).
+  List<String> _buildClaudeArgs({
+    required String content,
+    required List<String> modelArgs,
+    required List<String> imagePaths,
+    String? resumeSessionId,
+    bool streamJson = false,
+  }) {
+    return [
+      '--dangerously-skip-permissions',
+      ...modelArgs,
+      '--print', content,
+      for (final img in imagePaths) ...['--image', img],
+      if (resumeSessionId != null && resumeSessionId.isNotEmpty)
+        ...['--resume', resumeSessionId],
+      if (streamJson) ...['--output-format', 'stream-json', '--verbose'],
+    ];
   }
 
-  /// Returns the `--model <name>` fragment to inject into the CLI command.
-  /// Per-prompt model (Claude mode only) takes precedence over the global
-  /// local model name.
-  String _resolveModelFlag(String promptModel, AppSettings settings) {
+  /// Spawns the Claude CLI process cross-platform.
+  ///
+  /// On Windows: runs the executable directly (PATH is inherited from the OS).
+  /// On macOS/Linux: wraps in a login shell so ~/.bashrc / /usr/local/bin are
+  /// on PATH, and uses `exec` so kill() reaches claude directly.
+  Future<Process> _spawnClaude(
+    String cliPath,
+    List<String> args,
+    String workdir, {
+    Map<String, String>? environment,
+  }) {
+    if (Platform.isWindows) {
+      final exe = cliPath.isEmpty ? 'claude' : cliPath;
+      return Process.start(exe, args, workingDirectory: workdir, environment: environment);
+    }
+    final buf = StringBuffer('exec ${_shellQuote(cliPath)}');
+    for (final a in args) {
+      buf.write(' ${_shellQuote(a)}');
+    }
+    return Process.start(
+      '/bin/bash',
+      ['-lc', buf.toString()],
+      workingDirectory: workdir,
+      environment: environment,
+    );
+  }
+
+  /// Runs a git command cross-platform.
+  Future<ProcessResult> _runGit(List<String> args, String workdir) {
+    if (Platform.isWindows) {
+      return Process.run('git', args, workingDirectory: workdir);
+    }
+    return Process.run('/usr/bin/git', args, workingDirectory: workdir);
+  }
+
+  /// Returns `['--model', name]` args when a model override is active.
+  List<String> _resolveModelArgs(String promptModel, AppSettings settings) {
     if (settings.modelMode == ModelMode.claude && promptModel.isNotEmpty) {
-      return ' --model ${_shellQuote(promptModel)}';
+      return ['--model', promptModel];
     }
     if (settings.modelMode == ModelMode.local &&
         settings.localModelName.isNotEmpty) {
-      return ' --model ${_shellQuote(settings.localModelName)}';
+      return ['--model', settings.localModelName];
     }
-    return '';
+    return const [];
+  }
+
+  /// Builds a merged environment map with overrides applied.
+  /// Keys with value '__UNSET__' are removed from the parent environment.
+  Map<String, String>? _buildEnvironment(Map<String, String> overrides) {
+    if (overrides.isEmpty) return null;
+    final env = Map<String, String>.from(Platform.environment);
+    for (final entry in overrides.entries) {
+      if (entry.value == '__UNSET__') {
+        env.remove(entry.key);
+      } else {
+        env[entry.key] = entry.value;
+      }
+    }
+    return env;
   }
 
   List<String> _decodeImagePaths(String raw) {

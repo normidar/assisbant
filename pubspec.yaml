@@ -1,4 +1,4 @@
----
+﻿---
 dependencies:
   drift: ^2.20.0
   drift_flutter: ^0.2.0
@@ -35,6 +35,6 @@ flutter:
     - assets/config.json
     - assets/app_icons/icon.png
   uses-material-design: true
-homepage: https://github.com/normidar/flutterapptemp
-name: flutterapptemp
+homepage: https://github.com/normidar/assibant
+name: assibant
 version: 1.0.0
