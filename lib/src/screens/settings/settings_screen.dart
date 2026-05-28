@@ -54,6 +54,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     });
   }
 
+  Future<void> _openEnvOverridesDialog() async {
+    final settings = ref.read(settingsStateProvider);
+    final lang = ref.read(langNotifierProvider);
+    final s = widget.strings;
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (_) => _EnvOverridesDialog(
+        initial: settings.envOverrides,
+        strings: s,
+        lang: lang,
+        c: context.ac,
+      ),
+    );
+    if (result != null && mounted) {
+      ref.read(settingsStateProvider.notifier).update(
+            settings.copyWith(envOverrides: result),
+          );
+    }
+  }
+
   Future<void> _openExportDialog() async {
     final result = await showDialog<bool>(
       context: context,
@@ -207,6 +227,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 upd(settings.copyWith(commitAfterPrompt: v)),
                             c: c,
                           ),
+                          _SetRowWidget(
+                            label: s.envOverrides,
+                            description: s.envOverridesDesc,
+                            c: c,
+                            child: _ActionBtn(
+                              label: settings.envOverrides.isEmpty
+                                  ? s.envOverridesNone
+                                  : 'Active (${settings.envOverrides.length})',
+                              onTap: _openEnvOverridesDialog,
+                              c: c,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 14),
@@ -220,21 +252,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 : 'Language and theme',
                         c: c,
                         children: [
-                          _SetRowWidget(
+                          _LangPickerRow(
                             label: s.language,
                             description: s.languageDesc,
                             c: c,
-                            child: _SegControl(
-                              items: const [
-                                ('en', 'English'),
-                                ('zh', '中文'),
-                                ('ja', '日本語'),
-                              ],
-                              selected: lang,
-                              onSelect: (v) =>
-                                  ref.read(langNotifierProvider.notifier).set(v),
-                              c: c,
-                            ),
                           ),
                           _SetRowWidget(
                             label: s.theme,
@@ -1057,6 +1078,333 @@ class _ActionBtn extends StatelessWidget {
   }
 }
 
+// ─── Env Overrides Dialog ────────────────────────────────────────────────────
+
+const _kDs4Keys = [
+  'ANTHROPIC_BASE_URL',
+  'ANTHROPIC_AUTH_TOKEN',
+  'ANTHROPIC_MODEL',
+  'ANTHROPIC_DEFAULT_SONNET_MODEL',
+  'ANTHROPIC_DEFAULT_HAIKU_MODEL',
+  'ANTHROPIC_DEFAULT_OPUS_MODEL',
+  'CLAUDE_CODE_SUBAGENT_MODEL',
+  'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC',
+  'CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK',
+  'CLAUDE_STREAM_IDLE_TIMEOUT_MS',
+];
+
+const _kDs4Values = {
+  'ANTHROPIC_BASE_URL': 'http://127.0.0.1:8001',
+  'ANTHROPIC_AUTH_TOKEN': 'dsv4-local',
+  'ANTHROPIC_MODEL': 'deepseek-v4-flash',
+  'ANTHROPIC_DEFAULT_SONNET_MODEL': 'deepseek-v4-flash',
+  'ANTHROPIC_DEFAULT_HAIKU_MODEL': 'deepseek-v4-flash',
+  'ANTHROPIC_DEFAULT_OPUS_MODEL': 'deepseek-v4-flash',
+  'CLAUDE_CODE_SUBAGENT_MODEL': 'deepseek-v4-flash',
+  'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1',
+  'CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK': '1',
+  'CLAUDE_STREAM_IDLE_TIMEOUT_MS': '600000',
+};
+
+class _EnvOverridesDialog extends StatefulWidget {
+  const _EnvOverridesDialog({
+    required this.initial,
+    required this.strings,
+    required this.lang,
+    required this.c,
+  });
+
+  final Map<String, String> initial;
+  final AppStrings strings;
+  final String lang;
+  final AppColors c;
+
+  @override
+  State<_EnvOverridesDialog> createState() => _EnvOverridesDialogState();
+}
+
+class _EnvOverridesDialogState extends State<_EnvOverridesDialog> {
+  bool _unsetApiKey = false;
+  late final Map<String, TextEditingController> _controllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _unsetApiKey = widget.initial['ANTHROPIC_API_KEY'] == '__UNSET__';
+    _controllers = {
+      for (final key in _kDs4Keys)
+        key: TextEditingController(
+          text: widget.initial.containsKey(key) ? widget.initial[key] : '',
+        ),
+    };
+  }
+
+  @override
+  void dispose() {
+    for (final c in _controllers.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  void _applyDs4Preset() {
+    setState(() {
+      _unsetApiKey = true;
+      for (final key in _kDs4Keys) {
+        _controllers[key]!.text = _kDs4Values[key] ?? '';
+      }
+    });
+  }
+
+  void _clearAll() {
+    setState(() {
+      _unsetApiKey = false;
+      for (final c in _controllers.values) {
+        c.clear();
+      }
+    });
+  }
+
+  void _save() {
+    final result = <String, String>{};
+    if (_unsetApiKey) result['ANTHROPIC_API_KEY'] = '__UNSET__';
+    for (final entry in _controllers.entries) {
+      final val = entry.value.text.trim();
+      if (val.isNotEmpty) result[entry.key] = val;
+    }
+    Navigator.of(context).pop(result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.c;
+    final s = widget.strings;
+
+    return Dialog(
+      backgroundColor: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: c.border),
+      ),
+      child: SizedBox(
+        width: 520,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: c.border2)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      s.envOverridesTitle,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(null),
+                    child:
+                        Icon(Icons.close_rounded, size: 18, color: c.ink3),
+                  ),
+                ],
+              ),
+            ),
+            // Toolbar
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+              child: Row(
+                children: [
+                  // DS4 preset button
+                  GestureDetector(
+                    onTap: _applyDs4Preset,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: c.accent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        s.envOverridesDs4Btn,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: _clearAll,
+                    child: Text(
+                      s.envOverridesClearAll,
+                      style: TextStyle(
+                          fontSize: 12.5,
+                          color: c.ink3,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 1, color: c.border2),
+            // Body — scrollable
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 420),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ANTHROPIC_API_KEY unset toggle
+                    GestureDetector(
+                      onTap: () =>
+                          setState(() => _unsetApiKey = !_unsetApiKey),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: _unsetApiKey
+                                    ? c.accent
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: _unsetApiKey ? c.accent : c.border,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: _unsetApiKey
+                                  ? const Icon(Icons.check_rounded,
+                                      size: 11, color: Colors.white)
+                                  : null,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              s.envOverridesUnsetApiKey,
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: c.ink),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    // One text field per DS4 key
+                    ..._kDs4Keys.map((key) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                key,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: c.ink3,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              TextFormField(
+                                controller: _controllers[key],
+                                style: GoogleFonts.ibmPlexMono(fontSize: 12.5),
+                                decoration: InputDecoration(
+                                  hintText: _kDs4Values[key],
+                                  hintStyle:
+                                      TextStyle(color: c.ink4, fontSize: 12),
+                                  isDense: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 11, vertical: 8),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(color: c.border),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: c.border),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: c.ink3),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            ),
+            // Footer
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: c.border2)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(null),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: c.border),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        s.cancel,
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: c.ink2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: _save,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: c.accent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        s.save,
+                        style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
 class _Toast extends StatelessWidget {
@@ -1075,6 +1423,164 @@ class _Toast extends StatelessWidget {
       child: Text(
         message,
         style: const TextStyle(color: Colors.white, fontSize: 12.5),
+      ),
+    );
+  }
+}
+
+// ─── Language picker ──────────────────────────────────────────────────────────
+
+// Add entries here when adding new languages — the picker dialog reflects this list automatically.
+const _kLanguages = [
+  ('en', 'English'),
+  ('zh', '中文'),
+  ('ja', '日本語'),
+];
+
+class _LangPickerRow extends ConsumerWidget {
+  const _LangPickerRow({
+    required this.label,
+    required this.description,
+    required this.c,
+  });
+  final String label;
+  final String description;
+  final AppColors c;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(langNotifierProvider);
+    final langLabel =
+        _kLanguages.firstWhere((e) => e.$1 == lang, orElse: () => ('en', 'English')).$2;
+
+    return GestureDetector(
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (_) => _LangPickerDialog(c: c),
+      ),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: c.border2)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w500)),
+                  const SizedBox(height: 2),
+                  Text(description,
+                      style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(langLabel,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: c.ink2)),
+                const SizedBox(width: 4),
+                Icon(Icons.chevron_right_rounded, size: 16, color: c.ink3),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LangPickerDialog extends ConsumerWidget {
+  const _LangPickerDialog({required this.c});
+  final AppColors c;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(langNotifierProvider);
+    final s = AppStrings.forLang(lang);
+
+    return Dialog(
+      backgroundColor: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: c.border),
+      ),
+      child: SizedBox(
+        width: 300,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+              child: Text(
+                s.language,
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: c.ink),
+              ),
+            ),
+            Divider(color: c.border, height: 1),
+            ..._kLanguages.map((entry) {
+              final (key, label) = entry;
+              final selected = lang == key;
+              return GestureDetector(
+                onTap: () {
+                  ref.read(langNotifierProvider.notifier).set(key);
+                  Navigator.of(context).pop();
+                },
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+                  decoration: BoxDecoration(
+                    color: selected ? c.surface2 : Colors.transparent,
+                    border: Border(bottom: BorderSide(color: c.border2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(label,
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: c.ink,
+                                fontWeight: selected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal)),
+                      ),
+                      if (selected)
+                        Icon(Icons.check_rounded, size: 16, color: c.ink),
+                    ],
+                  ),
+                ),
+              );
+            }),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 9),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: c.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(s.cancel,
+                        style: TextStyle(fontSize: 13, color: c.ink3)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

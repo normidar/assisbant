@@ -10,6 +10,7 @@ import 'package:flutterapptemp/src/i18n/app_strings.dart';
 import 'package:flutterapptemp/src/screens/prompts/batch_create_modal.dart';
 import 'package:flutterapptemp/src/screens/prompts/prompt_card.dart';
 import 'package:flutterapptemp/src/screens/prompts/prompt_edit_modal.dart';
+import 'package:flutterapptemp/src/state/exec_notifier.dart';
 import 'package:flutterapptemp/src/state/prompt_notifier.dart';
 import 'package:flutterapptemp/src/state/ui_providers.dart';
 import 'package:flutterapptemp/src/widgets/branch_chip.dart';
@@ -1308,6 +1309,32 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
                       imagePaths: imagePaths,
                       commitAfterRun: commitAfterRun,
                     ),
+                onSaveAndStart: _editingPrompt == null
+                    ? ({
+                        required content,
+                        required branch,
+                        required projectPath,
+                        required priority,
+                        required isSkipped,
+                        required sessionId,
+                        required claudeModel,
+                        required imagePaths,
+                        required commitAfterRun,
+                      }) =>
+                        _savePrompt(
+                          content,
+                          branch,
+                          projectPath,
+                          priority,
+                          isSkipped,
+                          sessionId,
+                          allPrompts,
+                          claudeModel: claudeModel,
+                          imagePaths: imagePaths,
+                          commitAfterRun: commitAfterRun,
+                          startAfterSave: true,
+                        )
+                    : null,
                 onCancel: _closeModal,
                 onBatchCreate: _editingPrompt == null ? _openBatch : null,
               ),
@@ -1447,6 +1474,7 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
     String claudeModel = '',
     String imagePaths = '',
     bool commitAfterRun = false,
+    bool startAfterSave = false,
   }) async {
     final notifier = ref.read(promptListNotifierProvider.notifier);
     if (_editingPrompt == null) {
@@ -1477,6 +1505,9 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
       _showToast(widget.strings.saved);
     }
     _closeModal();
+    if (startAfterSave) {
+      ref.read(execNotifierProvider.notifier).start();
+    }
   }
 
   void _showToast(String msg) {

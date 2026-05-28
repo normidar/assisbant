@@ -143,6 +143,14 @@ class AppStrings {
     required this.exportFormat,
     required this.attachImages,
     required this.noImages,
+    required this.createAndStart,
+    required this.envOverrides,
+    required this.envOverridesDesc,
+    required this.envOverridesTitle,
+    required this.envOverridesDs4Btn,
+    required this.envOverridesNone,
+    required this.envOverridesClearAll,
+    required this.envOverridesUnsetApiKey,
   });
 
   final String prompts;
@@ -287,6 +295,14 @@ class AppStrings {
   final String exportFormat;
   final String attachImages;
   final String noImages;
+  final String createAndStart;
+  final String envOverrides;
+  final String envOverridesDesc;
+  final String envOverridesTitle;
+  final String envOverridesDs4Btn;
+  final String envOverridesNone;
+  final String envOverridesClearAll;
+  final String envOverridesUnsetApiKey;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -453,6 +469,14 @@ class AppStrings {
     exportFormat: 'Export format',
     attachImages: 'Attach images',
     noImages: 'No images attached',
+    createAndStart: 'Create & Start',
+    envOverrides: 'Env Overrides',
+    envOverridesDesc: 'Custom env vars injected before each Claude CLI run.',
+    envOverridesTitle: 'Environment Variables',
+    envOverridesDs4Btn: 'Set DS4',
+    envOverridesNone: 'None',
+    envOverridesClearAll: 'Clear all',
+    envOverridesUnsetApiKey: 'Unset ANTHROPIC_API_KEY',
   );
 
   static const _zh = AppStrings(
@@ -598,6 +622,14 @@ class AppStrings {
     exportFormat: '导出格式',
     attachImages: '附加图片',
     noImages: '未附加图片',
+    createAndStart: '创建并开始',
+    envOverrides: '环境变量覆盖',
+    envOverridesDesc: '每次 CLI 调用前注入的自定义环境变量。',
+    envOverridesTitle: '环境变量',
+    envOverridesDs4Btn: '设置 DS4',
+    envOverridesNone: '未设置',
+    envOverridesClearAll: '清除全部',
+    envOverridesUnsetApiKey: '取消 ANTHROPIC_API_KEY',
   );
 
   static const _ja = AppStrings(
@@ -743,5 +775,13 @@ class AppStrings {
     exportFormat: 'エクスポート形式',
     attachImages: '画像を添付',
     noImages: '画像なし',
+    createAndStart: '作成して開始',
+    envOverrides: '環境変数のオーバーライド',
+    envOverridesDesc: 'CLI 実行前に注入するカスタム環境変数。',
+    envOverridesTitle: '環境変数',
+    envOverridesDs4Btn: 'DS4 を設定',
+    envOverridesNone: '未設定',
+    envOverridesClearAll: 'すべてクリア',
+    envOverridesUnsetApiKey: 'ANTHROPIC_API_KEY を削除',
   );
 }

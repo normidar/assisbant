@@ -25,6 +25,20 @@ class ExecutionResult {
 class ExecutionService {
   const ExecutionService();
 
+  // ユーザーのデフォルトシェル。GUI アプリ起動時に SHELL が引き継がれるので
+  // zsh/fish 等のプロファイルを読ませるためにそちらを優先する。
+  static String get _userShell => Platform.environment['SHELL'] ?? '/bin/bash';
+
+  // claude がよくインストールされるパスを PATH の先頭に追加する。
+  // GUI アプリは PATH が最小限なため、明示的に補完する必要がある。
+  static String get _pathSetup =>
+      r'export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"; ';
+
+  /// 1つのプロンプトを実行して結果を返す。
+  ///
+  /// sessionId が設定されているプロンプトは stream-json モードで実行し、
+  /// Claude の質問→回答ループや claudeSessionId の取得に対応する。
+  /// sessionId が空の場合は従来の --print モードで高速実行する。
   Future<ExecutionResult> run(
     PromptEntry prompt,
     AppSettings settings, {
@@ -34,6 +48,7 @@ class ExecutionService {
     Future<String> Function(String question)? onQuestion,
   }) async {
     try {
+      // prompt 個別の projectPath を優先し、未設定ならグローバル workdir を使う
       final rawWorkdir = prompt.projectPath.isNotEmpty
           ? prompt.projectPath
           : settings.workdir;
@@ -47,7 +62,7 @@ class ExecutionService {
           workingDirectory: workdir,
         );
         if (checkout.exitCode != 0) {
-          // Branch doesn't exist locally — create it
+          // ローカルに存在しないブランチは新規作成する
           final create = await Process.run(
             '/bin/bash',
             ['-lc', 'git checkout -b ${_shellQuote(prompt.branch)}'],
@@ -63,6 +78,8 @@ class ExecutionService {
         }
       }
 
+      // sessionId が設定されている = 会話継続が必要なプロンプト
+      // stream-json モードは claudeSessionId を返すため会話の引き継ぎに必須
       final useStreamJson = prompt.sessionId.isNotEmpty;
 
       final modelFlag = _resolveModelFlag(prompt.claudeModel, settings);
@@ -73,6 +90,7 @@ class ExecutionService {
           cliPath: cliPath,
           workdir: workdir,
           modelFlag: _resolveModelFlag(prompt.claudeModel, settings),
+          envPrefix: _buildEnvPrefix(settings.envOverrides),
           imagePaths: _decodeImagePaths(prompt.imagePaths),
           resumeSessionId: resumeSessionId,
           onOutput: onOutput,
@@ -81,8 +99,10 @@ class ExecutionService {
         );
       }
 
+      // sessionId なしの場合はシンプルな --print モード（出力だけ取得）
+      final envPrefix = _buildEnvPrefix(settings.envOverrides);
       final cmdBuf = StringBuffer(
-        'exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(prompt.content)}',
+        '${_pathSetup}${envPrefix}exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(prompt.content)}',
       );
       for (final imgPath in _decodeImagePaths(prompt.imagePaths)) {
         cmdBuf.write(' --image ${_shellQuote(imgPath)}');
@@ -94,7 +114,7 @@ class ExecutionService {
       dev.log('[ExecSvc] cmd: $cmdBuf', name: 'ExecutionService');
 
       final process = await Process.start(
-        '/bin/bash',
+        _userShell,
         ['-lc', cmdBuf.toString()],
         workingDirectory: workdir,
       );
@@ -144,12 +164,17 @@ class ExecutionService {
     }
   }
 
-  /// Runs Claude in stream-json mode, handling question→answer loops.
+  /// stream-json モードで Claude を実行し、質問→回答ループを処理する。
+  ///
+  /// Claude が質問を返した場合（_looksLikeQuestion が true）は onQuestion を呼び出し、
+  /// ユーザーの回答を次のリクエストの content として再実行する。
+  /// 質問でない結果が返るか、onQuestion が null なら即座に終了する。
   Future<ExecutionResult> _executeStreamJsonLoop({
     required String content,
     required String cliPath,
     required String workdir,
     required String modelFlag,
+    required String envPrefix,
     List<String> imagePaths = const [],
     String? resumeSessionId,
     void Function(String)? onOutput,
@@ -165,6 +190,7 @@ class ExecutionService {
         cliPath: cliPath,
         workdir: workdir,
         modelFlag: modelFlag,
+        envPrefix: envPrefix,
         imagePaths: imagePaths,
         resumeSessionId: currentResumeId,
         onOutput: onOutput,
@@ -192,19 +218,20 @@ class ExecutionService {
     }
   }
 
-  /// Executes a single round of stream-json and returns the result.
+  /// stream-json を1回実行して結果を返す。質問ループは呼び出し元が担う。
   Future<ExecutionResult> _executeStreamJsonOnce({
     required String content,
     required String cliPath,
     required String workdir,
     required String modelFlag,
+    required String envPrefix,
     List<String> imagePaths = const [],
     String? resumeSessionId,
     void Function(String)? onOutput,
     Future<void>? cancelToken,
   }) async {
     final cmdBuf = StringBuffer(
-      'exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(content)} --output-format stream-json --verbose',
+      '${_pathSetup}${envPrefix}exec ${_shellQuote(cliPath)} --dangerously-skip-permissions$modelFlag --print ${_shellQuote(content)} --output-format stream-json --verbose',
     );
     for (final imgPath in imagePaths) {
       cmdBuf.write(' --image ${_shellQuote(imgPath)}');
@@ -215,9 +242,9 @@ class ExecutionService {
 
     dev.log('[ExecSvc] cmd: $cmdBuf', name: 'ExecutionService');
 
-    // exec replaces bash with claude directly so kill() reaches the claude process
+    // exec replaces the shell with claude directly so kill() reaches the claude process
     final process = await Process.start(
-      '/bin/bash',
+      _userShell,
       ['-lc', cmdBuf.toString()],
       workingDirectory: workdir,
     );
@@ -242,6 +269,7 @@ class ExecutionService {
         stdoutBuf.write(chunk);
         lineBuffer += chunk;
 
+        // stream-json は1行1JSONイベント形式。改行が来るたびに解析する
         var idx = lineBuffer.indexOf('\n');
         while (idx >= 0) {
           final line = lineBuffer.substring(0, idx).trim();
@@ -255,6 +283,7 @@ class ExecutionService {
                 '[ExecSvc] stream-json type=$type',
                 name: 'ExecutionService',
               );
+              // 'assistant' イベント: Claude のテキスト応答をリアルタイムで UI に流す
               if (type == 'assistant') {
                 final msg = event['message'] as Map<String, dynamic>?;
                 final contents = msg?['content'];
@@ -266,6 +295,7 @@ class ExecutionService {
                     }
                   }
                 }
+              // 'result' イベント: 実行の最終結果と claudeSessionId が含まれる
               } else if (type == 'result') {
                 capturedSessionId = (event['session_id'] as String?) ?? '';
                 capturedResult = (event['result'] as String?) ?? '';
@@ -381,6 +411,21 @@ class ExecutionService {
         name: 'ExecutionService',
       );
     }
+  }
+
+  /// 環境変数オーバーライドから bash コマンド先頭に挿入するシェルスクリプト片を生成する。
+  /// 値が '__UNSET__' のキーは unset コマンドに変換される。
+  String _buildEnvPrefix(Map<String, String> envOverrides) {
+    if (envOverrides.isEmpty) return '';
+    final buf = StringBuffer();
+    for (final entry in envOverrides.entries) {
+      if (entry.value == '__UNSET__') {
+        buf.write('unset ${entry.key}; ');
+      } else {
+        buf.write('export ${entry.key}=${_shellQuote(entry.value)}; ');
+      }
+    }
+    return buf.toString();
   }
 
   /// Returns the `--model <name>` fragment to inject into the CLI command.
