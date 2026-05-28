@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:io';
@@ -61,6 +61,7 @@ class ExecutionService {
           workdir,
         );
         if (checkout.exitCode != 0) {
+          // ローカルに存在しないブランチは新規作成する
           final create = await _runGit(
             ['checkout', '-b', prompt.branch],
             workdir,
