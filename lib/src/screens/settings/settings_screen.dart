@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutterapptemp/src/app/theme.dart';
 import 'package:flutterapptemp/src/data/database/app_database.dart';
 import 'package:flutterapptemp/src/data/services/import_export_service.dart';
 import 'package:flutterapptemp/src/i18n/app_strings.dart';
 import 'package:flutterapptemp/src/providers/database_providers.dart';
+import 'package:flutterapptemp/src/remote/server/remote_server_service.dart';
 import 'package:flutterapptemp/src/screens/settings/connection_settings_modal.dart';
 import 'package:flutterapptemp/src/screens/settings/env_overrides_dialog.dart';
 import 'package:flutterapptemp/src/state/prompt_notifier.dart';
@@ -334,6 +336,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ],
                       ),
                       const SizedBox(height: 14),
+                      // Remote control card
+                      _RemoteControlCard(settings: settings, upd: upd, c: c, lang: lang),
+                      const SizedBox(height: 14),
                       // About card
                       _SetCard(
                         title: lang == 'zh'
@@ -381,6 +386,188 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             right: 0,
             child: Center(child: _Toast(message: _toastMessage!)),
           ),
+      ],
+    );
+  }
+}
+
+// ─── Remote Control Card ─────────────────────────────────────────────────────
+
+class _RemoteControlCard extends ConsumerStatefulWidget {
+  const _RemoteControlCard({
+    required this.settings,
+    required this.upd,
+    required this.c,
+    required this.lang,
+  });
+  final AppSettings settings;
+  final void Function(AppSettings) upd;
+  final AppColors c;
+  final String lang;
+
+  @override
+  ConsumerState<_RemoteControlCard> createState() => _RemoteControlCardState();
+}
+
+class _RemoteControlCardState extends ConsumerState<_RemoteControlCard> {
+  late TextEditingController _portCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _portCtrl = TextEditingController(
+      text: widget.settings.remotePort.toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _portCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.c;
+    final lang = widget.lang;
+    final serverState = ref.watch(remoteServerProvider);
+
+    final title = lang == 'zh'
+        ? '手机遥控'
+        : lang == 'ja'
+            ? 'スマホリモコン'
+            : 'Mobile Remote Control';
+    final subtitle = lang == 'zh'
+        ? '通过 WiFi 让手机远程控制电脑上的任务'
+        : lang == 'ja'
+            ? '同一WiFiでスマホからリモートコントロール'
+            : 'Control this Mac remotely from phone over WiFi';
+    final enableLabel = lang == 'zh'
+        ? '启用远程连接'
+        : lang == 'ja'
+            ? 'リモート接続を有効化'
+            : 'Enable Remote Connection';
+    final enableDesc = lang == 'zh'
+        ? '在本机启动 WebSocket 服务器并广播 mDNS'
+        : lang == 'ja'
+            ? 'WebSocketサーバーを起動しmDNSでアドバタイズ'
+            : 'Starts a WebSocket server and advertises via mDNS';
+    final portLabel = lang == 'zh' ? '端口' : lang == 'ja' ? 'ポート番号' : 'Port';
+    final portDesc = lang == 'zh'
+        ? '监听端口 (默认 8765)'
+        : lang == 'ja'
+            ? 'リッスンポート (デフォルト: 8765)'
+            : 'Listen port (default: 8765)';
+
+    String statusText;
+    Color statusColor;
+    if (serverState.isRunning) {
+      final count = serverState.clientCount;
+      statusText = lang == 'zh'
+          ? '运行中 · 端口 ${serverState.port}${count > 0 ? ' · $count 台设备已连接' : ''}'
+          : lang == 'ja'
+              ? '稼働中 · ポート ${serverState.port}${count > 0 ? ' · $count 台接続中' : ''}'
+              : 'Running · port ${serverState.port}${count > 0 ? ' · $count device(s) connected' : ''}';
+      statusColor = Colors.green.shade600;
+    } else if (serverState.errorMessage != null) {
+      statusText = serverState.errorMessage!;
+      statusColor = Colors.red.shade600;
+    } else {
+      statusText = lang == 'zh' ? '已停止' : lang == 'ja' ? '停止中' : 'Stopped';
+      statusColor = c.ink3;
+    }
+
+    return _SetCard(
+      title: title,
+      subtitle: subtitle,
+      c: c,
+      children: [
+        _SetRowSwitch(
+          label: enableLabel,
+          description: enableDesc,
+          value: widget.settings.remoteEnabled,
+          onChanged: (v) => widget.upd(widget.settings.copyWith(remoteEnabled: v)),
+          c: c,
+        ),
+        // Port field
+        Container(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+          decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.border2))),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(portLabel,
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 2),
+                    Text(portDesc,
+                        style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 14),
+              SizedBox(
+                width: 100,
+                child: TextFormField(
+                  controller: _portCtrl,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (v) {
+                    final port = int.tryParse(v);
+                    if (port != null && port > 0 && port < 65536) {
+                      widget.upd(widget.settings.copyWith(remotePort: port));
+                    }
+                  },
+                  style: GoogleFonts.ibmPlexMono(fontSize: 13),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: c.border),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: c.border),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: c.ink3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Status row
+        Container(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+          child: Row(
+            children: [
+              Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  statusText,
+                  style: TextStyle(fontSize: 12, color: c.ink3),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -7,6 +7,7 @@ import 'package:flutterapptemp/src/screens/branches/branches_screen.dart';
 import 'package:flutterapptemp/src/screens/logs/logs_screen.dart';
 import 'package:flutterapptemp/src/screens/prompts/prompts_screen.dart';
 import 'package:flutterapptemp/src/screens/settings/settings_screen.dart';
+import 'package:flutterapptemp/src/remote/server/remote_server_service.dart';
 import 'package:flutterapptemp/src/state/exec_notifier.dart';
 import 'package:flutterapptemp/src/state/prompt_notifier.dart';
 import 'package:flutterapptemp/src/state/ui_providers.dart';
@@ -30,6 +31,13 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
     super.initState();
     windowManager.addListener(this);
     windowManager.setPreventClose(true);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Keep remote server alive for the lifetime of the app shell
+    ref.read(remoteServerProvider);
   }
 
   @override

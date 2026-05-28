@@ -1,3 +1,142 @@
+# モバイル版 WiFi リモコン実装計画 (assisbant)
+
+更新日: 2026-05-28
+
+---
+
+## 概要
+
+macOS アプリが **WebSocket サーバー** として動作し、iOS/Android アプリが同一 WiFi で接続してリモート操作する。スマホ側は Claude Code を実行せず、Mac 上の操作を完全にリモートコントロールする。
+
+```
+[iOS/Android アプリ]  ←── WebSocket (JSON) ──→  [macOS アプリ]
+  WebSocket クライアント                           WebSocket サーバー (port 8765)
+  フル機能 UI (作成・編集・削除・実行制御)           Claude Code を実際に実行
+  mDNS で Mac を自動発見                           mDNS でサービスをアドバタイズ
+```
+
+---
+
+## 採用パッケージ
+
+| パッケージ | 用途 |
+|---|---|
+| `shelf` + `shelf_web_socket` | macOS WebSocket サーバー |
+| `web_socket_channel` | iOS/Android クライアント |
+| `bonsoir` | mDNS 発見・アドバタイズ (両プラットフォーム対応) |
+
+---
+
+## メッセージプロトコル (JSON over WebSocket)
+
+**Mac → スマホ (イベント):**
+```json
+{ "type": "state", "data": { "isRunning": true, "currentId": 42, "pausedOnFail": false }}
+{ "type": "promptList", "data": [{ "id": 1, "content": "...", "branch": "main", ... }] }
+{ "type": "output", "promptId": 42, "chunk": "Building...\n" }
+{ "type": "error", "message": "..." }
+```
+
+**スマホ → Mac (コマンド):**
+```json
+{ "cmd": "start" }
+{ "cmd": "stop" }
+{ "cmd": "resume" }
+{ "cmd": "createPrompt", "content": "...", "branch": "main", "priority": 1 }
+{ "cmd": "updatePrompt", "id": 42, "content": "...", "branch": "dev" }
+{ "cmd": "deletePrompt", "id": 42 }
+{ "cmd": "skipPrompt", "id": 42 }
+{ "cmd": "duplicatePrompt", "id": 42 }
+{ "cmd": "resetPrompt", "id": 42 }
+```
+
+---
+
+## 実装フェーズ
+
+### Phase 1: macOS WebSocket サーバー
+- `RemoteServerService`: `shelf_web_socket` でポート 8765 リッスン
+- 既存の `ExecNotifier` / `PromptListNotifier` の状態変化を WebSocket にブロードキャスト
+- `bonsoir` で `_assisbant._tcp` サービスをアドバタイズ
+- Settings 画面に「リモート接続を有効化」トグルを追加
+
+### Phase 2: プラットフォーム追加
+- `fvm flutter create --platforms=android,ios .`
+- Android: `INTERNET`, `CHANGE_WIFI_MULTICAST_STATE` 権限
+- iOS: Local Network entitlement, Bonjour サービス設定
+- `mobile_main.dart` エントリポイント作成
+
+### Phase 3: モバイル状態管理
+- `RemoteConnectionNotifier` — スキャン・接続・再接続
+- `RemotePromptListNotifier` — サーバーからのプロンプト一覧キャッシュ
+- `RemoteExecStateNotifier` — 実行状態ミラー
+- `RemoteCommandService` — コマンド送信
+
+### Phase 4: モバイル UI (フル機能)
+- 接続画面: mDNS スキャン → Mac 一覧 → 接続 (手動 IP 入力も可)
+- プロンプト一覧: 作成・編集・削除・スキップ・複製
+- 実行コントロール: 開始/停止/再開 + プログレス表示
+- 出力ビューア: リアルタイムストリーミング
+
+---
+
+## ファイル構成 (新規追加分)
+
+```
+lib/
+  mobile_main.dart
+  src/
+    remote/
+      remote_protocol.dart            # 共通 JSON メッセージ定義
+      server/
+        remote_server_service.dart    # macOS: WebSocket サーバー + mDNS 公告
+        remote_command_handler.dart   # macOS: コマンド処理
+      client/
+        remote_client_service.dart    # モバイル: WebSocket クライアント
+        remote_discovery_service.dart # モバイル: mDNS スキャン
+    state/
+      remote_connection_notifier.dart
+      remote_prompt_notifier.dart
+      remote_exec_notifier.dart
+    screens/mobile/
+      connection_screen.dart
+      remote_prompts_screen.dart
+      remote_exec_screen.dart
+      remote_prompt_form.dart
+```
+
+---
+
+## 実装進捗
+
+- [x] Phase 1: macOS WebSocket サーバー
+  - [x] `shelf`, `shelf_web_socket`, `bonsoir`, `web_socket_channel` を pubspec に追加
+  - [x] `remote_protocol.dart` (メッセージ定義)
+  - [x] `remote_server_service.dart` (WebSocket サーバー + mDNS)
+  - [x] `remote_command_handler.dart` (コマンド処理)
+  - [x] `AppSettings` に `remoteEnabled`, `remotePort` 追加
+  - [x] Settings 画面に「スマホリモコン」カード追加
+- [x] Phase 2: プラットフォーム追加
+  - [x] iOS/Android ディレクトリ作成
+  - [x] Android 権限設定 (INTERNET, CHANGE_WIFI_MULTICAST_STATE)
+  - [x] iOS Info.plist 設定 (NSLocalNetworkUsageDescription, NSBonjourServices)
+  - [x] `mobile_main.dart` 作成
+  - [x] `main.dart` でプラットフォーム分岐
+- [x] Phase 3: モバイル状態管理
+  - [x] `RemoteConnectionNotifier` (接続・mDNS スキャン)
+  - [x] `RemoteExecNotifier` (実行状態ミラー)
+  - [x] `RemotePromptNotifier` (プロンプト一覧ミラー)
+  - [x] `RemoteClientService` (WebSocket クライアント)
+  - [x] `RemoteDiscoveryService` (mDNS 発見)
+- [x] Phase 4: モバイル UI
+  - [x] `ConnectionScreen` (スキャン・手動接続)
+  - [x] `RemotePromptsScreen` (プロンプト一覧・操作)
+  - [x] `RemotePromptForm` (作成・編集フォーム)
+  - [x] `RemoteExecScreen` (実行制御・出力表示)
+  - [x] `MobileShell` (BottomNavigationBar ナビゲーション)
+
+---
+
 # 修正計画 (assisbant)
 
 調査日: 2026-05-23
