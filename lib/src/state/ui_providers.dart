@@ -171,6 +171,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
       aiderPath: prefs.getString('aiderPath') ?? '',
       remoteEnabled: prefs.getBool('remoteEnabled') ?? false,
       remotePort: prefs.getInt('remotePort') ?? 8765,
+      imageGenApiUrl: prefs.getString('imageGenApiUrl') ?? 'http://localhost:7860',
+      imageGenModel: prefs.getString('imageGenModel') ?? '',
     );
   }
 
@@ -191,6 +193,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
     await prefs.setString('aiderPath', s.aiderPath);
     await prefs.setBool('remoteEnabled', s.remoteEnabled);
     await prefs.setInt('remotePort', s.remotePort);
+    await prefs.setString('imageGenApiUrl', s.imageGenApiUrl);
+    await prefs.setString('imageGenModel', s.imageGenModel);
   }
 
   static Map<String, String> _parseEnvOverrides(String raw) {
@@ -219,6 +223,8 @@ class AppSettings {
     this.aiderPath = '',
     this.remoteEnabled = false,
     this.remotePort = 8765,
+    this.imageGenApiUrl = 'http://localhost:7860',
+    this.imageGenModel = '',
   });
 
   final String cliPath; // claude CLI のパス。空の場合は PATH から検索
@@ -234,6 +240,8 @@ class AppSettings {
   final String aiderPath; // aider 実行ファイルのパス。空の場合は PATH から検索
   final bool remoteEnabled; // スマホからのリモート接続を受け付けるか
   final int remotePort; // WebSocket サーバーのポート番号
+  final String imageGenApiUrl; // 画像生成 API のエンドポイント（Automatic1111）
+  final String imageGenModel; // 選択された画像生成モデル名
 
   AppSettings copyWith({
     String? cliPath,
@@ -248,6 +256,8 @@ class AppSettings {
     String? aiderPath,
     bool? remoteEnabled,
     int? remotePort,
+    String? imageGenApiUrl,
+    String? imageGenModel,
   }) =>
       AppSettings(
         cliPath: cliPath ?? this.cliPath,
@@ -262,5 +272,7 @@ class AppSettings {
         aiderPath: aiderPath ?? this.aiderPath,
         remoteEnabled: remoteEnabled ?? this.remoteEnabled,
         remotePort: remotePort ?? this.remotePort,
+        imageGenApiUrl: imageGenApiUrl ?? this.imageGenApiUrl,
+        imageGenModel: imageGenModel ?? this.imageGenModel,
       );
 }
