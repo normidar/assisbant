@@ -1,6 +1,7 @@
 ﻿import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:assibant/src/data/services/image_gen_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -352,6 +353,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       // Remote control card
                       _RemoteControlCard(settings: settings, upd: upd, c: c, lang: lang),
                       const SizedBox(height: 14),
+                      // Image Generation card
+                      _ImageGenSettingsCard(settings: settings, upd: upd, c: c, s: s),
+                      const SizedBox(height: 14),
                       // About card
                       _SetCard(
                         title: lang == 'zh'
@@ -399,6 +403,260 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             right: 0,
             child: Center(child: _Toast(message: _toastMessage!)),
           ),
+      ],
+    );
+  }
+}
+
+// Popular model presets — display name + typical Automatic1111 model_name
+const _kImageGenPresets = [
+  ('SD 1.5',         'v1-5-pruned-emaonly'),
+  ('SDXL',           'sd_xl_base_1.0'),
+  ('SDXL Turbo',     'sdxl_turbo_1.0_fp16'),
+  ('SD 3.5 Medium',  'sd3.5_medium'),
+  ('Flux.1-dev',     'flux1-dev'),
+  ('Flux.1-schnell', 'flux1-schnell'),
+];
+
+// ─── Image Generation Settings Card ──────────────────────────────────────────
+
+class _ImageGenSettingsCard extends ConsumerStatefulWidget {
+  const _ImageGenSettingsCard({
+    required this.settings,
+    required this.upd,
+    required this.c,
+    required this.s,
+  });
+  final AppSettings settings;
+  final void Function(AppSettings) upd;
+  final AppColors c;
+  final AppStrings s;
+
+  @override
+  ConsumerState<_ImageGenSettingsCard> createState() =>
+      _ImageGenSettingsCardState();
+}
+
+class _ImageGenSettingsCardState
+    extends ConsumerState<_ImageGenSettingsCard> {
+  List<String> _models = [];
+  bool _loadingModels = false;
+  String? _modelsError;
+
+  Future<void> _refreshModels() async {
+    setState(() {
+      _loadingModels = true;
+      _modelsError = null;
+    });
+    try {
+      final models =
+          await ImageGenService.getModels(widget.settings.imageGenApiUrl);
+      if (mounted) {
+        setState(() => _models = models);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _modelsError = e.toString());
+    } finally {
+      if (mounted) setState(() => _loadingModels = false);
+    }
+  }
+
+  Future<void> _openCivitai() async {
+    await Process.start('open', ['https://civitai.com/models']);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.c;
+    final s = widget.s;
+    final settings = widget.settings;
+
+    return _SetCard(
+      title: s.imageGenSettings,
+      subtitle: s.imageGenSettingsDesc,
+      c: c,
+      children: [
+        // API URL
+        _SetRowInput(
+          label: s.imageGenApiUrl,
+          description: s.imageGenApiUrlDesc,
+          value: settings.imageGenApiUrl,
+          placeholder: s.imageGenApiUrlPlaceholder,
+          onChanged: (v) =>
+              widget.upd(settings.copyWith(imageGenApiUrl: v.trim())),
+          c: c,
+        ),
+        // Model selector
+        Container(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+          decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.border2))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(s.imageGenModel,
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w500)),
+                        const SizedBox(height: 2),
+                        Text(s.imageGenModelDesc,
+                            style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  GestureDetector(
+                    onTap: _loadingModels ? null : _refreshModels,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: c.border),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: _loadingModels
+                          ? SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 1.5, color: c.ink3),
+                            )
+                          : Text(s.imageGenRefreshModels,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: c.ink2)),
+                    ),
+                  ),
+                ],
+              ),
+              if (_modelsError != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Error: $_modelsError',
+                  style: const TextStyle(fontSize: 11.5, color: Colors.red),
+                ),
+              ] else if (_models.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: _models.map((m) {
+                    final selected = settings.imageGenModel == m;
+                    return GestureDetector(
+                      onTap: () =>
+                          widget.upd(settings.copyWith(imageGenModel: m)),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 130),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: selected ? c.accent : c.surface3,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                              color: selected ? c.accent : c.border),
+                        ),
+                        child: Text(
+                          m,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: selected ? Colors.white : c.ink2,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ] else if (!_loadingModels) ...[
+                const SizedBox(height: 6),
+                Text(
+                  settings.imageGenModel.isNotEmpty
+                      ? settings.imageGenModel
+                      : 'Click Refresh to load models from the API.',
+                  style: TextStyle(fontSize: 11.5, color: c.ink4),
+                ),
+              ],
+            ],
+          ),
+        ),
+        // Preset models
+        Container(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+          decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.border2))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                s.imageGenPresetModels,
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'SD 1.5 · SDXL · Flux.1 など。タップでモデル名をセット。',
+                style: TextStyle(fontSize: 11.5, color: c.ink3),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: _kImageGenPresets.map((preset) {
+                  final (label, modelId) = preset;
+                  final selected = settings.imageGenModel == modelId;
+                  return GestureDetector(
+                    onTap: () => widget
+                        .upd(settings.copyWith(imageGenModel: modelId)),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 130),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: selected ? c.accent : c.surface3,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                            color: selected ? c.accent : c.border),
+                      ),
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: selected ? Colors.white : c.ink2,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              if (settings.imageGenModel.isNotEmpty &&
+                  !_kImageGenPresets
+                      .any((p) => p.$2 == settings.imageGenModel)) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '現在: ${settings.imageGenModel}',
+                  style: TextStyle(fontSize: 11.5, color: c.ink4),
+                ),
+              ],
+            ],
+          ),
+        ),
+        // Download models
+        _SetRowWidget(
+          label: s.imageGenDownloadModels,
+          description: s.imageGenDownloadModelsDesc,
+          c: c,
+          child: _ActionBtn(
+            label: 'Civitai',
+            onTap: _openCivitai,
+            c: c,
+          ),
+        ),
       ],
     );
   }

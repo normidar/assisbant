@@ -167,6 +167,32 @@ class AppStrings {
     required this.toolNotFound,
     required this.duplicate,
     required this.duplicated,
+    required this.promptTab,
+    required this.imageGenTab,
+    required this.imageGenPrompt,
+    required this.imageGenPromptPlaceholder,
+    required this.imageGenNegative,
+    required this.imageGenNegativePlaceholder,
+    required this.imageGenGenerate,
+    required this.imageGenGenerating,
+    required this.imageGenSave,
+    required this.imageGenAttach,
+    required this.imageGenIdle,
+    required this.imageGenFailed,
+    required this.imageGenSettings,
+    required this.imageGenSettingsDesc,
+    required this.imageGenApiUrl,
+    required this.imageGenApiUrlDesc,
+    required this.imageGenApiUrlPlaceholder,
+    required this.imageGenModel,
+    required this.imageGenModelDesc,
+    required this.imageGenRefreshModels,
+    required this.imageGenDownloadModels,
+    required this.imageGenDownloadModelsDesc,
+    required this.imageGenSize,
+    required this.imageGenAddPrompt,
+    required this.imageGenPresetModels,
+    required this.imageGenInfiniteMode,
   });
 
   final String prompts;
@@ -335,11 +361,55 @@ class AppStrings {
   final String toolNotFound;
   final String duplicate;
   final String duplicated;
+  final String promptTab;
+  final String imageGenTab;
+  final String imageGenPrompt;
+  final String imageGenPromptPlaceholder;
+  final String imageGenNegative;
+  final String imageGenNegativePlaceholder;
+  final String imageGenGenerate;
+  final String imageGenGenerating;
+  final String imageGenSave;
+  final String imageGenAttach;
+  final String imageGenIdle;
+  final String imageGenFailed;
+  final String imageGenSettings;
+  final String imageGenSettingsDesc;
+  final String imageGenApiUrl;
+  final String imageGenApiUrlDesc;
+  final String imageGenApiUrlPlaceholder;
+  final String imageGenModel;
+  final String imageGenModelDesc;
+  final String imageGenRefreshModels;
+  final String imageGenDownloadModels;
+  final String imageGenDownloadModelsDesc;
+  final String imageGenSize;
+  final String imageGenAddPrompt;
+  final String imageGenPresetModels;
+  final String imageGenInfiniteMode;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
     if (this == _ja) return '$n 件のプロンプトを作成';
     return 'Create $n prompt${n == 1 ? '' : 's'}';
+  }
+
+  String imageGenGenerateAllCount(int n) {
+    if (this == _zh) return '全部生成 ($n)';
+    if (this == _ja) return 'すべて生成 ($n)';
+    return 'Generate All ($n)';
+  }
+
+  String imageGenProgressOf(int current, int total) {
+    if (this == _zh) return '生成中 $current/$total…';
+    if (this == _ja) return '生成中 $current/$total…';
+    return 'Generating $current/$total…';
+  }
+
+  String imageGenLoopIteration(int n) {
+    if (this == _zh) return '第 $n 轮';
+    if (this == _ja) return '第 $n 回';
+    return 'Loop #$n';
   }
 
   String importSuccessCount(int n) {
@@ -525,6 +595,32 @@ class AppStrings {
     toolNotFound: 'Not found',
     duplicate: 'Duplicate',
     duplicated: 'Prompt duplicated',
+    promptTab: 'Prompt',
+    imageGenTab: 'Image Gen',
+    imageGenPrompt: 'Image prompt',
+    imageGenPromptPlaceholder: 'Describe the image to generate…',
+    imageGenNegative: 'Negative prompt',
+    imageGenNegativePlaceholder: 'What to exclude from the image…',
+    imageGenGenerate: 'Generate',
+    imageGenGenerating: 'Generating…',
+    imageGenSave: 'Save image',
+    imageGenAttach: 'Attach to prompt',
+    imageGenIdle: 'Generated image will appear here.',
+    imageGenFailed: 'Generation failed. Check the API URL in Settings.',
+    imageGenSettings: 'Image Generation',
+    imageGenSettingsDesc: 'Local Stable Diffusion API (Automatic1111 WebUI)',
+    imageGenApiUrl: 'API URL',
+    imageGenApiUrlDesc: 'Automatic1111 WebUI endpoint.',
+    imageGenApiUrlPlaceholder: 'http://localhost:7860',
+    imageGenModel: 'Model',
+    imageGenModelDesc: 'Stable Diffusion model to use. Click Refresh to load available models.',
+    imageGenRefreshModels: 'Refresh',
+    imageGenDownloadModels: 'Download Models',
+    imageGenDownloadModelsDesc: 'Open Civitai to browse and download SD models.',
+    imageGenSize: 'Image size',
+    imageGenAddPrompt: 'Add prompt',
+    imageGenPresetModels: 'Popular models',
+    imageGenInfiniteMode: 'Infinite Mode',
   );
 
   static const _zh = AppStrings(
@@ -694,6 +790,32 @@ class AppStrings {
     toolNotFound: '未找到',
     duplicate: '复制',
     duplicated: 'Prompt 已复制',
+    promptTab: '提示词',
+    imageGenTab: '图像生成',
+    imageGenPrompt: '图像描述',
+    imageGenPromptPlaceholder: '描述要生成的图像…',
+    imageGenNegative: '负面提示词',
+    imageGenNegativePlaceholder: '图像中要排除的内容…',
+    imageGenGenerate: '生成',
+    imageGenGenerating: '生成中…',
+    imageGenSave: '保存图片',
+    imageGenAttach: '附加到提示词',
+    imageGenIdle: '生成的图像将显示在这里。',
+    imageGenFailed: '生成失败，请检查设置中的 API 地址。',
+    imageGenSettings: '图像生成',
+    imageGenSettingsDesc: '本地 Stable Diffusion API（Automatic1111 WebUI）',
+    imageGenApiUrl: 'API 地址',
+    imageGenApiUrlDesc: 'Automatic1111 WebUI 端点。',
+    imageGenApiUrlPlaceholder: 'http://localhost:7860',
+    imageGenModel: '模型',
+    imageGenModelDesc: '要使用的 Stable Diffusion 模型。点击"刷新"加载可用模型。',
+    imageGenRefreshModels: '刷新',
+    imageGenDownloadModels: '下载模型',
+    imageGenDownloadModelsDesc: '打开 Civitai 浏览并下载 SD 模型。',
+    imageGenSize: '图像尺寸',
+    imageGenAddPrompt: '添加提示词',
+    imageGenPresetModels: '热门模型',
+    imageGenInfiniteMode: '无限生成',
   );
 
   static const _ja = AppStrings(
@@ -863,5 +985,31 @@ class AppStrings {
     toolNotFound: '未検出',
     duplicate: '複製',
     duplicated: 'プロンプトを複製しました',
+    promptTab: 'プロンプト',
+    imageGenTab: '画像生成',
+    imageGenPrompt: '画像プロンプト',
+    imageGenPromptPlaceholder: '生成する画像を説明してください…',
+    imageGenNegative: 'ネガティブプロンプト',
+    imageGenNegativePlaceholder: '画像から除外する要素…',
+    imageGenGenerate: '生成',
+    imageGenGenerating: '生成中…',
+    imageGenSave: '画像を保存',
+    imageGenAttach: 'プロンプトに添付',
+    imageGenIdle: '生成された画像がここに表示されます。',
+    imageGenFailed: '生成に失敗しました。設定の API URL を確認してください。',
+    imageGenSettings: '画像生成',
+    imageGenSettingsDesc: 'ローカル Stable Diffusion API（Automatic1111 WebUI）',
+    imageGenApiUrl: 'API URL',
+    imageGenApiUrlDesc: 'Automatic1111 WebUI のエンドポイント。',
+    imageGenApiUrlPlaceholder: 'http://localhost:7860',
+    imageGenModel: 'モデル',
+    imageGenModelDesc: '使用する Stable Diffusion モデル。「更新」をクリックして利用可能なモデルを読み込みます。',
+    imageGenRefreshModels: '更新',
+    imageGenDownloadModels: 'モデルをダウンロード',
+    imageGenDownloadModelsDesc: 'Civitai を開いて SD モデルを検索・ダウンロードします。',
+    imageGenSize: '画像サイズ',
+    imageGenAddPrompt: 'プロンプトを追加',
+    imageGenPresetModels: '人気モデル',
+    imageGenInfiniteMode: '無限生成',
   );
 }
