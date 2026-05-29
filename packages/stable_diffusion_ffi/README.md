@@ -3,7 +3,8 @@
 Dart FFI バインディングで [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) を直接呼び出し、Web サービスなしで `.safetensors` / GGUF モデルから画像を生成するパッケージです。
 
 ![example output](example_output.png)
-> *"a cute cat, simple illustration, minimal" — 256×256, 10 steps, seed=42 (CPU, Q4_0 GGUF)*
+> *"a cute orange tabby cat sitting on a windowsill, natural sunlight, sharp focus, photorealistic"*  
+> Realistic Vision V6.0 B1 Q8_0 · 512×512 · 25 steps · Euler A · seed=1234 · CPU
 
 ---
 
@@ -103,10 +104,16 @@ Future<void> main() async {
 
 ### モデルのダウンロード例
 
-**SD 1.5（GGUF Q4_0、約 1.5 GB）**
+**Realistic Vision V6.0 B1（フォトリアル特化、Q8_0 約 1.8 GB）** ← 上の画像の生成に使用
 
 ```bash
-# Hugging Face CLI
+huggingface-cli download second-state/Realistic_Vision_V6.0_B1-GGUF \
+  realisticVisionV60B1_v51HyperVAE-Q8_0.gguf --local-dir .
+```
+
+**SD 1.5 ベース（汎用、Q4_0 約 1.5 GB）**
+
+```bash
 huggingface-cli download second-state/stable-diffusion-v1-5-GGUF \
   sd-v1-5-q4_0.gguf --local-dir .
 ```
