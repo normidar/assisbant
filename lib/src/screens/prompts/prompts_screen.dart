@@ -6,6 +6,7 @@ import 'package:assibant/src/data/database/prompt_status.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/screens/prompts/batch_create_modal.dart';
 import 'package:assibant/src/screens/prompts/commit_history_view.dart';
+import 'package:assibant/src/screens/prompts/prompt_filter_helpers.dart';
 import 'package:assibant/src/screens/prompts/prompt_card.dart';
 import 'package:assibant/src/screens/prompts/prompt_detail_panel.dart';
 import 'package:assibant/src/screens/prompts/prompt_edit_modal.dart';
@@ -411,11 +412,11 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
       error: (e, _) => Center(child: Text('Error: $e')),
       data: (allPrompts) {
         final (branches, projectPaths, maxPriority) =
-            _computeMetadata(allPrompts);
-        final list = _applyFilters(
+            computePromptMetadata(allPrompts);
+        final list = applyPromptFilters(
             allPrompts, projectFilter, branchFilter, query, filter);
-        final counts = _computeCounts(
-            _applyProjectAndBranchFilter(allPrompts, projectFilter, branchFilter));
+        final counts = computePromptCounts(
+            applyProjectAndBranchFilter(allPrompts, projectFilter, branchFilter));
         final pendingIds = list
             .where((p) => p.status == PromptStatus.pending && !p.isSkipped)
             .map((p) => p.id)
@@ -625,89 +626,6 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
   void dispose() {
     _searchCtrl.dispose();
     super.dispose();
-  }
-
-  // ─── Helpers ─────────────────────────────────────────────────────────────
-
-  /// Returns (sortedBranches, sortedProjectPaths, maxPriority).
-  (List<String>, List<String>, int) _computeMetadata(
-      List<PromptEntry> allPrompts) {
-    final branchTimes = <String, DateTime>{};
-    for (final p in allPrompts) {
-      final t = branchTimes[p.branch];
-      if (t == null || p.updatedAt.isAfter(t)) branchTimes[p.branch] = p.updatedAt;
-    }
-    final branches = branchTimes.keys.toList()
-      ..sort((a, b) => branchTimes[b]!.compareTo(branchTimes[a]!));
-
-    final pathTimes = <String, DateTime>{};
-    for (final p in allPrompts) {
-      if (p.projectPath.isEmpty) continue;
-      final t = pathTimes[p.projectPath];
-      if (t == null || p.updatedAt.isAfter(t))
-        pathTimes[p.projectPath] = p.updatedAt;
-    }
-    final projectPaths = pathTimes.keys.toList()
-      ..sort((a, b) => pathTimes[b]!.compareTo(pathTimes[a]!));
-
-    final maxPriority = allPrompts.isEmpty
-        ? 0
-        : allPrompts.map((p) => p.priority).reduce((a, b) => a > b ? a : b);
-
-    return (branches, projectPaths, maxPriority);
-  }
-
-  List<PromptEntry> _applyProjectAndBranchFilter(
-      List<PromptEntry> src, String? projectFilter, String? branchFilter) {
-    var list = src;
-    if (projectFilter != null)
-      list = list.where((p) => p.projectPath == projectFilter).toList();
-    if (branchFilter != null)
-      list = list.where((p) => p.branch == branchFilter).toList();
-    return list;
-  }
-
-  List<PromptEntry> _applyFilters(List<PromptEntry> src, String? projectFilter,
-      String? branchFilter, String query, String filter) {
-    var list =
-        _applyProjectAndBranchFilter(src, projectFilter, branchFilter);
-    if (query.isNotEmpty) {
-      final q = query.toLowerCase();
-      list = list
-          .where((p) =>
-              p.content.toLowerCase().contains(q) ||
-              p.branch.toLowerCase().contains(q))
-          .toList();
-    }
-    if (filter == 'skipped') {
-      list = list.where((p) => p.isSkipped).toList();
-    } else if (filter != 'all') {
-      list = list
-          .where((p) => !p.isSkipped && p.status.name == filter)
-          .toList();
-    }
-    list.sort((a, b) => b.priority.compareTo(a.priority));
-    return list;
-  }
-
-  Map<String, int> _computeCounts(List<PromptEntry> src) {
-    final counts = <String, int>{
-      'all': 0,
-      'pending': 0,
-      'running': 0,
-      'done': 0,
-      'failed': 0,
-      'skipped': 0,
-    };
-    for (final p in src) {
-      counts['all'] = counts['all']! + 1;
-      if (p.isSkipped) {
-        counts['skipped'] = counts['skipped']! + 1;
-      } else {
-        counts[p.status.name] = (counts[p.status.name] ?? 0) + 1;
-      }
-    }
-    return counts;
   }
 
   // ─── Actions ─────────────────────────────────────────────────────────────
