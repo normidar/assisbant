@@ -408,6 +408,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 }
 
+// Popular model presets — display name + typical Automatic1111 model_name
+const _kImageGenPresets = [
+  ('SD 1.5',         'v1-5-pruned-emaonly'),
+  ('SDXL',           'sd_xl_base_1.0'),
+  ('SDXL Turbo',     'sdxl_turbo_1.0_fp16'),
+  ('SD 3.5 Medium',  'sd3.5_medium'),
+  ('Flux.1-dev',     'flux1-dev'),
+  ('Flux.1-schnell', 'flux1-schnell'),
+];
+
 // ─── Image Generation Settings Card ──────────────────────────────────────────
 
 class _ImageGenSettingsCard extends ConsumerStatefulWidget {
@@ -568,6 +578,68 @@ class _ImageGenSettingsCardState
                   settings.imageGenModel.isNotEmpty
                       ? settings.imageGenModel
                       : 'Click Refresh to load models from the API.',
+                  style: TextStyle(fontSize: 11.5, color: c.ink4),
+                ),
+              ],
+            ],
+          ),
+        ),
+        // Preset models
+        Container(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+          decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.border2))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                s.imageGenPresetModels,
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'SD 1.5 · SDXL · Flux.1 など。タップでモデル名をセット。',
+                style: TextStyle(fontSize: 11.5, color: c.ink3),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: _kImageGenPresets.map((preset) {
+                  final (label, modelId) = preset;
+                  final selected = settings.imageGenModel == modelId;
+                  return GestureDetector(
+                    onTap: () => widget
+                        .upd(settings.copyWith(imageGenModel: modelId)),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 130),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: selected ? c.accent : c.surface3,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                            color: selected ? c.accent : c.border),
+                      ),
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: selected ? Colors.white : c.ink2,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              if (settings.imageGenModel.isNotEmpty &&
+                  !_kImageGenPresets
+                      .any((p) => p.$2 == settings.imageGenModel)) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '現在: ${settings.imageGenModel}',
                   style: TextStyle(fontSize: 11.5, color: c.ink4),
                 ),
               ],

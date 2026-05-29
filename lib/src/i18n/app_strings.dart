@@ -190,6 +190,8 @@ class AppStrings {
     required this.imageGenDownloadModels,
     required this.imageGenDownloadModelsDesc,
     required this.imageGenSize,
+    required this.imageGenAddPrompt,
+    required this.imageGenPresetModels,
   });
 
   final String prompts;
@@ -381,11 +383,25 @@ class AppStrings {
   final String imageGenDownloadModels;
   final String imageGenDownloadModelsDesc;
   final String imageGenSize;
+  final String imageGenAddPrompt;
+  final String imageGenPresetModels;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
     if (this == _ja) return '$n 件のプロンプトを作成';
     return 'Create $n prompt${n == 1 ? '' : 's'}';
+  }
+
+  String imageGenGenerateAllCount(int n) {
+    if (this == _zh) return '全部生成 ($n)';
+    if (this == _ja) return 'すべて生成 ($n)';
+    return 'Generate All ($n)';
+  }
+
+  String imageGenProgressOf(int current, int total) {
+    if (this == _zh) return '生成中 $current/$total…';
+    if (this == _ja) return '生成中 $current/$total…';
+    return 'Generating $current/$total…';
   }
 
   String importSuccessCount(int n) {
@@ -594,6 +610,8 @@ class AppStrings {
     imageGenDownloadModels: 'Download Models',
     imageGenDownloadModelsDesc: 'Open Civitai to browse and download SD models.',
     imageGenSize: 'Image size',
+    imageGenAddPrompt: 'Add prompt',
+    imageGenPresetModels: 'Popular models',
   );
 
   static const _zh = AppStrings(
@@ -786,6 +804,8 @@ class AppStrings {
     imageGenDownloadModels: '下载模型',
     imageGenDownloadModelsDesc: '打开 Civitai 浏览并下载 SD 模型。',
     imageGenSize: '图像尺寸',
+    imageGenAddPrompt: '添加提示词',
+    imageGenPresetModels: '热门模型',
   );
 
   static const _ja = AppStrings(
@@ -978,5 +998,7 @@ class AppStrings {
     imageGenDownloadModels: 'モデルをダウンロード',
     imageGenDownloadModelsDesc: 'Civitai を開いて SD モデルを検索・ダウンロードします。',
     imageGenSize: '画像サイズ',
+    imageGenAddPrompt: 'プロンプトを追加',
+    imageGenPresetModels: '人気モデル',
   );
 }
