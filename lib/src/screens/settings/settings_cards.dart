@@ -1,12 +1,14 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/data/services/image_gen_service.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
-import 'package:assibant/src/providers/database_providers.dart';
+import 'package:assibant/src/screens/settings/model_picker_dialog.dart';
 import 'package:assibant/src/remote/server/remote_server_service.dart';
 import 'package:assibant/src/screens/settings/settings_widgets.dart';
 import 'package:assibant/src/state/ui_providers.dart';
@@ -69,6 +71,21 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
     await Process.start('open', ['https://civitai.com/models']);
   }
 
+  // ── File picker for VAE path ─────────────────────────────────────────────────
+
+  Future<void> _pickVaeFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['gguf', 'safetensors'],
+    );
+    if (result != null && mounted) {
+      final path = result.files.single.path ?? '';
+      if (path.isNotEmpty) {
+        widget.onUpdate(widget.settings.copyWith(sdVaePath: path));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = widget.c;
@@ -77,57 +94,236 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
 
     return SetCard(
       title: s.imageGenSettings,
-      subtitle: s.imageGenSettingsDesc,
+      subtitle: settings.sdLocalMode ? s.sdLocalModeLabel : s.sdWebApiModeLabel,
       c: c,
       children: [
-        // API URL row
-        SetRowInput(
-          label: s.imageGenApiUrl,
-          description: s.imageGenApiUrlDesc,
-          value: settings.imageGenApiUrl,
-          placeholder: s.imageGenApiUrlPlaceholder,
+        // Mode toggle
+        _ModeToggleRow(
+          localMode: settings.sdLocalMode,
           onChanged: (v) =>
-              widget.onUpdate(settings.copyWith(imageGenApiUrl: v.trim())),
-          c: c,
-        ),
-
-        // Model selector from API
-        _ModelSelectorRow(
-          settings: settings,
-          models: _models,
-          loadingModels: _loadingModels,
-          modelsError: _modelsError,
-          onRefresh: _refreshModels,
-          onSelectModel: (m) =>
-              widget.onUpdate(settings.copyWith(imageGenModel: m)),
+              widget.onUpdate(settings.copyWith(sdLocalMode: v)),
           c: c,
           s: s,
         ),
 
-        // Preset model chips
-        _PresetModelsRow(
-          settings: settings,
-          onSelectModel: (m) =>
-              widget.onUpdate(settings.copyWith(imageGenModel: m)),
-          c: c,
-          s: s,
-        ),
-
-        // Download link to Civitai
-        SetRowWidget(
-          label: s.imageGenDownloadModels,
-          description: s.imageGenDownloadModelsDesc,
-          c: c,
-          child: SettingsActionBtn(
-            label: 'Civitai',
-            onTap: _openCivitai,
+        if (settings.sdLocalMode) ...[
+          // Local mode: model picker + VAE path.
+          // The dylib is compiled from the submodule and bundled automatically
+          // by the Native Assets hook during `flutter build` — no path needed.
+          _ModelPathSelectorRow(
+            settings: settings,
+            onUpdate: widget.onUpdate,
+            c: c,
+            s: s,
+          ),
+          SetRowInput(
+            label: s.sdVaePath,
+            description: s.sdVaePathDesc,
+            value: settings.sdVaePath,
+            placeholder: s.sdVaePathPlaceholder,
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(sdVaePath: v.trim())),
+            onPickFile: _pickVaeFile,
             c: c,
           ),
-        ),
+        ] else ...[
+          // Web API mode: Automatic1111 URL + model selector
+          SetRowInput(
+            label: s.imageGenApiUrl,
+            description: s.imageGenApiUrlDesc,
+            value: settings.imageGenApiUrl,
+            placeholder: s.imageGenApiUrlPlaceholder,
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(imageGenApiUrl: v.trim())),
+            c: c,
+          ),
+          _ModelSelectorRow(
+            settings: settings,
+            models: _models,
+            loadingModels: _loadingModels,
+            modelsError: _modelsError,
+            onRefresh: _refreshModels,
+            onSelectModel: (m) =>
+                widget.onUpdate(settings.copyWith(imageGenModel: m)),
+            c: c,
+            s: s,
+          ),
+          _PresetModelsRow(
+            settings: settings,
+            onSelectModel: (m) =>
+                widget.onUpdate(settings.copyWith(imageGenModel: m)),
+            c: c,
+            s: s,
+          ),
+          SetRowWidget(
+            label: s.imageGenDownloadModels,
+            description: s.imageGenDownloadModelsDesc,
+            c: c,
+            child: SettingsActionBtn(
+              label: 'Civitai',
+              onTap: _openCivitai,
+              c: c,
+            ),
+          ),
+        ],
       ],
     );
   }
 }
+
+// ─── Mode toggle row ──────────────────────────────────────────────────────────
+
+class _ModeToggleRow extends StatelessWidget {
+  const _ModeToggleRow({
+    required this.localMode,
+    required this.onChanged,
+    required this.c,
+    required this.s,
+  });
+
+  final bool localMode;
+  final ValueChanged<bool> onChanged;
+  final AppColors c;
+  final AppStrings s;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: c.border2))),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              localMode ? s.sdLocalModeDesc : s.imageGenSettingsDesc,
+              style: TextStyle(fontSize: 11.5, color: c.ink3),
+            ),
+          ),
+          const SizedBox(width: 14),
+          _ModeChip(
+            label: s.sdWebApiModeLabel,
+            selected: !localMode,
+            onTap: () => onChanged(false),
+            c: c,
+          ),
+          const SizedBox(width: 6),
+          _ModeChip(
+            label: s.sdLocalModeLabel,
+            selected: localMode,
+            onTap: () => onChanged(true),
+            c: c,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModeChip extends StatelessWidget {
+  const _ModeChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.c,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final AppColors c;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 130),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: selected ? c.accent : c.surface3,
+          borderRadius: BorderRadius.circular(7),
+          border: Border.all(color: selected ? c.accent : c.border),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: selected ? Colors.white : c.ink2,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Local mode: model path selector with picker dialog ──────────────────────
+
+class _ModelPathSelectorRow extends StatelessWidget {
+  const _ModelPathSelectorRow({
+    required this.settings,
+    required this.onUpdate,
+    required this.c,
+    required this.s,
+  });
+
+  final AppSettings settings;
+  final void Function(AppSettings) onUpdate;
+  final AppColors c;
+  final AppStrings s;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasModel = settings.sdModelPath.isNotEmpty;
+    final label =
+        hasModel ? p.basename(settings.sdModelPath) : '—';
+
+    return SetRowWidget(
+      label: s.sdModelPath,
+      description: s.sdModelPathDesc,
+      c: c,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasModel)
+            Container(
+              constraints: const BoxConstraints(maxWidth: 200),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: c.surface3,
+                border: Border.all(color: c.border),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Text(
+                label,
+                style: TextStyle(fontSize: 12, color: c.ink2),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          if (hasModel) const SizedBox(width: 8),
+          SettingsActionBtn(
+            label: s.modelPickerSelect,
+            c: c,
+            onTap: () => showDialog<void>(
+              context: context,
+              builder: (_) => ModelPickerDialog(
+                c: c,
+                s: s,
+                currentPath: settings.sdModelPath,
+                onSelect: (path) =>
+                    onUpdate(settings.copyWith(sdModelPath: path)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Web-API mode: Automatic1111 model selector ───────────────────────────────
 
 class _ModelSelectorRow extends StatelessWidget {
   const _ModelSelectorRow({

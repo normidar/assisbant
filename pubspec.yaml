@@ -1,6 +1,8 @@
 ---
 dependencies:
   bonsoir: ^5.1.2
+  stable_diffusion_ffi:
+    path: packages/stable_diffusion_ffi
   drift: ^2.20.0
   drift_flutter: ^0.2.0
   easy_localization: 3.0.8
@@ -9,7 +11,9 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^3.0.0
   google_fonts: ^6.2.1
+  http: ^1.2.0
   path: ^1.9.0
+  path_provider: ^2.1.0
   riverpod_annotation: ^3.0.0
   shelf: ^1.4.2
   shelf_web_socket: ^2.0.0
@@ -26,7 +30,7 @@ dev_dependencies:
   flutter_lints: 6.0.0
   flutter_test:
     sdk: flutter
-  icons_launcher: 3.1.0
+  icons_launcher: 3.0.3
   riverpod_generator: ^3.0.0
   riverpod_lint: ^3.0.0
   very_good_analysis: any

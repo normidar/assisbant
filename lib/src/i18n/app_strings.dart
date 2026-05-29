@@ -193,6 +193,29 @@ class AppStrings {
     required this.imageGenAddPrompt,
     required this.imageGenPresetModels,
     required this.imageGenInfiniteMode,
+    required this.sdLocalModeLabel,
+    required this.sdLocalModeDesc,
+    required this.sdWebApiModeLabel,
+    required this.sdDylibPath,
+    required this.sdDylibPathDesc,
+    required this.sdDylibPathPlaceholder,
+    required this.sdModelPath,
+    required this.sdModelPathDesc,
+    required this.sdModelPathPlaceholder,
+    required this.sdVaePath,
+    required this.sdVaePathDesc,
+    required this.sdVaePathPlaceholder,
+    required this.modelPickerTitle,
+    required this.modelPickerTabLocal,
+    required this.modelPickerTabDownload,
+    required this.modelPickerNoLocal,
+    required this.modelPickerDownloading,
+    required this.modelPickerCancel,
+    required this.modelPickerSelect,
+    required this.modelPickerOpenFolder,
+    required this.modelPickerDownloadStart,
+    required this.modelPickerDownloadDone,
+    required this.modelPickerDownloadFailed,
   });
 
   final String prompts;
@@ -387,6 +410,29 @@ class AppStrings {
   final String imageGenAddPrompt;
   final String imageGenPresetModels;
   final String imageGenInfiniteMode;
+  final String sdLocalModeLabel;
+  final String sdLocalModeDesc;
+  final String sdWebApiModeLabel;
+  final String sdDylibPath;
+  final String sdDylibPathDesc;
+  final String sdDylibPathPlaceholder;
+  final String sdModelPath;
+  final String sdModelPathDesc;
+  final String sdModelPathPlaceholder;
+  final String sdVaePath;
+  final String sdVaePathDesc;
+  final String sdVaePathPlaceholder;
+  final String modelPickerTitle;
+  final String modelPickerTabLocal;
+  final String modelPickerTabDownload;
+  final String modelPickerNoLocal;
+  final String modelPickerDownloading;
+  final String modelPickerCancel;
+  final String modelPickerSelect;
+  final String modelPickerOpenFolder;
+  final String modelPickerDownloadStart;
+  final String modelPickerDownloadDone;
+  final String modelPickerDownloadFailed;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -621,6 +667,29 @@ class AppStrings {
     imageGenAddPrompt: 'Add prompt',
     imageGenPresetModels: 'Popular models',
     imageGenInfiniteMode: 'Infinite Mode',
+    sdLocalModeLabel: 'Local (stable-diffusion.cpp)',
+    sdLocalModeDesc: 'Use stable-diffusion.cpp dylib directly with .safetensors files. No web service required.',
+    sdWebApiModeLabel: 'Web API (Automatic1111)',
+    sdDylibPath: 'Library Path (.dylib)',
+    sdDylibPathDesc: 'Absolute path to libstable-diffusion.dylib.',
+    sdDylibPathPlaceholder: '/usr/local/lib/libstable-diffusion.dylib',
+    sdModelPath: 'Model Path (.safetensors)',
+    sdModelPathDesc: 'Absolute path to the .safetensors model file.',
+    sdModelPathPlaceholder: '/path/to/model.safetensors',
+    sdVaePath: 'VAE Path (optional)',
+    sdVaePathDesc: 'Path to a custom VAE .safetensors. Leave empty to use the model\'s built-in VAE.',
+    sdVaePathPlaceholder: '(optional)',
+    modelPickerTitle: 'Select Model',
+    modelPickerTabLocal: 'My Models',
+    modelPickerTabDownload: 'Download',
+    modelPickerNoLocal: 'No .gguf files in models folder.',
+    modelPickerDownloading: 'Downloading…',
+    modelPickerCancel: 'Cancel',
+    modelPickerSelect: 'Select…',
+    modelPickerOpenFolder: 'Open Folder',
+    modelPickerDownloadStart: 'Download',
+    modelPickerDownloadDone: 'Installed',
+    modelPickerDownloadFailed: 'Failed',
   );
 
   static const _zh = AppStrings(
@@ -816,6 +885,29 @@ class AppStrings {
     imageGenAddPrompt: '添加提示词',
     imageGenPresetModels: '热门模型',
     imageGenInfiniteMode: '无限生成',
+    sdLocalModeLabel: '本地（stable-diffusion.cpp）',
+    sdLocalModeDesc: '直接使用 stable-diffusion.cpp dylib 和 .safetensors 文件，无需 Web 服务。',
+    sdWebApiModeLabel: 'Web API（Automatic1111）',
+    sdDylibPath: '库路径（.dylib）',
+    sdDylibPathDesc: 'libstable-diffusion.dylib 的绝对路径。',
+    sdDylibPathPlaceholder: '/usr/local/lib/libstable-diffusion.dylib',
+    sdModelPath: '模型路径（.safetensors）',
+    sdModelPathDesc: '.safetensors 模型文件的绝对路径。',
+    sdModelPathPlaceholder: '/path/to/model.safetensors',
+    sdVaePath: 'VAE 路径（可选）',
+    sdVaePathDesc: '自定义 VAE .safetensors 的路径。留空则使用模型内置 VAE。',
+    sdVaePathPlaceholder: '（可选）',
+    modelPickerTitle: '选择模型',
+    modelPickerTabLocal: '我的模型',
+    modelPickerTabDownload: '下载',
+    modelPickerNoLocal: '模型文件夹中没有 .gguf 文件。',
+    modelPickerDownloading: '下载中…',
+    modelPickerCancel: '取消',
+    modelPickerSelect: '选择…',
+    modelPickerOpenFolder: '打开文件夹',
+    modelPickerDownloadStart: '下载',
+    modelPickerDownloadDone: '已安装',
+    modelPickerDownloadFailed: '失败',
   );
 
   static const _ja = AppStrings(
@@ -1011,5 +1103,28 @@ class AppStrings {
     imageGenAddPrompt: 'プロンプトを追加',
     imageGenPresetModels: '人気モデル',
     imageGenInfiniteMode: '無限生成',
+    sdLocalModeLabel: 'ローカル（stable-diffusion.cpp）',
+    sdLocalModeDesc: '.safetensors ファイルを Web サービスなしで直接使用します。',
+    sdWebApiModeLabel: 'Web API（Automatic1111）',
+    sdDylibPath: 'ライブラリパス（.dylib）',
+    sdDylibPathDesc: 'libstable-diffusion.dylib の絶対パス。',
+    sdDylibPathPlaceholder: '/usr/local/lib/libstable-diffusion.dylib',
+    sdModelPath: 'モデルパス（.safetensors）',
+    sdModelPathDesc: '.safetensors モデルファイルの絶対パス。',
+    sdModelPathPlaceholder: '/path/to/model.safetensors',
+    sdVaePath: 'VAE パス（省略可）',
+    sdVaePathDesc: 'カスタム VAE .safetensors のパス。空欄の場合はモデル内蔵 VAE を使用します。',
+    sdVaePathPlaceholder: '（省略可）',
+    modelPickerTitle: 'モデルを選択',
+    modelPickerTabLocal: 'マイモデル',
+    modelPickerTabDownload: 'ダウンロード',
+    modelPickerNoLocal: 'modelsフォルダに .gguf ファイルがありません。',
+    modelPickerDownloading: 'ダウンロード中…',
+    modelPickerCancel: 'キャンセル',
+    modelPickerSelect: '変更…',
+    modelPickerOpenFolder: 'フォルダを開く',
+    modelPickerDownloadStart: 'ダウンロード',
+    modelPickerDownloadDone: 'インストール済み',
+    modelPickerDownloadFailed: '失敗',
   );
 }

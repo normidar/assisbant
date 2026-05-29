@@ -1,0 +1,11 @@
+name: stable_diffusion_ffi
+description: Dart FFI bindings for stable-diffusion.cpp — generate images from .safetensors model files without a web service.
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  ffi: ^2.1.0
+  image: ^4.2.0
+  native_assets_cli: ^0.13.0
