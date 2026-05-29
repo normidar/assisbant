@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/data/repositories/image_gen_repository.dart';
 import 'package:assibant/src/data/services/image_gen_service.dart';
+import 'package:stable_diffusion_ffi/stable_diffusion_ffi.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/providers/database_providers.dart';
 import 'package:assibant/src/screens/prompts/prompt_form_shared.dart';
@@ -118,20 +119,41 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
         setState(() => _generatingIndex = i);
         final started = DateTime.now();
         try {
-          final result = await ImageGenService.generate(
-            apiUrl: settings.imageGenApiUrl,
-            prompt: prompt,
-            negativePrompt: _negativeCtrl.text.trim(),
-            model: settings.imageGenModel,
-            width: _preset.w,
-            height: _preset.h,
-            steps: 20,
-          );
+          final ImageGenResult result;
+          if (settings.sdLocalMode) {
+            final sdResult = await StableDiffusionFfi.generate(
+              SdGenerateParams(
+                dylibPath: settings.sdDylibPath,
+                modelPath: settings.sdModelPath,
+                vaePath: settings.sdVaePath,
+                prompt: prompt,
+                negativePrompt: _negativeCtrl.text.trim(),
+                width: _preset.w,
+                height: _preset.h,
+                steps: 20,
+              ),
+            );
+            result = ImageGenResult(
+                bytes: sdResult.pngBytes, seed: sdResult.seed);
+          } else {
+            result = await ImageGenService.generate(
+              apiUrl: settings.imageGenApiUrl,
+              prompt: prompt,
+              negativePrompt: _negativeCtrl.text.trim(),
+              model: settings.imageGenModel,
+              width: _preset.w,
+              height: _preset.h,
+              steps: 20,
+            );
+          }
           final finished = DateTime.now();
+          final modelLabel = settings.sdLocalMode
+              ? settings.sdModelPath.split('/').last
+              : settings.imageGenModel;
           final record = await repo.insert(
             prompt: prompt,
             negativePrompt: _negativeCtrl.text.trim(),
-            model: settings.imageGenModel,
+            model: modelLabel,
             width: _preset.w,
             height: _preset.h,
             seed: result.seed,
@@ -150,10 +172,13 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
           }
         } catch (e) {
           final finished = DateTime.now();
+          final modelLabel = settings.sdLocalMode
+              ? settings.sdModelPath.split('/').last
+              : settings.imageGenModel;
           unawaited(repo.insert(
             prompt: prompt,
             negativePrompt: _negativeCtrl.text.trim(),
-            model: settings.imageGenModel,
+            model: modelLabel,
             width: _preset.w,
             height: _preset.h,
             steps: 20,

@@ -1,6 +1,8 @@
 ---
 dependencies:
   bonsoir: ^5.1.2
+  stable_diffusion_ffi:
+    path: packages/stable_diffusion_ffi
   drift: ^2.20.0
   drift_flutter: ^0.2.0
   easy_localization: 3.0.8

@@ -77,54 +77,175 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
 
     return SetCard(
       title: s.imageGenSettings,
-      subtitle: s.imageGenSettingsDesc,
+      subtitle: settings.sdLocalMode ? s.sdLocalModeLabel : s.sdWebApiModeLabel,
       c: c,
       children: [
-        // API URL row
-        SetRowInput(
-          label: s.imageGenApiUrl,
-          description: s.imageGenApiUrlDesc,
-          value: settings.imageGenApiUrl,
-          placeholder: s.imageGenApiUrlPlaceholder,
+        // Mode toggle
+        _ModeToggleRow(
+          localMode: settings.sdLocalMode,
           onChanged: (v) =>
-              widget.onUpdate(settings.copyWith(imageGenApiUrl: v.trim())),
-          c: c,
-        ),
-
-        // Model selector from API
-        _ModelSelectorRow(
-          settings: settings,
-          models: _models,
-          loadingModels: _loadingModels,
-          modelsError: _modelsError,
-          onRefresh: _refreshModels,
-          onSelectModel: (m) =>
-              widget.onUpdate(settings.copyWith(imageGenModel: m)),
+              widget.onUpdate(settings.copyWith(sdLocalMode: v)),
           c: c,
           s: s,
         ),
 
-        // Preset model chips
-        _PresetModelsRow(
-          settings: settings,
-          onSelectModel: (m) =>
-              widget.onUpdate(settings.copyWith(imageGenModel: m)),
-          c: c,
-          s: s,
-        ),
-
-        // Download link to Civitai
-        SetRowWidget(
-          label: s.imageGenDownloadModels,
-          description: s.imageGenDownloadModelsDesc,
-          c: c,
-          child: SettingsActionBtn(
-            label: 'Civitai',
-            onTap: _openCivitai,
+        if (settings.sdLocalMode) ...[
+          // Local mode: dylib + model + VAE paths
+          SetRowInput(
+            label: s.sdDylibPath,
+            description: s.sdDylibPathDesc,
+            value: settings.sdDylibPath,
+            placeholder: s.sdDylibPathPlaceholder,
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(sdDylibPath: v.trim())),
             c: c,
           ),
-        ),
+          SetRowInput(
+            label: s.sdModelPath,
+            description: s.sdModelPathDesc,
+            value: settings.sdModelPath,
+            placeholder: s.sdModelPathPlaceholder,
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(sdModelPath: v.trim())),
+            c: c,
+          ),
+          SetRowInput(
+            label: s.sdVaePath,
+            description: s.sdVaePathDesc,
+            value: settings.sdVaePath,
+            placeholder: s.sdVaePathPlaceholder,
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(sdVaePath: v.trim())),
+            c: c,
+          ),
+        ] else ...[
+          // Web API mode: Automatic1111 URL + model selector
+          SetRowInput(
+            label: s.imageGenApiUrl,
+            description: s.imageGenApiUrlDesc,
+            value: settings.imageGenApiUrl,
+            placeholder: s.imageGenApiUrlPlaceholder,
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(imageGenApiUrl: v.trim())),
+            c: c,
+          ),
+          _ModelSelectorRow(
+            settings: settings,
+            models: _models,
+            loadingModels: _loadingModels,
+            modelsError: _modelsError,
+            onRefresh: _refreshModels,
+            onSelectModel: (m) =>
+                widget.onUpdate(settings.copyWith(imageGenModel: m)),
+            c: c,
+            s: s,
+          ),
+          _PresetModelsRow(
+            settings: settings,
+            onSelectModel: (m) =>
+                widget.onUpdate(settings.copyWith(imageGenModel: m)),
+            c: c,
+            s: s,
+          ),
+          SetRowWidget(
+            label: s.imageGenDownloadModels,
+            description: s.imageGenDownloadModelsDesc,
+            c: c,
+            child: SettingsActionBtn(
+              label: 'Civitai',
+              onTap: _openCivitai,
+              c: c,
+            ),
+          ),
+        ],
       ],
+    );
+  }
+}
+
+// ─── Mode toggle row ──────────────────────────────────────────────────────────
+
+class _ModeToggleRow extends StatelessWidget {
+  const _ModeToggleRow({
+    required this.localMode,
+    required this.onChanged,
+    required this.c,
+    required this.s,
+  });
+
+  final bool localMode;
+  final ValueChanged<bool> onChanged;
+  final AppColors c;
+  final AppStrings s;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+      decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: c.border2))),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              localMode ? s.sdLocalModeDesc : s.imageGenSettingsDesc,
+              style: TextStyle(fontSize: 11.5, color: c.ink3),
+            ),
+          ),
+          const SizedBox(width: 14),
+          _ModeChip(
+            label: s.sdWebApiModeLabel,
+            selected: !localMode,
+            onTap: () => onChanged(false),
+            c: c,
+          ),
+          const SizedBox(width: 6),
+          _ModeChip(
+            label: s.sdLocalModeLabel,
+            selected: localMode,
+            onTap: () => onChanged(true),
+            c: c,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModeChip extends StatelessWidget {
+  const _ModeChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.c,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final AppColors c;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 130),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: selected ? c.accent : c.surface3,
+          borderRadius: BorderRadius.circular(7),
+          border: Border.all(color: selected ? c.accent : c.border),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: selected ? Colors.white : c.ink2,
+          ),
+        ),
+      ),
     );
   }
 }

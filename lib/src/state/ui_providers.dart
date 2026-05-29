@@ -173,6 +173,10 @@ class SettingsNotifier extends Notifier<AppSettings> {
       remotePort: prefs.getInt('remotePort') ?? 8765,
       imageGenApiUrl: prefs.getString('imageGenApiUrl') ?? 'http://localhost:7860',
       imageGenModel: prefs.getString('imageGenModel') ?? '',
+      sdLocalMode: prefs.getBool('sdLocalMode') ?? false,
+      sdDylibPath: prefs.getString('sdDylibPath') ?? '',
+      sdModelPath: prefs.getString('sdModelPath') ?? '',
+      sdVaePath: prefs.getString('sdVaePath') ?? '',
     );
   }
 
@@ -195,6 +199,10 @@ class SettingsNotifier extends Notifier<AppSettings> {
     await prefs.setInt('remotePort', s.remotePort);
     await prefs.setString('imageGenApiUrl', s.imageGenApiUrl);
     await prefs.setString('imageGenModel', s.imageGenModel);
+    await prefs.setBool('sdLocalMode', s.sdLocalMode);
+    await prefs.setString('sdDylibPath', s.sdDylibPath);
+    await prefs.setString('sdModelPath', s.sdModelPath);
+    await prefs.setString('sdVaePath', s.sdVaePath);
   }
 
   static Map<String, String> _parseEnvOverrides(String raw) {
@@ -225,6 +233,10 @@ class AppSettings {
     this.remotePort = 8765,
     this.imageGenApiUrl = 'http://localhost:7860',
     this.imageGenModel = '',
+    this.sdLocalMode = false,
+    this.sdDylibPath = '',
+    this.sdModelPath = '',
+    this.sdVaePath = '',
   });
 
   final String cliPath; // claude CLI のパス。空の場合は PATH から検索
@@ -242,6 +254,10 @@ class AppSettings {
   final int remotePort; // WebSocket サーバーのポート番号
   final String imageGenApiUrl; // 画像生成 API のエンドポイント（Automatic1111）
   final String imageGenModel; // 選択された画像生成モデル名
+  final bool sdLocalMode; // true = stable-diffusion.cpp dylib、false = Web API
+  final String sdDylibPath; // libstable-diffusion.dylib のパス
+  final String sdModelPath; // .safetensors モデルのパス
+  final String sdVaePath; // VAE .safetensors のパス（省略可）
 
   AppSettings copyWith({
     String? cliPath,
@@ -258,6 +274,10 @@ class AppSettings {
     int? remotePort,
     String? imageGenApiUrl,
     String? imageGenModel,
+    bool? sdLocalMode,
+    String? sdDylibPath,
+    String? sdModelPath,
+    String? sdVaePath,
   }) =>
       AppSettings(
         cliPath: cliPath ?? this.cliPath,
@@ -274,5 +294,9 @@ class AppSettings {
         remotePort: remotePort ?? this.remotePort,
         imageGenApiUrl: imageGenApiUrl ?? this.imageGenApiUrl,
         imageGenModel: imageGenModel ?? this.imageGenModel,
+        sdLocalMode: sdLocalMode ?? this.sdLocalMode,
+        sdDylibPath: sdDylibPath ?? this.sdDylibPath,
+        sdModelPath: sdModelPath ?? this.sdModelPath,
+        sdVaePath: sdVaePath ?? this.sdVaePath,
       );
 }
