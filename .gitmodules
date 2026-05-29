@@ -1,0 +1,3 @@
+[submodule "packages/stable_diffusion_ffi/src/stable-diffusion.cpp"]
+	path = packages/stable_diffusion_ffi/src/stable-diffusion.cpp
+	url = https://github.com/leejet/stable-diffusion.cpp

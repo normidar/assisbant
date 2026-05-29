@@ -8,3 +8,6 @@ environment:
 dependencies:
   ffi: ^2.1.0
   image: ^4.2.0
+
+dev_dependencies:
+  native_assets_cli: ^0.10.0

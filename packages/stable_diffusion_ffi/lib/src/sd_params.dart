@@ -2,8 +2,9 @@ import 'ffi/sd_enums.dart';
 
 class SdGenerateParams {
   const SdGenerateParams({
-    required this.dylibPath,
     required this.modelPath,
+    this.dylibPath = '',
+
     required this.prompt,
     this.negativePrompt = '',
     this.vaePath = '',
@@ -18,8 +19,10 @@ class SdGenerateParams {
     this.wtype = SdType.auto_,
   });
 
-  final String dylibPath;
   final String modelPath;
+  /// Path to the pre-compiled dylib. Leave empty to use the Native Assets
+  /// bundled library (built from the submodule during `flutter build`).
+  final String dylibPath;
   final String prompt;
   final String negativePrompt;
   final String vaePath;

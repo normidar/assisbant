@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
@@ -16,18 +17,31 @@ export 'sd_result.dart';
 export 'ffi/sd_enums.dart';
 
 class StableDiffusionFfi {
-  /// Generates an image using a stable-diffusion.cpp dylib.
+  /// Generates an image using stable-diffusion.cpp.
   ///
-  /// Loads the model, runs inference, returns PNG bytes, then frees all
-  /// resources — all inside a background [Isolate] so the UI stays responsive.
+  /// If [SdGenerateParams.dylibPath] is empty, the library bundled via Native
+  /// Assets (compiled from the submodule during `flutter build`) is loaded
+  /// automatically. Set [dylibPath] explicitly only when using a pre-compiled
+  /// dylib that lives outside the app bundle.
   ///
-  /// Model loading (especially for large .safetensors files) can take tens of
-  /// seconds. Consider showing a progress indicator while awaiting.
+  /// Runs entirely in a background [Isolate] to keep the UI responsive.
+  /// Model loading for large .safetensors files can take tens of seconds.
   static Future<SdGenerationResult> generate(SdGenerateParams params) =>
       Isolate.run(() => _generateSync(params));
 
+  /// Opens the shared library. Prefers an explicit path; falls back to the
+  /// Native Assets bundled library loaded by name.
+  static DynamicLibrary _openLibrary(String dylibPath) {
+    if (dylibPath.isNotEmpty) return DynamicLibrary.open(dylibPath);
+    // Native Assets bundled build — library name only, resolved by the runtime.
+    if (Platform.isMacOS) return DynamicLibrary.open('libstable-diffusion.dylib');
+    if (Platform.isLinux) return DynamicLibrary.open('libstable-diffusion.so');
+    if (Platform.isWindows) return DynamicLibrary.open('stable-diffusion.dll');
+    throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
+  }
+
   static SdGenerationResult _generateSync(SdGenerateParams params) {
-    final dylib = DynamicLibrary.open(params.dylibPath);
+    final dylib = _openLibrary(params.dylibPath);
     final bindings = SdBindings(dylib);
 
     final allocs = <Pointer<Utf8>>[];

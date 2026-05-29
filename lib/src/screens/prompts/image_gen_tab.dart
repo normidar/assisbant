@@ -123,8 +123,8 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
           if (settings.sdLocalMode) {
             final sdResult = await StableDiffusionFfi.generate(
               SdGenerateParams(
-                dylibPath: settings.sdDylibPath,
                 modelPath: settings.sdModelPath,
+                dylibPath: settings.sdDylibPath, // empty = use bundled lib
                 vaePath: settings.sdVaePath,
                 prompt: prompt,
                 negativePrompt: _negativeCtrl.text.trim(),
