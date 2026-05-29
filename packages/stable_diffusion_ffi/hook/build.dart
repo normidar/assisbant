@@ -22,8 +22,12 @@ Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
 
   final sdRoot =
       input.packageRoot.resolve('src/stable-diffusion.cpp/').toFilePath();
-  final buildDir =
-      input.outputDirectory.resolve('sd_cmake_build/').toFilePath();
+  // Use a package-root-relative build dir so cmake can reuse its cache across
+  // pub get invocations (outputDirectory is regenerated each run, which would
+  // force a full cmake reconfigure+rebuild every time).
+  final buildDir = input.packageRoot
+      .resolve('.sd_cmake_build/${targetOS.name}/')
+      .toFilePath();
 
   Directory(buildDir).createSync(recursive: true);
 
@@ -47,8 +51,11 @@ Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
     '--parallel',
   ]);
 
-  // Copy the built library to the output directory (cmake puts it in bin/)
-  final builtLib = File('${buildDir}bin/${_libName(targetOS)}');
+  // Locate built library — cmake may place it in bin/ or directly in buildDir
+  final builtLibInBin = File('${buildDir}bin/${_libName(targetOS)}');
+  final builtLib = builtLibInBin.existsSync()
+      ? builtLibInBin
+      : File('$buildDir${_libName(targetOS)}');
   await builtLib.copy(libFile.toFilePath());
 
   output.addDependencies([
