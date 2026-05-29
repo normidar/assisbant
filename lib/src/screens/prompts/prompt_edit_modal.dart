@@ -921,8 +921,21 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
   int _generatingIndex = -1; // which prompt slot is currently running
   String? _lastError; // stores last per-prompt error message
 
-  int _selectedSize = 512;
-  static const _sizes = [512, 768, 1024];
+  int _selectedPreset = 0;
+
+  // (ratio label, width, height) — all dims are multiples of 64 for SD compatibility
+  static const _presets = [
+    (ratio: '1:1',    w: 512,  h: 512),
+    (ratio: '3:2',    w: 768,  h: 512),
+    (ratio: '2:3',    w: 512,  h: 768),
+    (ratio: '4:3',    w: 768,  h: 576),
+    (ratio: '3:4',    w: 576,  h: 768),
+    (ratio: '16:9',   w: 896,  h: 512),
+    (ratio: '9:16',   w: 512,  h: 896),
+    (ratio: '1:1 XL', w: 1024, h: 1024),
+  ];
+
+  ({String ratio, int w, int h}) get _preset => _presets[_selectedPreset];
 
   bool get _canGenerate =>
       !_generating &&
@@ -974,8 +987,8 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
           prompt: prompt,
           negativePrompt: _negativeCtrl.text.trim(),
           model: settings.imageGenModel,
-          width: _selectedSize,
-          height: _selectedSize,
+          width: _preset.w,
+          height: _preset.h,
           steps: 20,
         );
         if (mounted) {
@@ -1008,33 +1021,118 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
     widget.onAttach(path);
   }
 
-  Widget _buildSizeChips(AppColors c) {
-    return Wrap(
-      spacing: 6,
-      children: _sizes.map((sz) {
-        final selected = _selectedSize == sz;
-        return GestureDetector(
-          onTap: _generating ? null : () => setState(() => _selectedSize = sz),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 130),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              color: selected ? c.accent : c.surface3,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: selected ? c.accent : c.border),
-            ),
-            child: Text(
-              '${sz}×$sz',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: selected ? Colors.white : c.ink2,
+  Widget _buildAspectRatioPreview(int w, int h, AppColors c) {
+    const boxSize = 72.0;
+    const inner = boxSize - 16.0;
+    final double rectW, rectH;
+    if (w >= h) {
+      rectW = inner;
+      rectH = (inner * h / w).clamp(8.0, inner);
+    } else {
+      rectH = inner;
+      rectW = (inner * w / h).clamp(8.0, inner);
+    }
+    return Container(
+      width: boxSize,
+      height: boxSize,
+      decoration: BoxDecoration(
+        color: c.surface2,
+        border: Border.all(color: c.border),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeInOut,
+          width: rectW,
+          height: rectH,
+          decoration: BoxDecoration(
+            color: c.accent.withValues(alpha: 0.12),
+            border: Border.all(color: c.accent, width: 1.5),
+            borderRadius: BorderRadius.circular(2),
+          ),
+          child: Center(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: Text(
+                '${w}×$h',
+                key: ValueKey('$w×$h'),
+                style: TextStyle(
+                  fontSize: 7.5,
+                  fontWeight: FontWeight.w600,
+                  color: c.accent,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
-        );
-      }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSizeSection(AppColors c, AppStrings s) {
+    final p = _preset;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                s.imageGenSize.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: c.ink4,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: List.generate(_presets.length, (i) {
+                  final preset = _presets[i];
+                  final selected = _selectedPreset == i;
+                  return GestureDetector(
+                    onTap: _generating
+                        ? null
+                        : () => setState(() => _selectedPreset = i),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 130),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: selected ? c.accent : c.surface3,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                            color: selected ? c.accent : c.border),
+                      ),
+                      child: Text(
+                        preset.ratio,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: selected ? Colors.white : c.ink2,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '${p.w} × ${p.h} px',
+                style: TextStyle(fontSize: 11.5, color: c.ink4),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 14),
+        _buildAspectRatioPreview(p.w, p.h, c),
+      ],
     );
   }
 
@@ -1119,23 +1217,8 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
             ),
           ),
           const SizedBox(height: 12),
-          // Size selector
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                s.imageGenSize.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: c.ink4,
-                  letterSpacing: 0.6,
-                ),
-              ),
-              const SizedBox(height: 6),
-              _buildSizeChips(c),
-            ],
-          ),
+          // Size selector with aspect ratio preview
+          _buildSizeSection(c, s),
           const SizedBox(height: 16),
           // ── Prompt list ────────────────────────────────────────────────────
           Row(
