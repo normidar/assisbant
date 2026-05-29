@@ -4,10 +4,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/data/services/image_gen_service.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
-import 'package:assibant/src/providers/database_providers.dart';
+import 'package:assibant/src/screens/settings/model_picker_dialog.dart';
 import 'package:assibant/src/remote/server/remote_server_service.dart';
 import 'package:assibant/src/screens/settings/settings_widgets.dart';
 import 'package:assibant/src/state/ui_providers.dart';
@@ -70,20 +71,7 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
     await Process.start('open', ['https://civitai.com/models']);
   }
 
-  // ── File pickers for local SD mode ──────────────────────────────────────────
-
-  Future<void> _pickModelFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['gguf', 'safetensors'],
-    );
-    if (result != null && mounted) {
-      final path = result.files.single.path ?? '';
-      if (path.isNotEmpty) {
-        widget.onUpdate(widget.settings.copyWith(sdModelPath: path));
-      }
-    }
-  }
+  // ── File picker for VAE path ─────────────────────────────────────────────────
 
   Future<void> _pickVaeFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -119,18 +107,14 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
         ),
 
         if (settings.sdLocalMode) ...[
-          // Local mode: model + VAE paths only.
+          // Local mode: model picker + VAE path.
           // The dylib is compiled from the submodule and bundled automatically
           // by the Native Assets hook during `flutter build` — no path needed.
-          SetRowInput(
-            label: s.sdModelPath,
-            description: s.sdModelPathDesc,
-            value: settings.sdModelPath,
-            placeholder: s.sdModelPathPlaceholder,
-            onChanged: (v) =>
-                widget.onUpdate(settings.copyWith(sdModelPath: v.trim())),
-            onPickFile: _pickModelFile,
+          _ModelPathSelectorRow(
+            settings: settings,
+            onUpdate: widget.onUpdate,
             c: c,
+            s: s,
           ),
           SetRowInput(
             label: s.sdVaePath,
@@ -273,6 +257,73 @@ class _ModeChip extends StatelessWidget {
     );
   }
 }
+
+// ─── Local mode: model path selector with picker dialog ──────────────────────
+
+class _ModelPathSelectorRow extends StatelessWidget {
+  const _ModelPathSelectorRow({
+    required this.settings,
+    required this.onUpdate,
+    required this.c,
+    required this.s,
+  });
+
+  final AppSettings settings;
+  final void Function(AppSettings) onUpdate;
+  final AppColors c;
+  final AppStrings s;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasModel = settings.sdModelPath.isNotEmpty;
+    final label =
+        hasModel ? p.basename(settings.sdModelPath) : '—';
+
+    return SetRowWidget(
+      label: s.sdModelPath,
+      description: s.sdModelPathDesc,
+      c: c,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasModel)
+            Container(
+              constraints: const BoxConstraints(maxWidth: 200),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: c.surface3,
+                border: Border.all(color: c.border),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Text(
+                label,
+                style: TextStyle(fontSize: 12, color: c.ink2),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          if (hasModel) const SizedBox(width: 8),
+          SettingsActionBtn(
+            label: s.modelPickerSelect,
+            c: c,
+            onTap: () => showDialog<void>(
+              context: context,
+              builder: (_) => ModelPickerDialog(
+                c: c,
+                s: s,
+                currentPath: settings.sdModelPath,
+                onSelect: (path) =>
+                    onUpdate(settings.copyWith(sdModelPath: path)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Web-API mode: Automatic1111 model selector ───────────────────────────────
 
 class _ModelSelectorRow extends StatelessWidget {
   const _ModelSelectorRow({

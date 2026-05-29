@@ -205,6 +205,17 @@ class AppStrings {
     required this.sdVaePath,
     required this.sdVaePathDesc,
     required this.sdVaePathPlaceholder,
+    required this.modelPickerTitle,
+    required this.modelPickerTabLocal,
+    required this.modelPickerTabDownload,
+    required this.modelPickerNoLocal,
+    required this.modelPickerDownloading,
+    required this.modelPickerCancel,
+    required this.modelPickerSelect,
+    required this.modelPickerOpenFolder,
+    required this.modelPickerDownloadStart,
+    required this.modelPickerDownloadDone,
+    required this.modelPickerDownloadFailed,
   });
 
   final String prompts;
@@ -411,6 +422,17 @@ class AppStrings {
   final String sdVaePath;
   final String sdVaePathDesc;
   final String sdVaePathPlaceholder;
+  final String modelPickerTitle;
+  final String modelPickerTabLocal;
+  final String modelPickerTabDownload;
+  final String modelPickerNoLocal;
+  final String modelPickerDownloading;
+  final String modelPickerCancel;
+  final String modelPickerSelect;
+  final String modelPickerOpenFolder;
+  final String modelPickerDownloadStart;
+  final String modelPickerDownloadDone;
+  final String modelPickerDownloadFailed;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -657,6 +679,17 @@ class AppStrings {
     sdVaePath: 'VAE Path (optional)',
     sdVaePathDesc: 'Path to a custom VAE .safetensors. Leave empty to use the model\'s built-in VAE.',
     sdVaePathPlaceholder: '(optional)',
+    modelPickerTitle: 'Select Model',
+    modelPickerTabLocal: 'My Models',
+    modelPickerTabDownload: 'Download',
+    modelPickerNoLocal: 'No .gguf files in models folder.',
+    modelPickerDownloading: 'Downloading…',
+    modelPickerCancel: 'Cancel',
+    modelPickerSelect: 'Select…',
+    modelPickerOpenFolder: 'Open Folder',
+    modelPickerDownloadStart: 'Download',
+    modelPickerDownloadDone: 'Installed',
+    modelPickerDownloadFailed: 'Failed',
   );
 
   static const _zh = AppStrings(
@@ -864,6 +897,17 @@ class AppStrings {
     sdVaePath: 'VAE 路径（可选）',
     sdVaePathDesc: '自定义 VAE .safetensors 的路径。留空则使用模型内置 VAE。',
     sdVaePathPlaceholder: '（可选）',
+    modelPickerTitle: '选择模型',
+    modelPickerTabLocal: '我的模型',
+    modelPickerTabDownload: '下载',
+    modelPickerNoLocal: '模型文件夹中没有 .gguf 文件。',
+    modelPickerDownloading: '下载中…',
+    modelPickerCancel: '取消',
+    modelPickerSelect: '选择…',
+    modelPickerOpenFolder: '打开文件夹',
+    modelPickerDownloadStart: '下载',
+    modelPickerDownloadDone: '已安装',
+    modelPickerDownloadFailed: '失败',
   );
 
   static const _ja = AppStrings(
@@ -1071,5 +1115,16 @@ class AppStrings {
     sdVaePath: 'VAE パス（省略可）',
     sdVaePathDesc: 'カスタム VAE .safetensors のパス。空欄の場合はモデル内蔵 VAE を使用します。',
     sdVaePathPlaceholder: '（省略可）',
+    modelPickerTitle: 'モデルを選択',
+    modelPickerTabLocal: 'マイモデル',
+    modelPickerTabDownload: 'ダウンロード',
+    modelPickerNoLocal: 'modelsフォルダに .gguf ファイルがありません。',
+    modelPickerDownloading: 'ダウンロード中…',
+    modelPickerCancel: 'キャンセル',
+    modelPickerSelect: '変更…',
+    modelPickerOpenFolder: 'フォルダを開く',
+    modelPickerDownloadStart: 'ダウンロード',
+    modelPickerDownloadDone: 'インストール済み',
+    modelPickerDownloadFailed: '失敗',
   );
 }

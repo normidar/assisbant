@@ -8,5 +8,4 @@ environment:
 dependencies:
   ffi: ^2.1.0
   image: ^4.2.0
-  code_assets: ^1.2.0
-  hooks: ^2.0.0
+  native_assets_cli: ^0.13.0
