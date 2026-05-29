@@ -61,6 +61,8 @@ Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
       package: 'stable_diffusion_ffi',
       name: 'libstable_diffusion',
       linkMode: DynamicLoadingBundled(),
+      os: targetOS,
+      architecture: input.config.code.targetArchitecture,
       file: libFile,
     ),
   );
