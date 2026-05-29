@@ -136,7 +136,7 @@ class SetRowSwitch extends StatelessWidget {
 
 // ─── Settings row with a text input field ─────────────────────────────────────
 
-class SetRowInput extends StatelessWidget {
+class SetRowInput extends StatefulWidget {
   const SetRowInput({
     required this.label,
     required this.description,
@@ -144,6 +144,7 @@ class SetRowInput extends StatelessWidget {
     required this.onChanged,
     required this.c,
     this.placeholder = '',
+    this.onPickFile,
     super.key,
   });
 
@@ -153,9 +154,43 @@ class SetRowInput extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final AppColors c;
   final String placeholder;
+  /// When non-null a folder-icon button is shown; calling it should open a
+  /// file picker and eventually call [onChanged] with the selected path.
+  final Future<void> Function()? onPickFile;
+
+  @override
+  State<SetRowInput> createState() => _SetRowInputState();
+}
+
+class _SetRowInputState extends State<SetRowInput> {
+  late final TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.value);
+  }
+
+  @override
+  void didUpdateWidget(SetRowInput old) {
+    super.didUpdateWidget(old);
+    // Sync controller when the value is changed externally (e.g. file picker).
+    if (widget.value != old.value && widget.value != _ctrl.text) {
+      _ctrl.text = widget.value;
+      _ctrl.selection =
+          TextSelection.collapsed(offset: widget.value.length);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final c = widget.c;
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
@@ -166,11 +201,11 @@ class SetRowInput extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
+                Text(widget.label,
                     style: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 2),
-                Text(description,
+                Text(widget.description,
                     style: TextStyle(fontSize: 11.5, color: c.ink3)),
               ],
             ),
@@ -178,29 +213,51 @@ class SetRowInput extends StatelessWidget {
           const SizedBox(width: 14),
           SizedBox(
             width: 280,
-            child: TextFormField(
-              initialValue: value,
-              onChanged: onChanged,
-              style: GoogleFonts.ibmPlexMono(fontSize: 13),
-              decoration: InputDecoration(
-                hintText: placeholder,
-                hintStyle: TextStyle(color: c.ink4),
-                isDense: true,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: c.border),
-                  borderRadius: BorderRadius.circular(8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _ctrl,
+                    onChanged: widget.onChanged,
+                    style: GoogleFonts.ibmPlexMono(fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: widget.placeholder,
+                      hintStyle: TextStyle(color: c.ink4),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 11, vertical: 8),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: c.border),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: c.border),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: c.ink3),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: c.border),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: c.ink3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+                if (widget.onPickFile != null) ...[
+                  const SizedBox(width: 4),
+                  SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.folder_open_outlined,
+                          size: 16, color: c.ink3),
+                      tooltip: 'ファイルを選択',
+                      onPressed: widget.onPickFile == null
+                        ? null
+                        : () { widget.onPickFile!(); },
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ],

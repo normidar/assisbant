@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,6 +70,52 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
     await Process.start('open', ['https://civitai.com/models']);
   }
 
+  // ── File pickers for local SD mode ──────────────────────────────────────────
+
+  Future<void> _pickDylibFile() async {
+    final ext = Platform.isMacOS
+        ? ['dylib']
+        : Platform.isWindows
+            ? ['dll']
+            : ['so'];
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ext,
+    );
+    if (result != null && mounted) {
+      final path = result.files.single.path ?? '';
+      if (path.isNotEmpty) {
+        widget.onUpdate(widget.settings.copyWith(sdDylibPath: path));
+      }
+    }
+  }
+
+  Future<void> _pickModelFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['gguf', 'safetensors'],
+    );
+    if (result != null && mounted) {
+      final path = result.files.single.path ?? '';
+      if (path.isNotEmpty) {
+        widget.onUpdate(widget.settings.copyWith(sdModelPath: path));
+      }
+    }
+  }
+
+  Future<void> _pickVaeFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['gguf', 'safetensors'],
+    );
+    if (result != null && mounted) {
+      final path = result.files.single.path ?? '';
+      if (path.isNotEmpty) {
+        widget.onUpdate(widget.settings.copyWith(sdVaePath: path));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = widget.c;
@@ -98,6 +145,7 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
             placeholder: s.sdDylibPathPlaceholder,
             onChanged: (v) =>
                 widget.onUpdate(settings.copyWith(sdDylibPath: v.trim())),
+            onPickFile: _pickDylibFile,
             c: c,
           ),
           SetRowInput(
@@ -107,6 +155,7 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
             placeholder: s.sdModelPathPlaceholder,
             onChanged: (v) =>
                 widget.onUpdate(settings.copyWith(sdModelPath: v.trim())),
+            onPickFile: _pickModelFile,
             c: c,
           ),
           SetRowInput(
@@ -116,6 +165,7 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
             placeholder: s.sdVaePathPlaceholder,
             onChanged: (v) =>
                 widget.onUpdate(settings.copyWith(sdVaePath: v.trim())),
+            onPickFile: _pickVaeFile,
             c: c,
           ),
         ] else ...[
