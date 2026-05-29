@@ -1,122 +1,79 @@
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
-
 import 'sd_structs.dart';
 
-// ─── new_sd_ctx ────────────────────────────────────────────────────────────────
-
-typedef _NewSdCtxC = Pointer<Void> Function(
-  Pointer<Utf8> modelPath,
-  Pointer<Utf8> clipLPath,
-  Pointer<Utf8> clipGPath,
-  Pointer<Utf8> t5xxlPath,
-  Pointer<Utf8> diffusionModelPath,
-  Pointer<Utf8> vaePath,
-  Pointer<Utf8> taesdPath,
-  Pointer<Utf8> controlNetPath,
-  Pointer<Utf8> loraModelDir,
-  Pointer<Utf8> embedDir,
-  Pointer<Utf8> stackedIdEmbedDir,
-  Bool vaeDecodeOnly,
-  Bool vaeTiling,
-  Bool freeParamsImmediately,
-  Int32 nThreads,
-  Int32 wtype,
-  Int32 rngType,
-  Int32 schedule,
-  Bool keepClipOnCpu,
-  Bool keepControlNetCpu,
-  Bool keepVaeOnCpu,
-  Bool diffusionFlashAttn,
-);
-
-typedef _NewSdCtxDart = Pointer<Void> Function(
-  Pointer<Utf8> modelPath,
-  Pointer<Utf8> clipLPath,
-  Pointer<Utf8> clipGPath,
-  Pointer<Utf8> t5xxlPath,
-  Pointer<Utf8> diffusionModelPath,
-  Pointer<Utf8> vaePath,
-  Pointer<Utf8> taesdPath,
-  Pointer<Utf8> controlNetPath,
-  Pointer<Utf8> loraModelDir,
-  Pointer<Utf8> embedDir,
-  Pointer<Utf8> stackedIdEmbedDir,
-  bool vaeDecodeOnly,
-  bool vaeTiling,
-  bool freeParamsImmediately,
-  int nThreads,
-  int wtype,
-  int rngType,
-  int schedule,
-  bool keepClipOnCpu,
-  bool keepControlNetCpu,
-  bool keepVaeOnCpu,
-  bool diffusionFlashAttn,
-);
-
-// ─── free_sd_ctx ───────────────────────────────────────────────────────────────
-
-typedef _FreeSdCtxC = Void Function(Pointer<Void> sdCtx);
-typedef _FreeSdCtxDart = void Function(Pointer<Void> sdCtx);
-
-// ─── txt2img ───────────────────────────────────────────────────────────────────
+// stable-diffusion.cpp >= commit 0e4ee04 uses a struct-based API:
 //
-// Returns sd_image_t* (array of batch_count images, caller must free each
-// .data with free() and then free() the array itself).
+//   sd_ctx_t* new_sd_ctx(const sd_ctx_params_t* params)
+//   void      free_sd_ctx(sd_ctx_t* ctx)
+//   sd_image_t* generate_image(sd_ctx_t* ctx, const sd_img_gen_params_t* params)
+//
+// Both param structs are large and have many nested types, so we interact with
+// them through init helpers + raw byte-offset writes rather than mirroring the
+// full C layout in Dart.
 
-typedef _Txt2ImgC = Pointer<SdImageT> Function(
-  Pointer<Void> sdCtx,
-  Pointer<Utf8> prompt,
-  Pointer<Utf8> negativePrompt,
-  Int32 clipSkip,
-  Float cfgScale,
-  Float guidance,
-  Int32 width,
-  Int32 height,
-  Int32 sampleMethod,
-  Int32 sampleSteps,
-  Int64 seed,
-  Int32 batchCount,
-  Pointer<SdImageT> controlCond,
-  Float controlStrength,
-  Float styleStrength,
-  Bool normalizeInput,
-  Pointer<Utf8> inputIdImagesPath,
-);
+typedef _VoidPtrFromPtrUint8C = Pointer<Void> Function(Pointer<Uint8>);
+typedef _VoidPtrFromPtrUint8Dart = Pointer<Void> Function(Pointer<Uint8>);
 
-typedef _Txt2ImgDart = Pointer<SdImageT> Function(
-  Pointer<Void> sdCtx,
-  Pointer<Utf8> prompt,
-  Pointer<Utf8> negativePrompt,
-  int clipSkip,
-  double cfgScale,
-  double guidance,
-  int width,
-  int height,
-  int sampleMethod,
-  int sampleSteps,
-  int seed,
-  int batchCount,
-  Pointer<SdImageT> controlCond,
-  double controlStrength,
-  double styleStrength,
-  bool normalizeInput,
-  Pointer<Utf8> inputIdImagesPath,
-);
+typedef _VoidVoidPtrC = Void Function(Pointer<Void>);
+typedef _VoidVoidPtrDart = void Function(Pointer<Void>);
 
-// ─── SdBindings ────────────────────────────────────────────────────────────────
+typedef _VoidPtrUint8C = Void Function(Pointer<Uint8>);
+typedef _VoidPtrUint8Dart = void Function(Pointer<Uint8>);
+
+typedef _SdImagePtrC = Pointer<SdImageT> Function(Pointer<Void>, Pointer<Uint8>);
+typedef _SdImagePtrDart = Pointer<SdImageT> Function(Pointer<Void>, Pointer<Uint8>);
 
 class SdBindings {
   SdBindings(DynamicLibrary lib)
-      : newSdCtx =
-            lib.lookupFunction<_NewSdCtxC, _NewSdCtxDart>('new_sd_ctx'),
+      : sdCtxParamsInit =
+            lib.lookupFunction<_VoidPtrUint8C, _VoidPtrUint8Dart>('sd_ctx_params_init'),
+        newSdCtx =
+            lib.lookupFunction<_VoidPtrFromPtrUint8C, _VoidPtrFromPtrUint8Dart>('new_sd_ctx'),
         freeSdCtx =
-            lib.lookupFunction<_FreeSdCtxC, _FreeSdCtxDart>('free_sd_ctx'),
-        txt2img = lib.lookupFunction<_Txt2ImgC, _Txt2ImgDart>('txt2img');
+            lib.lookupFunction<_VoidVoidPtrC, _VoidVoidPtrDart>('free_sd_ctx'),
+        sdImgGenParamsInit =
+            lib.lookupFunction<_VoidPtrUint8C, _VoidPtrUint8Dart>('sd_img_gen_params_init'),
+        generateImage =
+            lib.lookupFunction<_SdImagePtrC, _SdImagePtrDart>('generate_image');
 
-  final _NewSdCtxDart newSdCtx;
-  final _FreeSdCtxDart freeSdCtx;
-  final _Txt2ImgDart txt2img;
+  /// void sd_ctx_params_init(sd_ctx_params_t*)
+  final _VoidPtrUint8Dart sdCtxParamsInit;
+
+  /// sd_ctx_t* new_sd_ctx(const sd_ctx_params_t*)
+  final _VoidPtrFromPtrUint8Dart newSdCtx;
+
+  /// void free_sd_ctx(sd_ctx_t*)
+  final _VoidVoidPtrDart freeSdCtx;
+
+  /// void sd_img_gen_params_init(sd_img_gen_params_t*)
+  final _VoidPtrUint8Dart sdImgGenParamsInit;
+
+  /// sd_image_t* generate_image(sd_ctx_t*, const sd_img_gen_params_t*)
+  final _SdImagePtrDart generateImage;
 }
+
+// ── Byte offsets in sd_ctx_params_t ─────────────────────────────────────────
+// Layout (64-bit, little-endian):
+//   14 pointer fields × 8 = 112, then embedding_count(4)+pad(4),
+//   2 pointer fields × 8 = 16 → total 132, then vae_decode_only(1)+
+//   free_params_immediately(1)+pad(2)+n_threads(4) → at 148.
+const int sdCtxModelPath = 0;   // const char*
+const int sdCtxNThreads  = 148; // int32  (-1 = auto)
+const int sdCtxWtype     = 152; // sd_type_t  (42 = SD_TYPE_COUNT = auto)
+
+// ── Byte offsets in sd_img_gen_params_t ─────────────────────────────────────
+// loras(8)+lora_count(4)+pad(4)=16; then prompt/neg at 16/24; clip_skip(4)+
+// pad(4)=8 at 32; 2×sd_image_t(24) at 40..88; ref_images(8)+count(4)+2bool+
+// pad(2) at 64..80; mask_image(24) at 80..104; width/height at 104/108.
+// sample_params(96) at 112; sample_steps at +56=168. strength(4)+pad(4) then
+// seed(int64) at 216.
+const int sdGenPrompt         = 16;  // const char*
+const int sdGenNegativePrompt = 24;  // const char*
+const int sdGenWidth          = 104; // int32
+const int sdGenHeight         = 108; // int32
+const int sdGenScheduler      = 160; // scheduler_t int32  (at 112+48)
+const int sdGenSampleMethod   = 164; // sample_method_t int32  (at 112+52)
+const int sdGenSampleSteps    = 168; // int32  (at 112+56)
+const int sdGenSeed           = 216; // int64
+const int sdGenBatchCount     = 224; // int32

@@ -4,37 +4,49 @@ class SdGenerateParams {
   const SdGenerateParams({
     required this.modelPath,
     this.dylibPath = '',
-
     required this.prompt,
     this.negativePrompt = '',
     this.vaePath = '',
     this.width = 512,
     this.height = 512,
     this.steps = 20,
-    this.cfgScale = 7.0,
     this.seed = -1,
-    this.sampleMethod = SdSampleMethod.eulerA,
-    this.schedule = SdSchedule.default_,
+    this.sampleMethod = SdSampleMethod.useDefault,
+    this.schedule = SdSchedule.useDefault,
     this.threads = -1,
     this.wtype = SdType.auto_,
   });
 
   final String modelPath;
-  /// Path to the pre-compiled dylib. Leave empty to use the Native Assets
-  /// bundled library (built from the submodule during `flutter build`).
+
+  /// Path to a pre-compiled dylib. Leave empty to use the library bundled via
+  /// Native Assets (compiled from the submodule during `flutter build`).
   final String dylibPath;
+
   final String prompt;
   final String negativePrompt;
+
+  /// Optional external VAE path. Leave empty to use the VAE bundled in the model.
   final String vaePath;
+
   final int width;
   final int height;
+
+  /// Denoising steps. 10–20 is typical; lower = faster.
   final int steps;
-  final double cfgScale;
-  /// Seed value. Use -1 for a random seed based on current time.
+
+  /// Seed. -1 = random (current time-based).
   final int seed;
+
+  /// sample_method_t value. -1 = library default.
   final int sampleMethod;
+
+  /// scheduler_t value. -1 = library default.
   final int schedule;
-  /// Number of CPU threads. -1 = auto-detect.
+
+  /// CPU thread count. -1 = auto.
   final int threads;
+
+  /// sd_type_t quantisation. 42 (SD_TYPE_COUNT) = auto.
   final int wtype;
 }

@@ -7,7 +7,6 @@ import 'package:ffi/ffi.dart';
 import 'package:image/image.dart' as img;
 
 import 'ffi/sd_bindings.dart';
-import 'ffi/sd_enums.dart';
 import 'ffi/sd_structs.dart';
 import 'sd_params.dart';
 import 'sd_result.dart';
@@ -16,24 +15,24 @@ export 'sd_params.dart';
 export 'sd_result.dart';
 export 'ffi/sd_enums.dart';
 
+// Sizes of the two C parameter structs (generous upper bounds).
+const int _kCtxParamsSize    = 1024;
+const int _kImgGenParamsSize = 4096;
+
 class StableDiffusionFfi {
-  /// Generates an image using stable-diffusion.cpp.
+  /// Generates an image using stable-diffusion.cpp via Dart FFI.
   ///
-  /// If [SdGenerateParams.dylibPath] is empty, the library bundled via Native
-  /// Assets (compiled from the submodule during `flutter build`) is loaded
-  /// automatically. Set [dylibPath] explicitly only when using a pre-compiled
-  /// dylib that lives outside the app bundle.
+  /// If [SdGenerateParams.dylibPath] is empty the library bundled through
+  /// Native Assets (compiled from the submodule during `flutter build`) is
+  /// loaded by platform-specific name. Set it explicitly only when using a
+  /// pre-compiled dylib outside the app bundle.
   ///
-  /// Runs entirely in a background [Isolate] to keep the UI responsive.
-  /// Model loading for large .safetensors files can take tens of seconds.
+  /// Runs in a background [Isolate] to keep the UI thread unblocked.
   static Future<SdGenerationResult> generate(SdGenerateParams params) =>
       Isolate.run(() => _generateSync(params));
 
-  /// Opens the shared library. Prefers an explicit path; falls back to the
-  /// Native Assets bundled library loaded by name.
   static DynamicLibrary _openLibrary(String dylibPath) {
     if (dylibPath.isNotEmpty) return DynamicLibrary.open(dylibPath);
-    // Native Assets bundled build — library name only, resolved by the runtime.
     if (Platform.isMacOS) return DynamicLibrary.open('libstable-diffusion.dylib');
     if (Platform.isLinux) return DynamicLibrary.open('libstable-diffusion.so');
     if (Platform.isWindows) return DynamicLibrary.open('stable-diffusion.dll');
@@ -41,81 +40,75 @@ class StableDiffusionFfi {
   }
 
   static SdGenerationResult _generateSync(SdGenerateParams params) {
-    final dylib = _openLibrary(params.dylibPath);
+    final dylib    = _openLibrary(params.dylibPath);
     final bindings = SdBindings(dylib);
 
-    final allocs = <Pointer<Utf8>>[];
-    Pointer<Utf8> s(String v) {
-      final p = v.toNativeUtf8();
-      allocs.add(p);
-      return p;
-    }
-
-    Pointer<Void> ctx = nullptr;
+    Pointer<Void>     ctx    = nullptr;
     Pointer<SdImageT> images = nullptr;
+    Pointer<Uint8>?   ctxBuf;
+    Pointer<Uint8>?   genBuf;
+    Pointer<Utf8>?    modelPathStr;
+    Pointer<Utf8>?    vaePathStr;
+    Pointer<Utf8>?    promptStr;
+    Pointer<Utf8>?    negPromptStr;
 
     try {
-      ctx = bindings.newSdCtx(
-        s(params.modelPath),
-        s(''), // clip_l (bundled in model)
-        s(''), // clip_g
-        s(''), // t5xxl
-        s(''), // diffusion_model (standalone flux)
-        s(params.vaePath), // empty = use model's built-in VAE
-        s(''), // taesd
-        s(''), // control_net
-        s(''), // lora_dir
-        s(''), // embed_dir
-        s(''), // stacked_id_embed_dir
-        true,  // vae_decode_only
-        false, // vae_tiling
-        false, // free_params_immediately
-        params.threads,
-        params.wtype,
-        SdRng.stdDefault,
-        params.schedule,
-        false, // keep_clip_on_cpu
-        false, // keep_control_net_cpu
-        false, // keep_vae_on_cpu
-        false, // diffusion_flash_attn
-      );
+      // ── Context params ───────────────────────────────────────────────────
+      ctxBuf = calloc<Uint8>(_kCtxParamsSize);
+      bindings.sdCtxParamsInit(ctxBuf);
 
+      modelPathStr = params.modelPath.toNativeUtf8();
+      (ctxBuf + sdCtxModelPath).cast<Pointer<Utf8>>().value = modelPathStr;
+      (ctxBuf + sdCtxNThreads).cast<Int32>().value          = params.threads;
+      (ctxBuf + sdCtxWtype).cast<Int32>().value             = params.wtype;
+
+      if (params.vaePath.isNotEmpty) {
+        // vae_path is the 11th pointer field in sd_ctx_params_t (offset 80)
+        vaePathStr = params.vaePath.toNativeUtf8();
+        (ctxBuf + 80).cast<Pointer<Utf8>>().value = vaePathStr;
+      }
+
+      ctx = bindings.newSdCtx(ctxBuf);
       if (ctx == nullptr) {
         throw StateError('Failed to load model: ${params.modelPath}');
+      }
+
+      // ── Image gen params ─────────────────────────────────────────────────
+      genBuf = calloc<Uint8>(_kImgGenParamsSize);
+      bindings.sdImgGenParamsInit(genBuf);
+
+      promptStr    = params.prompt.toNativeUtf8();
+      negPromptStr = params.negativePrompt.toNativeUtf8();
+
+      (genBuf + sdGenPrompt).cast<Pointer<Utf8>>().value         = promptStr;
+      (genBuf + sdGenNegativePrompt).cast<Pointer<Utf8>>().value = negPromptStr;
+      (genBuf + sdGenWidth).cast<Int32>().value       = params.width;
+      (genBuf + sdGenHeight).cast<Int32>().value      = params.height;
+      (genBuf + sdGenSampleSteps).cast<Int32>().value = params.steps;
+      (genBuf + sdGenBatchCount).cast<Int32>().value  = 1;
+
+      if (params.sampleMethod >= 0) {
+        (genBuf + sdGenSampleMethod).cast<Int32>().value = params.sampleMethod;
+      }
+      if (params.schedule >= 0) {
+        (genBuf + sdGenScheduler).cast<Int32>().value = params.schedule;
       }
 
       final effectiveSeed = params.seed < 0
           ? DateTime.now().millisecondsSinceEpoch % 0xFFFFFFFF
           : params.seed;
+      (genBuf + sdGenSeed).cast<Int64>().value = effectiveSeed;
 
-      images = bindings.txt2img(
-        ctx,
-        s(params.prompt),
-        s(params.negativePrompt),
-        -1,   // clip_skip (-1 = use model default)
-        params.cfgScale,
-        1.0,  // guidance
-        params.width,
-        params.height,
-        params.sampleMethod,
-        params.steps,
-        effectiveSeed,
-        1,    // batch_count
-        nullptr, // no ControlNet
-        0.9,  // control_strength
-        1.0,  // style_strength
-        false, // normalize_input
-        s(''), // input_id_images_path
-      );
-
+      images = bindings.generateImage(ctx, genBuf);
       if (images == nullptr) {
-        throw StateError('txt2img returned null — generation failed');
+        throw StateError('generate_image returned null — generation failed');
       }
 
       final sdImage = images.ref;
-      final w = sdImage.width;
-      final h = sdImage.height;
+      final w  = sdImage.width;
+      final h  = sdImage.height;
       final ch = sdImage.channel;
+
       final rawPixels = Uint8List.fromList(
         sdImage.data.asTypedList(w * h * ch),
       );
@@ -135,13 +128,17 @@ class StableDiffusionFfi {
         height: h,
       );
     } finally {
-      // Free image data returned by txt2img (caller-owned malloc memory)
       if (images != nullptr) {
         calloc.free(images.ref.data);
         calloc.free(images);
       }
       if (ctx != nullptr) bindings.freeSdCtx(ctx);
-      for (final p in allocs) calloc.free(p);
+      if (ctxBuf != null) calloc.free(ctxBuf);
+      if (genBuf != null) calloc.free(genBuf);
+      if (modelPathStr != null) calloc.free(modelPathStr);
+      if (vaePathStr != null) calloc.free(vaePathStr);
+      if (promptStr != null) calloc.free(promptStr);
+      if (negPromptStr != null) calloc.free(negPromptStr);
     }
   }
 }

@@ -7,20 +7,23 @@ library;
 
 import 'dart:io';
 
-import 'package:native_assets_cli/code_assets.dart';
+import 'package:code_assets/code_assets.dart';
+import 'package:hooks/hooks.dart';
 
 void main(List<String> args) async {
   await build(args, _build);
 }
 
-Future<void> _build(BuildConfig config, BuildOutputBuilder output) async {
-  final targetOS = config.codeConfig.targetOS;
-  final libFile = config.outputDirectory.resolve(_libName(targetOS));
+Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
+  if (!input.config.buildCodeAssets) return;
+
+  final targetOS = input.config.code.targetOS;
+  final libFile = input.outputDirectory.resolve(_libName(targetOS));
 
   final sdRoot =
-      config.packageRoot.resolve('src/stable-diffusion.cpp/').toFilePath();
+      input.packageRoot.resolve('src/stable-diffusion.cpp/').toFilePath();
   final buildDir =
-      config.outputDirectory.resolve('sd_cmake_build/').toFilePath();
+      input.outputDirectory.resolve('sd_cmake_build/').toFilePath();
 
   Directory(buildDir).createSync(recursive: true);
 
@@ -28,7 +31,7 @@ Future<void> _build(BuildConfig config, BuildOutputBuilder output) async {
   final configureArgs = [
     '-S', sdRoot,
     '-B', buildDir,
-    '-DBUILD_SHARED_LIBS=ON',
+    '-DSD_BUILD_SHARED_LIBS=ON',
     '-DCMAKE_BUILD_TYPE=Release',
     '-DSD_BUILD_EXAMPLES=OFF',
   ];
@@ -44,22 +47,20 @@ Future<void> _build(BuildConfig config, BuildOutputBuilder output) async {
     '--parallel',
   ]);
 
-  // Copy the built library to the output directory
-  final builtLib = File('$buildDir/${_libName(targetOS)}');
+  // Copy the built library to the output directory (cmake puts it in bin/)
+  final builtLib = File('${buildDir}bin/${_libName(targetOS)}');
   await builtLib.copy(libFile.toFilePath());
 
   output.addDependencies([
-    config.packageRoot.resolve('src/stable-diffusion.cpp/CMakeLists.txt'),
-    config.packageRoot.resolve('src/stable-diffusion.cpp/stable-diffusion.h'),
+    input.packageRoot.resolve('src/stable-diffusion.cpp/CMakeLists.txt'),
+    input.packageRoot.resolve('src/stable-diffusion.cpp/stable-diffusion.h'),
   ]);
 
-  output.codeAssets.add(
+  output.assets.code.add(
     CodeAsset(
       package: 'stable_diffusion_ffi',
       name: 'libstable_diffusion',
       linkMode: DynamicLoadingBundled(),
-      os: targetOS,
-      architecture: config.codeConfig.targetArchitecture,
       file: libFile,
     ),
   );
