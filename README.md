@@ -78,6 +78,17 @@ When you work with [Claude Code](https://claude.ai/code), you often want to run 
 - Full stdout/stderr history per prompt
 - Selectable text for copy-paste
 
+### Mobile Remote Control
+- Enable "Remote Connection" in Settings to start a WebSocket server on the Mac
+- The companion mobile app (iOS/Android) discovers the Mac via mDNS and connects over Wi-Fi
+- Create, edit, skip, duplicate, and reset prompts from your phone
+- View live execution state and output from anywhere on the network
+
+### Image Generation
+- Built-in Stable Diffusion image generator via Automatic1111 WebUI API
+- Generate images, save them locally, or attach them to prompts
+- Supports batch generation, infinite loop mode, and model selection
+
 ### Settings
 | Setting | Description |
 |---|---|
@@ -85,6 +96,9 @@ When you work with [Claude Code](https://claude.ai/code), you often want to run 
 | Working Directory | Default directory for `git checkout` and prompt execution |
 | Auto-checkout | Automatically switch branches before each prompt |
 | Pause on Failure | Stop the queue when a prompt fails |
+| Commit After Run | Auto-commit changes after each prompt completes |
+| Remote Connection | Enable WebSocket server for mobile companion app |
+| Env Overrides | Custom environment variables injected before each CLI run |
 | Language | English / 中文 / 日本語 |
 | Theme | Light / Dark |
 
@@ -172,7 +186,7 @@ UI (screens/ + widgets/)
 |---|---|
 | UI | Flutter + Material 3 |
 | State | Flutter Riverpod (manual + generated) |
-| Database | Drift (SQLite, schema v5) |
+| Database | Drift (SQLite, schema v9) |
 | Persistence | SharedPreferences (settings) |
 | i18n | Custom `AppStrings` (EN / ZH / JA) |
 | CLI integration | `dart:io Process.start` streaming |

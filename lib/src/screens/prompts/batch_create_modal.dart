@@ -229,9 +229,11 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
           child: Material(
             color: Colors.transparent,
             child: Container(
-              width: 600,
+              width: MediaQuery.sizeOf(context).width > 632
+                  ? 600.0
+                  : MediaQuery.sizeOf(context).width - 32,
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.85,
+                maxHeight: MediaQuery.sizeOf(context).height * 0.85,
               ),
               decoration: BoxDecoration(
                 color: c.surface,

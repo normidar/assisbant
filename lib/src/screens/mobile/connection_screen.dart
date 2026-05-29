@@ -83,8 +83,12 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
           else
             IconButton(
               icon: const Icon(Icons.refresh_rounded),
-              onPressed: () =>
-                  ref.read(remoteConnectionProvider.notifier).startScan(),
+              onPressed: () async {
+                final notifier =
+                    ref.read(remoteConnectionProvider.notifier);
+                await notifier.stopScan();
+                notifier.startScan();
+              },
             ),
         ],
       ),

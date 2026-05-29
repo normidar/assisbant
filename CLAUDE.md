@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **assisbant** is a macOS-focused Flutter desktop application for managing and executing Claude Code CLI prompts across git branches. Users create prompts with target branches and priorities, then the app executes them sequentially via `claude --print "<content>"` in a configured working directory.
 
-The package name in Dart imports is `assibant`. The app targets **macOS only** — Android, iOS, and other platform directories have been removed.
+The package name in Dart imports is `assibant`. The primary target is **macOS desktop**, but `ios/` and `android/` directories also exist for the mobile companion app (see `lib/mobile_main.dart`), which lets a phone remotely control the Mac app over WebSocket.
 
 ## FVM (Flutter Version Manager)
 
@@ -75,7 +75,7 @@ All layers communicate strictly upward — UI reads from Riverpod providers, nev
 
 ### Settings persistence
 
-`AppSettings` (`cliPath`, `workdir`, `autoCheckout`, `pauseOnFail`) is persisted via SharedPreferences. The flow:
+`AppSettings` (`cliPath`, `workdir`, `autoCheckout`, `pauseOnFail`, `commitAfterPrompt`, `remoteEnabled`, `remotePort`, `envOverrides`, and more) is persisted via SharedPreferences. The flow:
 1. `normal_main.dart` awaits `SharedPreferences.getInstance()` before `runApp`
 2. Injects it via `ProviderScope(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)])`
 3. `SettingsNotifier.build()` reads from `sharedPreferencesProvider` synchronously
@@ -95,7 +95,7 @@ Pause/resume uses `Completer<void>? _pauseCompleter`. Stop sets `_stopRequested 
 
 ### Database (Drift / SQLite)
 
-Schema version: **4**. Table: `prompts` with columns `id, content, branch, priority, status, is_skipped, output (nullable), project_path, session_id, claude_session_id, created_at, updated_at`.
+Schema version: **9**. Two tables: `prompts` (columns: `id, content, branch, priority, status, is_skipped, output, project_path, session_id, claude_session_id, claude_model, image_paths, commit_after_run, started_at, created_at, updated_at`) and `image_gen_records` (Stable Diffusion generation history).
 
 When changing schema: bump `schemaVersion`, add a migration case in `MigrationStrategy.onUpgrade`, then run `make build`.
 
