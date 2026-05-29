@@ -72,24 +72,6 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
 
   // ── File pickers for local SD mode ──────────────────────────────────────────
 
-  Future<void> _pickDylibFile() async {
-    final ext = Platform.isMacOS
-        ? ['dylib']
-        : Platform.isWindows
-            ? ['dll']
-            : ['so'];
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ext,
-    );
-    if (result != null && mounted) {
-      final path = result.files.single.path ?? '';
-      if (path.isNotEmpty) {
-        widget.onUpdate(widget.settings.copyWith(sdDylibPath: path));
-      }
-    }
-  }
-
   Future<void> _pickModelFile() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -137,17 +119,9 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
         ),
 
         if (settings.sdLocalMode) ...[
-          // Local mode: dylib + model + VAE paths
-          SetRowInput(
-            label: s.sdDylibPath,
-            description: s.sdDylibPathDesc,
-            value: settings.sdDylibPath,
-            placeholder: s.sdDylibPathPlaceholder,
-            onChanged: (v) =>
-                widget.onUpdate(settings.copyWith(sdDylibPath: v.trim())),
-            onPickFile: _pickDylibFile,
-            c: c,
-          ),
+          // Local mode: model + VAE paths only.
+          // The dylib is compiled from the submodule and bundled automatically
+          // by the Native Assets hook during `flutter build` — no path needed.
           SetRowInput(
             label: s.sdModelPath,
             description: s.sdModelPathDesc,
