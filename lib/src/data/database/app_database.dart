@@ -4,6 +4,28 @@ import 'package:assibant/src/data/database/prompt_status.dart';
 
 part 'app_database.g.dart';
 
+@DataClassName('ImageGenRecord')
+class ImageGenRecords extends Table {
+  TextColumn get id => text()();
+  TextColumn get prompt => text()();
+  TextColumn get negativePrompt => text().withDefault(const Constant(''))();
+  TextColumn get model => text().withDefault(const Constant(''))();
+  IntColumn get width => integer().withDefault(const Constant(512))();
+  IntColumn get height => integer().withDefault(const Constant(512))();
+  IntColumn get seed => integer().nullable()();
+  IntColumn get steps => integer().withDefault(const Constant(20))();
+  IntColumn get generationTimeMs => integer().withDefault(const Constant(0))();
+  DateTimeColumn get startedAt => dateTime()();
+  DateTimeColumn get finishedAt => dateTime()();
+  TextColumn get imagePath => text().nullable()();
+  TextColumn get status => text().withDefault(const Constant('success'))();
+  TextColumn get errorMessage => text().nullable()();
+  IntColumn get iteration => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 class PromptStatusConverter extends TypeConverter<PromptStatus, String> {
   const PromptStatusConverter();
 
@@ -46,13 +68,13 @@ class Prompts extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Prompts])
+@DriftDatabase(tables: [Prompts, ImageGenRecords])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
       : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   /// カラム追加のみの段階的マイグレーション。
   /// スキーマを変更したら schemaVersion を +1 し、新しい if (from < N) ブロックを追加する。
@@ -91,6 +113,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 8) {
         await m.addColumn(
           prompts, prompts.commitAfterRun as GeneratedColumn<Object>);
+      }
+      if (from < 9) {
+        await m.createTable(imageGenRecords);
       }
     },
   );

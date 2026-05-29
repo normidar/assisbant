@@ -96,6 +96,52 @@ final class PromptRepositoryProvider
 
 String _$promptRepositoryHash() => r'8c4c05978861cebce4c472bce9b8233111b880a8';
 
+@ProviderFor(imageGenRepository)
+const imageGenRepositoryProvider = ImageGenRepositoryProvider._();
+
+final class ImageGenRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ImageGenRepository,
+          ImageGenRepository,
+          ImageGenRepository
+        >
+    with $Provider<ImageGenRepository> {
+  const ImageGenRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'imageGenRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$imageGenRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ImageGenRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ImageGenRepository create(Ref ref) {
+    return imageGenRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ImageGenRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ImageGenRepository>(value),
+    );
+  }
+}
+
+String _$imageGenRepositoryHash() => r'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0';
+
 @ProviderFor(executionService)
 const executionServiceProvider = ExecutionServiceProvider._();
 

@@ -2,6 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+class ImageGenResult {
+  const ImageGenResult({required this.bytes, this.seed});
+  final Uint8List bytes;
+  final int? seed;
+}
+
 class ImageGenService {
   static String _base(String apiUrl) {
     var url = apiUrl.trim();
@@ -11,7 +17,7 @@ class ImageGenService {
     return url;
   }
 
-  static Future<Uint8List> generate({
+  static Future<ImageGenResult> generate({
     required String apiUrl,
     required String prompt,
     String negativePrompt = '',
@@ -45,7 +51,12 @@ class ImageGenService {
       final json = jsonDecode(responseBody) as Map<String, dynamic>;
       final images = (json['images'] as List<dynamic>).cast<String>();
       if (images.isEmpty) throw Exception('No images in response');
-      return base64Decode(images.first);
+      int? seed;
+      try {
+        final info = jsonDecode(json['info'] as String) as Map<String, dynamic>;
+        seed = info['seed'] as int?;
+      } catch (_) {}
+      return ImageGenResult(bytes: base64Decode(images.first), seed: seed);
     } finally {
       client.close();
     }

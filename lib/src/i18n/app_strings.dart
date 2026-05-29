@@ -192,6 +192,7 @@ class AppStrings {
     required this.imageGenSize,
     required this.imageGenAddPrompt,
     required this.imageGenPresetModels,
+    required this.imageGenInfiniteMode,
   });
 
   final String prompts;
@@ -385,6 +386,7 @@ class AppStrings {
   final String imageGenSize;
   final String imageGenAddPrompt;
   final String imageGenPresetModels;
+  final String imageGenInfiniteMode;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -402,6 +404,12 @@ class AppStrings {
     if (this == _zh) return '生成中 $current/$total…';
     if (this == _ja) return '生成中 $current/$total…';
     return 'Generating $current/$total…';
+  }
+
+  String imageGenLoopIteration(int n) {
+    if (this == _zh) return '第 $n 轮';
+    if (this == _ja) return '第 $n 回';
+    return 'Loop #$n';
   }
 
   String importSuccessCount(int n) {
@@ -612,6 +620,7 @@ class AppStrings {
     imageGenSize: 'Image size',
     imageGenAddPrompt: 'Add prompt',
     imageGenPresetModels: 'Popular models',
+    imageGenInfiniteMode: 'Infinite Mode',
   );
 
   static const _zh = AppStrings(
@@ -806,6 +815,7 @@ class AppStrings {
     imageGenSize: '图像尺寸',
     imageGenAddPrompt: '添加提示词',
     imageGenPresetModels: '热门模型',
+    imageGenInfiniteMode: '无限生成',
   );
 
   static const _ja = AppStrings(
@@ -1000,5 +1010,6 @@ class AppStrings {
     imageGenSize: '画像サイズ',
     imageGenAddPrompt: 'プロンプトを追加',
     imageGenPresetModels: '人気モデル',
+    imageGenInfiniteMode: '無限生成',
   );
 }

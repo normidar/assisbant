@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/data/database/app_database.dart';
+import 'package:assibant/src/data/repositories/image_gen_repository.dart';
 import 'package:assibant/src/data/services/image_gen_service.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/providers/database_providers.dart';
@@ -917,13 +918,16 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
   final _negativeCtrl = TextEditingController();
 
   List<Uint8List?> _results = [];
+  List<String?> _recordIds = [];
   bool _generating = false;
-  int _generatingIndex = -1; // which prompt slot is currently running
-  String? _lastError; // stores last per-prompt error message
+  int _generatingIndex = -1;
+  String? _lastError;
+  bool _infiniteMode = false;
+  bool _stopRequested = false;
+  int _infiniteIteration = 0;
 
   int _selectedPreset = 0;
 
-  // (ratio label, width, height) — all dims are multiples of 64 for SD compatibility
   static const _presets = [
     (ratio: '1:1',    w: 512,  h: 512),
     (ratio: '3:2',    w: 768,  h: 512),
@@ -962,44 +966,98 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
     setState(() {
       _promptCtrls.removeAt(index);
       if (_results.length > index) _results.removeAt(index);
+      if (_recordIds.length > index) _recordIds.removeAt(index);
     });
   }
 
   Future<void> _generateAll() async {
     if (!_canGenerate) return;
+    _stopRequested = false;
     setState(() {
       _generating = true;
       _generatingIndex = -1;
       _lastError = null;
+      _infiniteIteration = 0;
       _results = List<Uint8List?>.filled(_promptCtrls.length, null);
+      _recordIds = List<String?>.filled(_promptCtrls.length, null);
     });
 
     final settings = ref.read(settingsStateProvider);
+    final repo = ref.read(imageGenRepositoryProvider);
 
-    for (var i = 0; i < _promptCtrls.length; i++) {
-      final prompt = _promptCtrls[i].text.trim();
-      if (prompt.isEmpty) continue;
-      if (!mounted) break;
-      setState(() => _generatingIndex = i);
-      try {
-        final bytes = await ImageGenService.generate(
-          apiUrl: settings.imageGenApiUrl,
-          prompt: prompt,
-          negativePrompt: _negativeCtrl.text.trim(),
-          model: settings.imageGenModel,
-          width: _preset.w,
-          height: _preset.h,
-          steps: 20,
-        );
-        if (mounted) {
-          setState(() => _results[i] = bytes);
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() => _lastError = '#${i + 1}: $e');
+    do {
+      if (_infiniteMode) {
+        setState(() {
+          _infiniteIteration++;
+          _results = List<Uint8List?>.filled(_promptCtrls.length, null);
+          _recordIds = List<String?>.filled(_promptCtrls.length, null);
+        });
+      }
+
+      for (var i = 0; i < _promptCtrls.length; i++) {
+        if (_stopRequested || !mounted) break;
+        final prompt = _promptCtrls[i].text.trim();
+        if (prompt.isEmpty) continue;
+        setState(() => _generatingIndex = i);
+        final started = DateTime.now();
+        try {
+          final result = await ImageGenService.generate(
+            apiUrl: settings.imageGenApiUrl,
+            prompt: prompt,
+            negativePrompt: _negativeCtrl.text.trim(),
+            model: settings.imageGenModel,
+            width: _preset.w,
+            height: _preset.h,
+            steps: 20,
+          );
+          final finished = DateTime.now();
+          final record = await repo.insert(
+            prompt: prompt,
+            negativePrompt: _negativeCtrl.text.trim(),
+            model: settings.imageGenModel,
+            width: _preset.w,
+            height: _preset.h,
+            seed: result.seed,
+            steps: 20,
+            generationTimeMs: finished.difference(started).inMilliseconds,
+            startedAt: started,
+            finishedAt: finished,
+            status: 'success',
+            iteration: _infiniteMode ? _infiniteIteration : 0,
+          );
+          if (mounted) {
+            setState(() {
+              _results[i] = result.bytes;
+              _recordIds[i] = record.id;
+            });
+          }
+        } catch (e) {
+          final finished = DateTime.now();
+          unawaited(repo.insert(
+            prompt: prompt,
+            negativePrompt: _negativeCtrl.text.trim(),
+            model: settings.imageGenModel,
+            width: _preset.w,
+            height: _preset.h,
+            steps: 20,
+            generationTimeMs: finished.difference(started).inMilliseconds,
+            startedAt: started,
+            finishedAt: finished,
+            status: 'failed',
+            errorMessage: e.toString(),
+            iteration: _infiniteMode ? _infiniteIteration : 0,
+          ));
+          if (mounted) {
+            setState(() => _lastError = '#${i + 1}: $e');
+          }
         }
       }
-    }
+
+      if (_stopRequested || !_infiniteMode) break;
+      if (_infiniteMode && mounted && !_stopRequested) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+    } while (_infiniteMode && !_stopRequested && mounted);
 
     if (mounted) {
       setState(() {
@@ -1008,6 +1066,8 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
       });
     }
   }
+
+  void _stopInfinite() => setState(() => _stopRequested = true);
 
   Future<void> _saveImage(int index) async {
     final bytes = _results.length > index ? _results[index] : null;
@@ -1018,6 +1078,11 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
     );
     if (path == null) return;
     await File(path).writeAsBytes(bytes);
+    if (_recordIds.length > index && _recordIds[index] != null) {
+      unawaited(
+          ref.read(imageGenRepositoryProvider).updateImagePath(
+              _recordIds[index]!, path));
+    }
     widget.onAttach(path);
   }
 
@@ -1142,6 +1207,16 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
         .length;
     final enabled = _canGenerate;
 
+    String progressText() {
+      if (_generatingIndex < 0) return s.imageGenGenerating;
+      final prog = s.imageGenProgressOf(
+          _generatingIndex + 1, _promptCtrls.length);
+      if (_infiniteMode && _infiniteIteration > 0) {
+        return '${s.imageGenLoopIteration(_infiniteIteration)}  ·  $prog';
+      }
+      return prog;
+    }
+
     return GestureDetector(
       onTap: enabled ? _generateAll : null,
       child: AnimatedContainer(
@@ -1165,10 +1240,7 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
               ),
               const SizedBox(width: 8),
               Text(
-                _generatingIndex >= 0
-                    ? s.imageGenProgressOf(
-                        _generatingIndex + 1, _promptCtrls.length)
-                    : s.imageGenGenerating,
+                progressText(),
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -1309,8 +1381,94 @@ class _ImageGenTabState extends ConsumerState<_ImageGenTab> {
             );
           }),
           const SizedBox(height: 8),
+          // ── Infinite mode toggle ───────────────────────────────────────────
+          Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: Checkbox(
+                  value: _infiniteMode,
+                  onChanged: _generating
+                      ? null
+                      : (v) => setState(() => _infiniteMode = v ?? false),
+                  activeColor: c.accent,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                s.imageGenInfiniteMode,
+                style: TextStyle(fontSize: 12.5, color: c.ink2),
+              ),
+              if (_infiniteMode && _infiniteIteration > 0) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: c.accent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    s.imageGenLoopIteration(_infiniteIteration),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: c.accent,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 8),
           // ── Generate button ────────────────────────────────────────────────
           _buildGenerateButton(c, s),
+          // ── Stop button (infinite mode only) ──────────────────────────────
+          if (_generating && _infiniteMode) ...[
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: _stopRequested ? null : _stopInfinite,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: _stopRequested
+                      ? Colors.grey.shade100
+                      : Colors.red.shade50,
+                  border: Border.all(
+                    color: _stopRequested
+                        ? Colors.grey.shade300
+                        : Colors.red.shade200,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.stop_circle_outlined,
+                      size: 14,
+                      color: _stopRequested
+                          ? Colors.grey.shade400
+                          : Colors.red.shade600,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      s.stop,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: _stopRequested
+                            ? Colors.grey.shade400
+                            : Colors.red.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           // ── Error banner ───────────────────────────────────────────────────
           if (_lastError != null) ...[
             const SizedBox(height: 10),
