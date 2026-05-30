@@ -7,8 +7,8 @@ library;
 
 import 'dart:io';
 
-import 'package:native_assets_cli/code_assets.dart';
-import 'package:native_assets_cli/native_assets_cli.dart';
+import 'package:code_assets/code_assets.dart';
+import 'package:hooks/hooks.dart';
 
 void main(List<String> args) async {
   await build(args, _build);
@@ -18,15 +18,15 @@ Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
   if (!input.config.buildCodeAssets) return;
 
   final targetOS = input.config.code.targetOS;
+  final targetArch = input.config.code.targetArchitecture;
   final libFile = input.outputDirectory.resolve(_libName(targetOS));
 
   final sdRoot =
       input.packageRoot.resolve('src/stable-diffusion.cpp/').toFilePath();
-  // Use a package-root-relative build dir so cmake can reuse its cache across
-  // pub get invocations (outputDirectory is regenerated each run, which would
-  // force a full cmake reconfigure+rebuild every time).
+  // Include architecture in the build dir to avoid conflicts when Flutter
+  // builds multiple architectures (e.g. arm64 + x86_64 for universal binary).
   final buildDir = input.packageRoot
-      .resolve('.sd_cmake_build/${targetOS.name}/')
+      .resolve('.sd_cmake_build/${targetOS.name}-${targetArch.name}/')
       .toFilePath();
 
   Directory(buildDir).createSync(recursive: true);
@@ -41,6 +41,16 @@ Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
   ];
   if (targetOS == OS.macOS || targetOS == OS.iOS) {
     configureArgs.add('-DGGML_METAL=ON');
+    final cmakeArch = _cmakeArch(targetArch);
+    configureArgs.add('-DCMAKE_OSX_ARCHITECTURES=$cmakeArch');
+    // CMAKE_SYSTEM_PROCESSOR must match the target arch so ggml selects the
+    // correct CPU feature flags (e.g. prevents ARM flags when targeting x86_64).
+    configureArgs.add('-DCMAKE_SYSTEM_PROCESSOR=$cmakeArch');
+    // When cross-compiling for x86_64 on an arm64 host, -mcpu=native resolves
+    // to an ARM CPU name which clang rejects for x86_64 targets.
+    if (targetArch != Architecture.arm64) {
+      configureArgs.add('-DGGML_NATIVE=OFF');
+    }
   }
   await _run('cmake', configureArgs);
 
@@ -68,12 +78,16 @@ Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
       package: 'stable_diffusion_ffi',
       name: 'libstable_diffusion',
       linkMode: DynamicLoadingBundled(),
-      os: targetOS,
-      architecture: input.config.code.targetArchitecture,
       file: libFile,
     ),
   );
 }
+
+String _cmakeArch(Architecture arch) => switch (arch) {
+      Architecture.arm64 => 'arm64',
+      Architecture.x64 => 'x86_64',
+      _ => throw UnsupportedError('Unsupported architecture: $arch'),
+    };
 
 String _libName(OS os) => switch (os) {
       OS.macOS => 'libstable-diffusion.dylib',
