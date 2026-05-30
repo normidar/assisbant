@@ -1,18 +1,18 @@
 import 'dart:io';
 
+import 'package:assibant/src/app/theme.dart';
+import 'package:assibant/src/data/services/image_gen_service.dart';
+import 'package:assibant/src/i18n/app_strings.dart';
+import 'package:assibant/src/remote/server/remote_server_service.dart';
+import 'package:assibant/src/screens/settings/model_picker_dialog.dart';
+import 'package:assibant/src/screens/settings/settings_widgets.dart';
+import 'package:assibant/src/state/ui_providers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart' as p;
-import 'package:assibant/src/app/theme.dart';
-import 'package:assibant/src/data/services/image_gen_service.dart';
-import 'package:assibant/src/i18n/app_strings.dart';
-import 'package:assibant/src/screens/settings/model_picker_dialog.dart';
-import 'package:assibant/src/remote/server/remote_server_service.dart';
-import 'package:assibant/src/screens/settings/settings_widgets.dart';
-import 'package:assibant/src/state/ui_providers.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path/path.dart' as p;
 
 // ─── Popular SD/Flux model presets ────────────────────────────────────────────
 // (display name, Automatic1111 model_name)

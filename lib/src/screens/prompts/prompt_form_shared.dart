@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/state/ui_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ─── Form field label wrapper ─────────────────────────────────────────────────
@@ -98,7 +98,9 @@ class FormModalBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color bg, border, fg;
+    final Color bg;
+    final Color border;
+    final Color fg;
     if (primary) {
       bg = enabled ? c.accent : c.accent.withValues(alpha: 0.5);
       border = bg;

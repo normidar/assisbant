@@ -1,7 +1,7 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:assibant/src/data/database/app_database.dart';
 import 'package:assibant/src/data/database/prompt_status.dart';
 import 'package:assibant/src/screens/prompts/commit_history_view.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 PromptEntry _entry({String id = 'id'}) => PromptEntry(
       id: id,
@@ -10,14 +10,12 @@ PromptEntry _entry({String id = 'id'}) => PromptEntry(
       priority: 10,
       status: PromptStatus.pending,
       isSkipped: false,
-      output: null,
       projectPath: '',
       sessionId: '',
       claudeSessionId: '',
       claudeModel: '',
       imagePaths: '',
       commitAfterRun: false,
-      startedAt: null,
       createdAt: DateTime(2024),
       updatedAt: DateTime(2024),
     );

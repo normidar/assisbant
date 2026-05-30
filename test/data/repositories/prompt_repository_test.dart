@@ -1,8 +1,8 @@
-﻿import 'package:drift/native.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:assibant/src/data/database/app_database.dart';
 import 'package:assibant/src/data/database/prompt_status.dart';
 import 'package:assibant/src/data/repositories/prompt_repository.dart';
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 AppDatabase _makeDb() => AppDatabase(NativeDatabase.memory());
 

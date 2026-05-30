@@ -2,18 +2,17 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
-import 'package:assibant/src/data/repositories/image_gen_repository.dart';
 import 'package:assibant/src/data/services/image_gen_service.dart';
-import 'package:stable_diffusion_ffi/stable_diffusion_ffi.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/providers/database_providers.dart';
 import 'package:assibant/src/screens/prompts/prompt_form_shared.dart';
 import 'package:assibant/src/state/ui_providers.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:stable_diffusion_ffi/stable_diffusion_ffi.dart';
 
 // ─── Image Generation Tab ──────────────────────────────────────────────────────
 
@@ -51,7 +50,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
   final _customWCtrl = TextEditingController(text: '512');
   final _customHCtrl = TextEditingController(text: '512');
 
-  static const _presets = [
+  static const List<({int h, String ratio, int w})> _presets = [
     (ratio: '1:1',    w: 512,  h: 512),
     (ratio: '3:2',    w: 768,  h: 512),
     (ratio: '2:3',    w: 512,  h: 768),
@@ -142,7 +141,6 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                 negativePrompt: _negativeCtrl.text.trim(),
                 width: _preset.w,
                 height: _preset.h,
-                steps: 20,
               ),
             );
             result = ImageGenResult(
@@ -155,7 +153,6 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
               model: settings.imageGenModel,
               width: _preset.w,
               height: _preset.h,
-              steps: 20,
             );
           }
           final finished = DateTime.now();
@@ -243,7 +240,8 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
   Widget _buildAspectRatioPreview(int w, int h, AppColors c) {
     const boxSize = 72.0;
     const inner = boxSize - 16.0;
-    final double rectW, rectH;
+    final double rectW;
+    final double rectH;
     if (w >= h) {
       rectW = inner;
       rectH = (inner * h / w).clamp(8.0, inner);
@@ -274,7 +272,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: Text(
-                '${w}×$h',
+                '$w×$h',
                 key: ValueKey('$w×$h'),
                 style: TextStyle(
                   fontSize: 7.5,

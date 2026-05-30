@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:assibant/src/data/services/model_manager_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:assibant/src/data/services/model_manager_service.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

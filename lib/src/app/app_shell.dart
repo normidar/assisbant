@@ -1,17 +1,17 @@
-﻿import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/data/database/app_database.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
+import 'package:assibant/src/remote/server/remote_server_service.dart';
 import 'package:assibant/src/screens/branches/branches_screen.dart';
 import 'package:assibant/src/screens/logs/logs_screen.dart';
 import 'package:assibant/src/screens/prompts/prompts_screen.dart';
 import 'package:assibant/src/screens/settings/settings_screen.dart';
-import 'package:assibant/src/remote/server/remote_server_service.dart';
 import 'package:assibant/src/state/exec_notifier.dart';
 import 'package:assibant/src/state/prompt_notifier.dart';
 import 'package:assibant/src/state/ui_providers.dart';
 import 'package:assibant/src/widgets/exec_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart' as p;
 import 'package:window_manager/window_manager.dart';
@@ -146,7 +146,7 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
   }
 
   @override
-  void onWindowClose() async {
+  Future<void> onWindowClose() async {
     final exec = ref.read(execNotifierProvider);
     final isActive = exec.status == ExecStatus.running ||
         exec.status == ExecStatus.paused;
@@ -193,7 +193,7 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
       ),
     );
 
-    if (shouldClose == true) {
+    if (shouldClose ?? false) {
       await windowManager.destroy();
     }
   }
@@ -929,7 +929,7 @@ class _PulsingDotState extends State<_PulsingDot>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
-    _opacity = Tween<double>(begin: 0.25, end: 1.0).animate(
+    _opacity = Tween<double>(begin: 0.25, end: 1).animate(
       CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
     );
   }
@@ -965,7 +965,6 @@ class _RunningTopBar extends StatelessWidget {
     return SizedBox(
       height: 3,
       child: LinearProgressIndicator(
-        value: null,
         backgroundColor: c.stRunningBg,
         valueColor: AlwaysStoppedAnimation<Color>(c.stRunning),
         borderRadius: BorderRadius.zero,

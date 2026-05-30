@@ -16,8 +16,9 @@ import 'package:assibant/src/data/database/app_database.dart';
   for (final p in allPrompts) {
     if (p.projectPath.isEmpty) continue;
     final t = pathTimes[p.projectPath];
-    if (t == null || p.updatedAt.isAfter(t))
+    if (t == null || p.updatedAt.isAfter(t)) {
       pathTimes[p.projectPath] = p.updatedAt;
+    }
   }
   final projectPaths = pathTimes.keys.toList()
     ..sort((a, b) => pathTimes[b]!.compareTo(pathTimes[a]!));
@@ -34,10 +35,12 @@ import 'package:assibant/src/data/database/app_database.dart';
 List<PromptEntry> applyProjectAndBranchFilter(
     List<PromptEntry> src, String? projectFilter, String? branchFilter) {
   var list = src;
-  if (projectFilter != null)
+  if (projectFilter != null) {
     list = list.where((p) => p.projectPath == projectFilter).toList();
-  if (branchFilter != null)
+  }
+  if (branchFilter != null) {
     list = list.where((p) => p.branch == branchFilter).toList();
+  }
   return list;
 }
 

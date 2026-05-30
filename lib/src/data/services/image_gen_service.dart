@@ -75,9 +75,9 @@ class ImageGenService {
       return list
           .cast<Map<String, dynamic>>()
           .map<String>((m) =>
-              (m['model_name'] as String? ??
+              m['model_name'] as String? ??
                m['title'] as String? ??
-               ''))
+               '')
           .where((s) => s.isNotEmpty)
           .toList();
     } catch (_) {

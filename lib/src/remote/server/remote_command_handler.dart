@@ -1,7 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/remote/remote_protocol.dart';
 import 'package:assibant/src/state/exec_notifier.dart';
 import 'package:assibant/src/state/prompt_notifier.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RemoteCommandHandler {
   static Future<void> handle(Ref ref, Map<String, dynamic> cmd) async {

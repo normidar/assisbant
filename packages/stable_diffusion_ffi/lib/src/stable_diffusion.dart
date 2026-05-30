@@ -5,15 +5,14 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:image/image.dart' as img;
+import 'package:stable_diffusion_ffi/src/ffi/sd_bindings.dart';
+import 'package:stable_diffusion_ffi/src/ffi/sd_structs.dart';
+import 'package:stable_diffusion_ffi/src/sd_params.dart';
+import 'package:stable_diffusion_ffi/src/sd_result.dart';
 
-import 'ffi/sd_bindings.dart';
-import 'ffi/sd_structs.dart';
-import 'sd_params.dart';
-import 'sd_result.dart';
-
+export 'ffi/sd_enums.dart';
 export 'sd_params.dart';
 export 'sd_result.dart';
-export 'ffi/sd_enums.dart';
 
 // Sizes of the two C parameter structs (generous upper bounds).
 const int _kCtxParamsSize    = 1024;
@@ -118,7 +117,6 @@ class StableDiffusionFfi {
         height: h,
         bytes: rawPixels.buffer,
         numChannels: ch,
-        format: img.Format.uint8,
       );
 
       return SdGenerationResult(

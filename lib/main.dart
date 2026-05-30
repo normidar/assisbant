@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:assibant/mobile_main.dart';
 import 'package:assibant/src/route/normal_main.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {

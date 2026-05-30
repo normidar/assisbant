@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/data/database/app_database.dart';
 import 'package:assibant/src/data/database/prompt_status.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/widgets/branch_chip.dart';
 import 'package:assibant/src/widgets/status_badge.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ─── Prompt detail side panel ─────────────────────────────────────────────────

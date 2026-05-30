@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/data/services/notification_service.dart';
 import 'package:assibant/src/remote/client/remote_client_service.dart';
 import 'package:assibant/src/remote/client/remote_discovery_service.dart';
 import 'package:assibant/src/remote/remote_protocol.dart';
 import 'package:assibant/src/state/mobile/remote_exec_notifier.dart';
 import 'package:assibant/src/state/mobile/remote_prompt_notifier.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RemoteConnectionState {
   const RemoteConnectionState({

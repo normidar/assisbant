@@ -13,10 +13,8 @@ class RemotePromptItem {
     required this.claudeModel,
     required this.imagePaths,
     required this.commitAfterRun,
-    this.output,
+    required this.createdAt, required this.updatedAt, this.output,
     this.startedAt,
-    required this.createdAt,
-    required this.updatedAt,
   });
 
   final String id;

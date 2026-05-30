@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const kDs4Keys = [
@@ -130,7 +130,7 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => Navigator.of(context).pop(null),
+                    onTap: () => Navigator.of(context).pop(),
                     child: Icon(Icons.close_rounded, size: 18, color: c.ink3),
                   ),
                 ],
@@ -280,7 +280,7 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.of(context).pop(null),
+                    onTap: () => Navigator.of(context).pop(),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 7),

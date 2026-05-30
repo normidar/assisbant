@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/screens/settings/env_overrides_dialog.dart';
 import 'package:assibant/src/state/ui_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ─── Mode enum ────────────────────────────────────────────────────────────────

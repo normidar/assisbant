@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/remote/remote_protocol.dart';
 import 'package:assibant/src/state/mobile/remote_connection_notifier.dart';
 import 'package:assibant/src/state/mobile/remote_exec_notifier.dart';
 import 'package:assibant/src/state/mobile/remote_prompt_notifier.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RemoteExecScreen extends ConsumerWidget {
   const RemoteExecScreen({super.key});
@@ -209,7 +209,7 @@ class _OutputViewState extends State<_OutputView> {
         child: Text('No output yet', style: TextStyle(color: Colors.grey)),
       );
     }
-    return Container(
+    return ColoredBox(
       color: const Color(0xFF1C1A17),
       child: SingleChildScrollView(
         controller: _scroll,

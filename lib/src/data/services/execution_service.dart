@@ -184,8 +184,8 @@ class ExecutionService {
     Future<void>? cancelToken,
     Future<String> Function(String question)? onQuestion,
   }) async {
-    String currentContent = content;
-    String? currentResumeId = resumeSessionId;
+    var currentContent = content;
+    var currentResumeId = resumeSessionId;
 
     while (true) {
       final result = await _executeStreamJsonOnce(
@@ -314,9 +314,7 @@ class ExecutionService {
           idx = lineBuffer.indexOf('\n');
         }
       }),
-      process.stderr.transform(utf8.decoder).forEach((chunk) {
-        stderrBuf.write(chunk);
-      }),
+      process.stderr.transform(utf8.decoder).forEach(stderrBuf.write),
     ]);
 
     final exitCode = await process.exitCode;
@@ -355,7 +353,9 @@ class ExecutionService {
     if (lower.contains('[y/n]') ||
         lower.contains('[yes/no]') ||
         lower.contains('(y/n)') ||
-        lower.contains('(yes/no)')) return true;
+        lower.contains('(yes/no)')) {
+      return true;
+    }
     return false;
   }
 
@@ -375,7 +375,7 @@ class ExecutionService {
     final modelFlag =
         modelName.isNotEmpty ? ' --model ${_shellQuote(modelName)}' : '';
     final cmd =
-        '${_pathSetup}${envPrefix}exec ${_shellQuote(aiderPath)} --yes --no-auto-commits --message ${_shellQuote(content)}$modelFlag';
+        '$_pathSetup${envPrefix}exec ${_shellQuote(aiderPath)} --yes --no-auto-commits --message ${_shellQuote(content)}$modelFlag';
 
     dev.log('[ExecSvc] aider cmd: $cmd', name: 'ExecutionService');
 

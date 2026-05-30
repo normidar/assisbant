@@ -1,7 +1,7 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:assibant/src/data/database/app_database.dart';
 import 'package:assibant/src/data/database/prompt_status.dart';
 import 'package:assibant/src/screens/prompts/prompt_filter_helpers.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 // ─── Fixture builder ─────────────────────────────────────────────────────────
 
@@ -22,14 +22,12 @@ PromptEntry _entry({
       priority: priority,
       status: status,
       isSkipped: isSkipped,
-      output: null,
       projectPath: projectPath,
       sessionId: '',
       claudeSessionId: '',
       claudeModel: '',
       imagePaths: '',
       commitAfterRun: false,
-      startedAt: null,
       createdAt: DateTime(2024),
       updatedAt: updatedAt ?? DateTime(2024),
     );
@@ -49,15 +47,15 @@ void main() {
 
     test('returns single branch and correct max priority', () {
       final (branches, _, max) = computePromptMetadata([
-        _entry(branch: 'main', priority: 42),
+        _entry(priority: 42),
       ]);
       expect(branches, ['main']);
       expect(max, 42);
     });
 
     test('returns unique branches sorted by most-recently-updated first', () {
-      final older = DateTime(2024, 1, 1);
-      final newer = DateTime(2024, 6, 1);
+      final older = DateTime(2024);
+      final newer = DateTime(2024, 6);
       final (branches, _, _) = computePromptMetadata([
         _entry(id: '1', branch: 'old-branch', updatedAt: older),
         _entry(id: '2', branch: 'new-branch', updatedAt: newer),
@@ -66,7 +64,7 @@ void main() {
     });
 
     test('uses the latest updatedAt when a branch has multiple prompts', () {
-      final early = DateTime(2024, 1, 1);
+      final early = DateTime(2024);
       final late = DateTime(2024, 12, 31);
       final (branches, _, _) = computePromptMetadata([
         _entry(id: '1', branch: 'alpha', updatedAt: early),
@@ -79,15 +77,15 @@ void main() {
 
     test('excludes prompts with empty projectPath from path list', () {
       final (_, paths, _) = computePromptMetadata([
-        _entry(id: '1', projectPath: ''),
+        _entry(id: '1'),
         _entry(id: '2', projectPath: '/repo/foo'),
       ]);
       expect(paths, ['/repo/foo']);
     });
 
     test('sorts project paths by most-recently-updated first', () {
-      final older = DateTime(2024, 1, 1);
-      final newer = DateTime(2024, 6, 1);
+      final older = DateTime(2024);
+      final newer = DateTime(2024, 6);
       final (_, paths, _) = computePromptMetadata([
         _entry(id: '1', projectPath: '/old', updatedAt: older),
         _entry(id: '2', projectPath: '/new', updatedAt: newer),
@@ -109,9 +107,9 @@ void main() {
 
   group('applyProjectAndBranchFilter', () {
     final prompts = [
-      _entry(id: '1', branch: 'main', projectPath: '/a'),
+      _entry(id: '1', projectPath: '/a'),
       _entry(id: '2', branch: 'dev', projectPath: '/a'),
-      _entry(id: '3', branch: 'main', projectPath: '/b'),
+      _entry(id: '3', projectPath: '/b'),
     ];
 
     test('returns all prompts when both filters are null', () {
@@ -145,16 +143,15 @@ void main() {
   group('applyPromptFilters', () {
     final now = DateTime(2024);
     final prompts = [
-      _entry(id: 'p', content: 'pending task', branch: 'main',
-          priority: 30, status: PromptStatus.pending),
+      _entry(id: 'p', content: 'pending task',
+          priority: 30),
       _entry(id: 'r', content: 'running task', branch: 'dev',
           priority: 20, status: PromptStatus.running),
-      _entry(id: 'd', content: 'done task', branch: 'main',
-          priority: 10, status: PromptStatus.done),
+      _entry(id: 'd', content: 'done task', status: PromptStatus.done),
       _entry(id: 'f', content: 'failed task', branch: 'feature',
           priority: 5, status: PromptStatus.failed),
-      _entry(id: 's', content: 'skipped task', branch: 'main',
-          priority: 15, isSkipped: true, status: PromptStatus.pending),
+      _entry(id: 's', content: 'skipped task',
+          priority: 15, isSkipped: true),
     ];
 
     test('filter=all returns all prompts sorted by priority desc', () {
@@ -236,11 +233,11 @@ void main() {
 
     test('counts each status correctly', () {
       final prompts = [
-        _entry(id: '1', status: PromptStatus.pending),
+        _entry(id: '1'),
         _entry(id: '2', status: PromptStatus.running),
         _entry(id: '3', status: PromptStatus.done),
         _entry(id: '4', status: PromptStatus.failed),
-        _entry(id: '5', isSkipped: true, status: PromptStatus.pending),
+        _entry(id: '5', isSkipped: true),
       ];
       final counts = computePromptCounts(prompts);
       expect(counts['all'], 5);
@@ -253,7 +250,7 @@ void main() {
 
     test('skipped prompts increment skipped, not their status bucket', () {
       final prompts = [
-        _entry(id: '1', status: PromptStatus.pending, isSkipped: true),
+        _entry(id: '1', isSkipped: true),
         _entry(id: '2', status: PromptStatus.failed, isSkipped: true),
       ];
       final counts = computePromptCounts(prompts);

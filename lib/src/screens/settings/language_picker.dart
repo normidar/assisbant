@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/state/ui_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Add entries here when adding new languages — the picker dialog reflects this list automatically.
 const kLanguages = [

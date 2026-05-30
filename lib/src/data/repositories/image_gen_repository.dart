@@ -1,5 +1,5 @@
-import 'package:drift/drift.dart';
 import 'package:assibant/src/data/database/app_database.dart';
+import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 class ImageGenRepository {
@@ -14,13 +14,8 @@ class ImageGenRepository {
     required String model,
     required int width,
     required int height,
-    int? seed,
-    required int steps,
-    required int generationTimeMs,
-    required DateTime startedAt,
-    required DateTime finishedAt,
+    required int steps, required int generationTimeMs, required DateTime startedAt, required DateTime finishedAt, required String status, int? seed,
     String? imagePath,
-    required String status,
     String? errorMessage,
     int iteration = 0,
   }) async {

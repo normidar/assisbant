@@ -1,6 +1,6 @@
 import 'dart:ffi';
 
-import 'sd_structs.dart';
+import 'package:stable_diffusion_ffi/src/ffi/sd_structs.dart';
 
 // stable-diffusion.cpp >= commit 0e4ee04 uses a struct-based API:
 //
@@ -12,16 +12,13 @@ import 'sd_structs.dart';
 // them through init helpers + raw byte-offset writes rather than mirroring the
 // full C layout in Dart.
 
-typedef _VoidPtrFromPtrUint8C = Pointer<Void> Function(Pointer<Uint8>);
 typedef _VoidPtrFromPtrUint8Dart = Pointer<Void> Function(Pointer<Uint8>);
 
-typedef _VoidVoidPtrC = Void Function(Pointer<Void>);
 typedef _VoidVoidPtrDart = void Function(Pointer<Void>);
 
 typedef _VoidPtrUint8C = Void Function(Pointer<Uint8>);
 typedef _VoidPtrUint8Dart = void Function(Pointer<Uint8>);
 
-typedef _SdImagePtrC = Pointer<SdImageT> Function(Pointer<Void>, Pointer<Uint8>);
 typedef _SdImagePtrDart = Pointer<SdImageT> Function(Pointer<Void>, Pointer<Uint8>);
 
 class SdBindings {
@@ -29,13 +26,13 @@ class SdBindings {
       : sdCtxParamsInit =
             lib.lookupFunction<_VoidPtrUint8C, _VoidPtrUint8Dart>('sd_ctx_params_init'),
         newSdCtx =
-            lib.lookupFunction<_VoidPtrFromPtrUint8C, _VoidPtrFromPtrUint8Dart>('new_sd_ctx'),
+            lib.lookupFunction<Pointer<Void> Function(Pointer<Uint8>), _VoidPtrFromPtrUint8Dart>('new_sd_ctx'),
         freeSdCtx =
-            lib.lookupFunction<_VoidVoidPtrC, _VoidVoidPtrDart>('free_sd_ctx'),
+            lib.lookupFunction<Void Function(Pointer<Void>), _VoidVoidPtrDart>('free_sd_ctx'),
         sdImgGenParamsInit =
             lib.lookupFunction<_VoidPtrUint8C, _VoidPtrUint8Dart>('sd_img_gen_params_init'),
         generateImage =
-            lib.lookupFunction<_SdImagePtrC, _SdImagePtrDart>('generate_image');
+            lib.lookupFunction<Pointer<SdImageT> Function(Pointer<Void>, Pointer<Uint8>), _SdImagePtrDart>('generate_image');
 
   /// void sd_ctx_params_init(sd_ctx_params_t*)
   final _VoidPtrUint8Dart sdCtxParamsInit;

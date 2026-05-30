@@ -677,7 +677,7 @@ class AppStrings {
     sdModelPathDesc: 'Absolute path to the .safetensors model file.',
     sdModelPathPlaceholder: '/path/to/model.safetensors',
     sdVaePath: 'VAE Path (optional)',
-    sdVaePathDesc: 'Path to a custom VAE .safetensors. Leave empty to use the model\'s built-in VAE.',
+    sdVaePathDesc: "Path to a custom VAE .safetensors. Leave empty to use the model's built-in VAE.",
     sdVaePathPlaceholder: '(optional)',
     modelPickerTitle: 'Select Model',
     modelPickerTabLocal: 'My Models',

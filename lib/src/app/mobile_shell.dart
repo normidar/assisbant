@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/screens/mobile/connection_screen.dart';
 import 'package:assibant/src/screens/mobile/remote_exec_screen.dart';
 import 'package:assibant/src/screens/mobile/remote_prompts_screen.dart';
 import 'package:assibant/src/state/mobile/remote_connection_notifier.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MobileShell extends ConsumerStatefulWidget {
   const MobileShell({super.key});

@@ -87,7 +87,7 @@ class ModelManagerService {
   final _tasks = <String, _DownloadTask>{};
 
   Future<Directory> modelsDir() async {
-    if (_dirOverride != null) return _dirOverride!;
+    if (_dirOverride != null) return _dirOverride;
     final appSupport = await getApplicationSupportDirectory();
     final dir = Directory(p.join(appSupport.path, 'models'));
     if (!dir.existsSync()) dir.createSync(recursive: true);

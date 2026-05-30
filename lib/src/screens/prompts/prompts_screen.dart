@@ -1,18 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:assibant/src/app/theme.dart';
 import 'package:assibant/src/data/database/app_database.dart';
 import 'package:assibant/src/data/database/prompt_status.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/screens/prompts/batch_create_modal.dart';
 import 'package:assibant/src/screens/prompts/commit_history_view.dart';
-import 'package:assibant/src/screens/prompts/prompt_filter_helpers.dart';
 import 'package:assibant/src/screens/prompts/prompt_card.dart';
 import 'package:assibant/src/screens/prompts/prompt_detail_panel.dart';
 import 'package:assibant/src/screens/prompts/prompt_edit_modal.dart';
+import 'package:assibant/src/screens/prompts/prompt_filter_helpers.dart';
 import 'package:assibant/src/state/exec_notifier.dart';
 import 'package:assibant/src/state/prompt_notifier.dart';
 import 'package:assibant/src/state/ui_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PromptsScreen extends ConsumerStatefulWidget {
@@ -643,8 +643,9 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
     final id = _deleteTargetId!;
     await ref.read(promptListNotifierProvider.notifier).remove(id);
     final selectedId = ref.read(selectedPromptIdProvider);
-    if (selectedId == id)
+    if (selectedId == id) {
       ref.read(selectedPromptIdProvider.notifier).select(null);
+    }
     setState(() => _showDeleteConfirm = false);
     _showToast(widget.strings.deleted);
   }
