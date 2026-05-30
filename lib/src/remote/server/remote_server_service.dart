@@ -64,7 +64,7 @@ class RemoteServerNotifier extends Notifier<RemoteServerState> {
         _broadcast(buildPromptListMsg(prompts));
 
         // Detect newly completed prompts and broadcast notification
-        final prevPrompts = prev?.valueOrNull;
+        final prevPrompts = prev?.value;
         if (prevPrompts != null) {
           final prevById = {for (final p in prevPrompts) p.id: p.status};
           for (final p in prompts) {

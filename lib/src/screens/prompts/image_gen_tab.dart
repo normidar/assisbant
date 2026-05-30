@@ -380,7 +380,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                         controller: _customWCtrl,
                         enabled: !_generating,
                         keyboardType: TextInputType.number,
-                        style: TextStyle(fontSize: 13, color: c.ink1),
+                        style: TextStyle(fontSize: 13, color: c.ink),
                         decoration: formInputDeco(c, 'W').copyWith(
                           labelText: 'W',
                           labelStyle:
@@ -401,7 +401,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                         controller: _customHCtrl,
                         enabled: !_generating,
                         keyboardType: TextInputType.number,
-                        style: TextStyle(fontSize: 13, color: c.ink1),
+                        style: TextStyle(fontSize: 13, color: c.ink),
                         decoration: formInputDeco(c, 'H').copyWith(
                           labelText: 'H',
                           labelStyle:
