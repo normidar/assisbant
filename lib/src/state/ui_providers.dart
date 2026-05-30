@@ -177,6 +177,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
       sdDylibPath: prefs.getString('sdDylibPath') ?? '',
       sdModelPath: prefs.getString('sdModelPath') ?? '',
       sdVaePath: prefs.getString('sdVaePath') ?? '',
+      comfyuiEnabled: prefs.getBool('comfyuiEnabled') ?? false,
+      comfyuiUrl: prefs.getString('comfyuiUrl') ?? 'http://127.0.0.1:8188',
+      comfyuiUnetName: prefs.getString('comfyuiUnetName') ?? 'z_image_turbo_bf16.safetensors',
+      comfyuiClipName: prefs.getString('comfyuiClipName') ?? 'qwen_3_4b.safetensors',
+      comfyuiVaeName: prefs.getString('comfyuiVaeName') ?? 'ae.safetensors',
     );
   }
 
@@ -203,6 +208,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
     await prefs.setString('sdDylibPath', s.sdDylibPath);
     await prefs.setString('sdModelPath', s.sdModelPath);
     await prefs.setString('sdVaePath', s.sdVaePath);
+    await prefs.setBool('comfyuiEnabled', s.comfyuiEnabled);
+    await prefs.setString('comfyuiUrl', s.comfyuiUrl);
+    await prefs.setString('comfyuiUnetName', s.comfyuiUnetName);
+    await prefs.setString('comfyuiClipName', s.comfyuiClipName);
+    await prefs.setString('comfyuiVaeName', s.comfyuiVaeName);
   }
 
   static Map<String, String> _parseEnvOverrides(String raw) {
@@ -237,6 +247,11 @@ class AppSettings {
     this.sdDylibPath = '',
     this.sdModelPath = '',
     this.sdVaePath = '',
+    this.comfyuiEnabled = false,
+    this.comfyuiUrl = 'http://127.0.0.1:8188',
+    this.comfyuiUnetName = 'z_image_turbo_bf16.safetensors',
+    this.comfyuiClipName = 'qwen_3_4b.safetensors',
+    this.comfyuiVaeName = 'ae.safetensors',
   });
 
   final String cliPath; // claude CLI のパス。空の場合は PATH から検索
@@ -258,6 +273,11 @@ class AppSettings {
   final String sdDylibPath; // libstable-diffusion.dylib のパス
   final String sdModelPath; // .safetensors モデルのパス
   final String sdVaePath; // VAE .safetensors のパス（省略可）
+  final bool comfyuiEnabled; // true = ComfyUI API モード
+  final String comfyuiUrl; // ComfyUI サーバー URL
+  final String comfyuiUnetName; // UNet モデルファイル名
+  final String comfyuiClipName; // CLIP テキストエンコーダーファイル名
+  final String comfyuiVaeName; // VAE ファイル名
 
   AppSettings copyWith({
     String? cliPath,
@@ -278,6 +298,11 @@ class AppSettings {
     String? sdDylibPath,
     String? sdModelPath,
     String? sdVaePath,
+    bool? comfyuiEnabled,
+    String? comfyuiUrl,
+    String? comfyuiUnetName,
+    String? comfyuiClipName,
+    String? comfyuiVaeName,
   }) =>
       AppSettings(
         cliPath: cliPath ?? this.cliPath,
@@ -298,5 +323,10 @@ class AppSettings {
         sdDylibPath: sdDylibPath ?? this.sdDylibPath,
         sdModelPath: sdModelPath ?? this.sdModelPath,
         sdVaePath: sdVaePath ?? this.sdVaePath,
+        comfyuiEnabled: comfyuiEnabled ?? this.comfyuiEnabled,
+        comfyuiUrl: comfyuiUrl ?? this.comfyuiUrl,
+        comfyuiUnetName: comfyuiUnetName ?? this.comfyuiUnetName,
+        comfyuiClipName: comfyuiClipName ?? this.comfyuiClipName,
+        comfyuiVaeName: comfyuiVaeName ?? this.comfyuiVaeName,
       );
 }

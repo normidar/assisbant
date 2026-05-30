@@ -94,19 +94,61 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
 
     return SetCard(
       title: s.imageGenSettings,
-      subtitle: settings.sdLocalMode ? s.sdLocalModeLabel : s.sdWebApiModeLabel,
+      subtitle: settings.comfyuiEnabled
+          ? s.comfyuiModeLabel
+          : settings.sdLocalMode
+              ? s.sdLocalModeLabel
+              : s.sdWebApiModeLabel,
       c: c,
       children: [
-        // Mode toggle
+        // Mode toggle (3 modes: A1111 / sd.cpp / ComfyUI)
         _ModeToggleRow(
           localMode: settings.sdLocalMode,
-          onChanged: (v) =>
-              widget.onUpdate(settings.copyWith(sdLocalMode: v)),
+          comfyuiEnabled: settings.comfyuiEnabled,
+          onChanged: (local, comfyui) => widget.onUpdate(
+              settings.copyWith(sdLocalMode: local, comfyuiEnabled: comfyui)),
           c: c,
           s: s,
         ),
 
-        if (settings.sdLocalMode) ...[
+        if (settings.comfyuiEnabled) ...[
+          SetRowInput(
+            label: s.comfyuiUrl,
+            description: s.comfyuiUrlDesc,
+            value: settings.comfyuiUrl,
+            placeholder: 'http://127.0.0.1:8188',
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(comfyuiUrl: v.trim())),
+            c: c,
+          ),
+          SetRowInput(
+            label: s.comfyuiUnetName,
+            description: '',
+            value: settings.comfyuiUnetName,
+            placeholder: 'z_image_turbo_bf16.safetensors',
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(comfyuiUnetName: v.trim())),
+            c: c,
+          ),
+          SetRowInput(
+            label: s.comfyuiClipName,
+            description: '',
+            value: settings.comfyuiClipName,
+            placeholder: 'qwen_3_4b.safetensors',
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(comfyuiClipName: v.trim())),
+            c: c,
+          ),
+          SetRowInput(
+            label: s.comfyuiVaeName,
+            description: '',
+            value: settings.comfyuiVaeName,
+            placeholder: 'ae.safetensors',
+            onChanged: (v) =>
+                widget.onUpdate(settings.copyWith(comfyuiVaeName: v.trim())),
+            c: c,
+          ),
+        ] else if (settings.sdLocalMode) ...[
           // Local mode: model picker + VAE path.
           // The dylib is compiled from the submodule and bundled automatically
           // by the Native Assets hook during `flutter build` — no path needed.
@@ -176,18 +218,26 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
 class _ModeToggleRow extends StatelessWidget {
   const _ModeToggleRow({
     required this.localMode,
+    required this.comfyuiEnabled,
     required this.onChanged,
     required this.c,
     required this.s,
   });
 
   final bool localMode;
-  final ValueChanged<bool> onChanged;
+  final bool comfyuiEnabled;
+  final void Function(bool local, bool comfyui) onChanged;
   final AppColors c;
   final AppStrings s;
 
   @override
   Widget build(BuildContext context) {
+    final desc = comfyuiEnabled
+        ? s.comfyuiModeDesc
+        : localMode
+            ? s.sdLocalModeDesc
+            : s.imageGenSettingsDesc;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
@@ -196,22 +246,29 @@ class _ModeToggleRow extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              localMode ? s.sdLocalModeDesc : s.imageGenSettingsDesc,
+              desc,
               style: TextStyle(fontSize: 11.5, color: c.ink3),
             ),
           ),
           const SizedBox(width: 14),
           _ModeChip(
             label: s.sdWebApiModeLabel,
-            selected: !localMode,
-            onTap: () => onChanged(false),
+            selected: !localMode && !comfyuiEnabled,
+            onTap: () => onChanged(false, false),
             c: c,
           ),
           const SizedBox(width: 6),
           _ModeChip(
             label: s.sdLocalModeLabel,
-            selected: localMode,
-            onTap: () => onChanged(true),
+            selected: localMode && !comfyuiEnabled,
+            onTap: () => onChanged(true, false),
+            c: c,
+          ),
+          const SizedBox(width: 6),
+          _ModeChip(
+            label: s.comfyuiModeLabel,
+            selected: comfyuiEnabled,
+            onTap: () => onChanged(false, true),
             c: c,
           ),
         ],

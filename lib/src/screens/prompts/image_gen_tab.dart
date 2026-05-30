@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:assibant/src/app/theme.dart';
+import 'package:assibant/src/data/services/comfyui_service.dart';
 import 'package:assibant/src/data/services/image_gen_service.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/providers/database_providers.dart';
@@ -49,6 +50,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
   bool _customMode = false;
   final _customWCtrl = TextEditingController(text: '512');
   final _customHCtrl = TextEditingController(text: '512');
+  int _steps = 8;
 
   static const List<({int h, String ratio, int w})> _presets = [
     (ratio: '1:1',    w: 512,  h: 512),
@@ -131,11 +133,23 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
         final started = DateTime.now();
         try {
           final ImageGenResult result;
-          if (settings.sdLocalMode) {
+          if (settings.comfyuiEnabled) {
+            final r = await ComfyUIService.generate(
+              baseUrl: settings.comfyuiUrl,
+              prompt: prompt,
+              unetName: settings.comfyuiUnetName,
+              clipName: settings.comfyuiClipName,
+              vaeName: settings.comfyuiVaeName,
+              width: _preset.w,
+              height: _preset.h,
+              steps: _steps,
+            );
+            result = ImageGenResult(bytes: r.bytes, seed: r.seed);
+          } else if (settings.sdLocalMode) {
             final sdResult = await StableDiffusionFfi.generate(
               SdGenerateParams(
                 modelPath: settings.sdModelPath,
-                dylibPath: settings.sdDylibPath, // empty = use bundled lib
+                dylibPath: settings.sdDylibPath,
                 vaePath: settings.sdVaePath,
                 prompt: prompt,
                 negativePrompt: _negativeCtrl.text.trim(),
@@ -156,9 +170,11 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
             );
           }
           final finished = DateTime.now();
-          final modelLabel = settings.sdLocalMode
-              ? settings.sdModelPath.split('/').last
-              : settings.imageGenModel;
+          final modelLabel = settings.comfyuiEnabled
+              ? settings.comfyuiUnetName
+              : settings.sdLocalMode
+                  ? settings.sdModelPath.split('/').last
+                  : settings.imageGenModel;
           final record = await repo.insert(
             prompt: prompt,
             negativePrompt: _negativeCtrl.text.trim(),
@@ -181,9 +197,11 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
           }
         } catch (e) {
           final finished = DateTime.now();
-          final modelLabel = settings.sdLocalMode
-              ? settings.sdModelPath.split('/').last
-              : settings.imageGenModel;
+          final modelLabel = settings.comfyuiEnabled
+              ? settings.comfyuiUnetName
+              : settings.sdLocalMode
+                  ? settings.sdModelPath.split('/').last
+                  : settings.imageGenModel;
           unawaited(repo.insert(
             prompt: prompt,
             negativePrompt: _negativeCtrl.text.trim(),
@@ -285,6 +303,48 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStepsSection(AppColors c, AppStrings s) {
+    return Row(
+      children: [
+        Text(
+          s.imageGenSteps.toUpperCase(),
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: c.ink4,
+            letterSpacing: 0.6,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Slider(
+            value: _steps.toDouble(),
+            min: 1,
+            max: 50,
+            divisions: 49,
+            activeColor: c.accent,
+            inactiveColor: c.border,
+            onChanged: _generating
+                ? null
+                : (v) => setState(() => _steps = v.round()),
+          ),
+        ),
+        SizedBox(
+          width: 32,
+          child: Text(
+            '$_steps',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: c.ink,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
     );
   }
 
@@ -503,25 +563,34 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
     final s = widget.strings;
     final hasResults = _results.isNotEmpty && _results.any((r) => r != null);
 
+    final settings = ref.watch(settingsStateProvider);
+    final isComfyUI = settings.comfyuiEnabled;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Negative prompt
-          PromptFormField(
-            label: s.imageGenNegative,
-            child: TextField(
-              controller: _negativeCtrl,
-              maxLines: 2,
-              minLines: 1,
-              style: GoogleFonts.ibmPlexMono(fontSize: 12.5),
-              decoration: formInputDeco(c, s.imageGenNegativePlaceholder),
+          // Negative prompt (hidden in ComfyUI mode — uses zeroed conditioning)
+          if (!isComfyUI) ...[
+            PromptFormField(
+              label: s.imageGenNegative,
+              child: TextField(
+                controller: _negativeCtrl,
+                maxLines: 2,
+                minLines: 1,
+                style: GoogleFonts.ibmPlexMono(fontSize: 12.5),
+                decoration: formInputDeco(c, s.imageGenNegativePlaceholder),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
+          ],
           _buildSizeSection(c, s),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          // Steps control (always shown in ComfyUI mode)
+          if (isComfyUI) _buildStepsSection(c, s),
+          if (isComfyUI) const SizedBox(height: 16),
+          if (!isComfyUI) const SizedBox(height: 4),
 
           // Prompt list header
           Row(
@@ -722,7 +791,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                       size: 14, color: Colors.red.shade600),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: Text(
+                    child: SelectableText(
                       _lastError!,
                       style: TextStyle(
                           fontSize: 11.5, color: Colors.red.shade700),

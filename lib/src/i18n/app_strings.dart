@@ -205,6 +205,14 @@ class AppStrings {
     required this.sdVaePath,
     required this.sdVaePathDesc,
     required this.sdVaePathPlaceholder,
+    required this.comfyuiModeLabel,
+    required this.comfyuiModeDesc,
+    required this.comfyuiUrl,
+    required this.comfyuiUrlDesc,
+    required this.comfyuiUnetName,
+    required this.comfyuiClipName,
+    required this.comfyuiVaeName,
+    required this.imageGenSteps,
     required this.modelPickerTitle,
     required this.modelPickerTabLocal,
     required this.modelPickerTabDownload,
@@ -422,6 +430,14 @@ class AppStrings {
   final String sdVaePath;
   final String sdVaePathDesc;
   final String sdVaePathPlaceholder;
+  final String comfyuiModeLabel;
+  final String comfyuiModeDesc;
+  final String comfyuiUrl;
+  final String comfyuiUrlDesc;
+  final String comfyuiUnetName;
+  final String comfyuiClipName;
+  final String comfyuiVaeName;
+  final String imageGenSteps;
   final String modelPickerTitle;
   final String modelPickerTabLocal;
   final String modelPickerTabDownload;
@@ -679,6 +695,14 @@ class AppStrings {
     sdVaePath: 'VAE Path (optional)',
     sdVaePathDesc: "Path to a custom VAE .safetensors. Leave empty to use the model's built-in VAE.",
     sdVaePathPlaceholder: '(optional)',
+    comfyuiModeLabel: 'ComfyUI',
+    comfyuiModeDesc: 'Use ComfyUI API for image generation. Supports z-image-turbo and other ComfyUI-compatible models.',
+    comfyuiUrl: 'ComfyUI URL',
+    comfyuiUrlDesc: 'Base URL of your ComfyUI instance.',
+    comfyuiUnetName: 'UNet Model',
+    comfyuiClipName: 'Text Encoder (CLIP)',
+    comfyuiVaeName: 'VAE',
+    imageGenSteps: 'Steps',
     modelPickerTitle: 'Select Model',
     modelPickerTabLocal: 'My Models',
     modelPickerTabDownload: 'Download',
@@ -897,6 +921,14 @@ class AppStrings {
     sdVaePath: 'VAE 路径（可选）',
     sdVaePathDesc: '自定义 VAE .safetensors 的路径。留空则使用模型内置 VAE。',
     sdVaePathPlaceholder: '（可选）',
+    comfyuiModeLabel: 'ComfyUI',
+    comfyuiModeDesc: '使用 ComfyUI API 生成图片，支持 z-image-turbo 等模型。',
+    comfyuiUrl: 'ComfyUI URL',
+    comfyuiUrlDesc: 'ComfyUI 服务器的基础 URL。',
+    comfyuiUnetName: 'UNet 模型',
+    comfyuiClipName: '文本编码器（CLIP）',
+    comfyuiVaeName: 'VAE',
+    imageGenSteps: '步数',
     modelPickerTitle: '选择模型',
     modelPickerTabLocal: '我的模型',
     modelPickerTabDownload: '下载',
@@ -1115,6 +1147,14 @@ class AppStrings {
     sdVaePath: 'VAE パス（省略可）',
     sdVaePathDesc: 'カスタム VAE .safetensors のパス。空欄の場合はモデル内蔵 VAE を使用します。',
     sdVaePathPlaceholder: '（省略可）',
+    comfyuiModeLabel: 'ComfyUI',
+    comfyuiModeDesc: 'ComfyUI APIで画像生成。z-image-turboなどのモデルに対応。',
+    comfyuiUrl: 'ComfyUI URL',
+    comfyuiUrlDesc: 'ComfyUIサーバーのベースURL。',
+    comfyuiUnetName: 'UNetモデル',
+    comfyuiClipName: 'テキストエンコーダー（CLIP）',
+    comfyuiVaeName: 'VAE',
+    imageGenSteps: 'ステップ数',
     modelPickerTitle: 'モデルを選択',
     modelPickerTabLocal: 'マイモデル',
     modelPickerTabDownload: 'ダウンロード',

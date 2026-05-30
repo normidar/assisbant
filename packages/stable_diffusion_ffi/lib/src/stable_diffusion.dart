@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
+
 import 'package:ffi/ffi.dart';
 import 'package:image/image.dart' as img;
 import 'package:stable_diffusion_ffi/src/ffi/sd_bindings.dart';
@@ -32,7 +33,11 @@ class StableDiffusionFfi {
 
   static DynamicLibrary _openLibrary(String dylibPath) {
     if (dylibPath.isNotEmpty) return DynamicLibrary.open(dylibPath);
-    if (Platform.isMacOS) return DynamicLibrary.open('libstable-diffusion.dylib');
+    if (Platform.isMacOS) {
+      final execDir = File(Platform.resolvedExecutable).parent.path;
+      return DynamicLibrary.open(
+          '$execDir/../Frameworks/stable-diffusion.framework/stable-diffusion');
+    }
     if (Platform.isLinux) return DynamicLibrary.open('libstable-diffusion.so');
     if (Platform.isWindows) return DynamicLibrary.open('stable-diffusion.dll');
     throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
