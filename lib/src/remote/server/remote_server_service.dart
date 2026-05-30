@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bonsoir/bonsoir.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:assibant/src/data/database/prompt_status.dart';
 import 'package:assibant/src/remote/remote_protocol.dart';
 import 'package:assibant/src/remote/server/remote_command_handler.dart';
 import 'package:assibant/src/state/exec_notifier.dart';
@@ -59,7 +60,25 @@ class RemoteServerNotifier extends Notifier<RemoteServerState> {
 
     // Broadcast prompt list changes to all connected clients
     ref.listen(promptListNotifierProvider, (prev, next) {
-      next.whenData((prompts) => _broadcast(buildPromptListMsg(prompts)));
+      next.whenData((prompts) {
+        _broadcast(buildPromptListMsg(prompts));
+
+        // Detect newly completed prompts and broadcast notification
+        final prevPrompts = prev?.valueOrNull;
+        if (prevPrompts != null) {
+          final prevById = {for (final p in prevPrompts) p.id: p.status};
+          for (final p in prompts) {
+            final prevStatus = prevById[p.id];
+            if (prevStatus != null &&
+                prevStatus != PromptStatus.done &&
+                prevStatus != PromptStatus.failed &&
+                (p.status == PromptStatus.done ||
+                    p.status == PromptStatus.failed)) {
+              broadcastNotification(p.content, p.output ?? '');
+            }
+          }
+        }
+      });
     });
 
     // Auto start/stop when setting changes
@@ -177,5 +196,9 @@ class RemoteServerNotifier extends Notifier<RemoteServerState> {
   // Called by ExecNotifier to stream output to remote clients
   void broadcastOutput(String promptId, String chunk) {
     _broadcast(buildOutputMsg(promptId, chunk));
+  }
+
+  void broadcastNotification(String title, String body) {
+    _broadcast(buildNotificationMsg(title, body));
   }
 }
