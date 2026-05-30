@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:assibant/src/data/services/notification_service.dart';
 import 'package:assibant/src/remote/client/remote_client_service.dart';
 import 'package:assibant/src/remote/client/remote_discovery_service.dart';
 import 'package:assibant/src/remote/remote_protocol.dart';
@@ -141,6 +142,13 @@ class RemoteConnectionNotifier extends Notifier<RemoteConnectionState> {
         final chunk = msg['chunk'] as String?;
         if (promptId != null && chunk != null) {
           ref.read(remoteExecProvider.notifier).appendOutput(promptId, chunk);
+        }
+      case RemoteMsg.notification:
+        final title = msg['title'] as String?;
+        final body = msg['body'] as String?;
+        if (title != null && body != null) {
+          final plugin = ref.read(localNotificationsProvider);
+          showTaskCompletedNotification(plugin, title, body);
         }
     }
   }

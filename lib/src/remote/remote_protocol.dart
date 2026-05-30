@@ -10,6 +10,7 @@ class RemoteMsg {
   static const promptList = 'promptList';
   static const output = 'output';
   static const error = 'error';
+  static const notification = 'notification';
 }
 
 // ─── Command types (client → server) ────────────────────────────────────────
@@ -53,6 +54,12 @@ Map<String, dynamic> buildOutputMsg(String promptId, String chunk) => {
 Map<String, dynamic> buildErrorMsg(String message) => {
       'type': RemoteMsg.error,
       'message': message,
+    };
+
+Map<String, dynamic> buildNotificationMsg(String title, String body) => {
+      'type': RemoteMsg.notification,
+      'title': title,
+      'body': body,
     };
 
 Map<String, dynamic> _promptToJson(PromptEntry p) => {
