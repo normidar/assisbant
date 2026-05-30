@@ -47,6 +47,9 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
   int _infiniteIteration = 0;
 
   int _selectedPreset = 0;
+  bool _customMode = false;
+  final _customWCtrl = TextEditingController(text: '512');
+  final _customHCtrl = TextEditingController(text: '512');
 
   static const _presets = [
     (ratio: '1:1',    w: 512,  h: 512),
@@ -59,7 +62,14 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
     (ratio: '1:1 XL', w: 1024, h: 1024),
   ];
 
-  ({String ratio, int w, int h}) get _preset => _presets[_selectedPreset];
+  ({String ratio, int w, int h}) get _preset {
+    if (_customMode) {
+      final w = int.tryParse(_customWCtrl.text) ?? 512;
+      final h = int.tryParse(_customHCtrl.text) ?? 512;
+      return (ratio: 'custom', w: w.clamp(64, 2048), h: h.clamp(64, 2048));
+    }
+    return _presets[_selectedPreset];
+  }
 
   bool get _canGenerate =>
       !_generating &&
@@ -71,6 +81,8 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
       ctrl.dispose();
     }
     _negativeCtrl.dispose();
+    _customWCtrl.dispose();
+    _customHCtrl.dispose();
     super.dispose();
   }
 
@@ -300,40 +312,120 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
-                children: List.generate(_presets.length, (i) {
-                  final preset = _presets[i];
-                  final selected = _selectedPreset == i;
-                  return GestureDetector(
+                children: [
+                  ...List.generate(_presets.length, (i) {
+                    final preset = _presets[i];
+                    final selected = !_customMode && _selectedPreset == i;
+                    return GestureDetector(
+                      onTap: _generating
+                          ? null
+                          : () => setState(() {
+                                _selectedPreset = i;
+                                _customMode = false;
+                              }),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 130),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: selected ? c.accent : c.surface3,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                              color: selected ? c.accent : c.border),
+                        ),
+                        child: Text(
+                          preset.ratio,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: selected ? Colors.white : c.ink2,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                  // Custom size chip
+                  GestureDetector(
                     onTap: _generating
                         ? null
-                        : () => setState(() => _selectedPreset = i),
+                        : () => setState(() => _customMode = true),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 130),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: selected ? c.accent : c.surface3,
+                        color: _customMode ? c.accent : c.surface3,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                            color: selected ? c.accent : c.border),
+                            color: _customMode ? c.accent : c.border),
                       ),
                       child: Text(
-                        preset.ratio,
+                        'Custom',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: selected ? Colors.white : c.ink2,
+                          color: _customMode ? Colors.white : c.ink2,
                         ),
                       ),
                     ),
-                  );
-                }),
+                  ),
+                ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                '${p.w} × ${p.h} px',
-                style: TextStyle(fontSize: 11.5, color: c.ink4),
-              ),
+              if (_customMode) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _customWCtrl,
+                        enabled: !_generating,
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(fontSize: 13, color: c.ink1),
+                        decoration: formInputDeco(c, 'W').copyWith(
+                          labelText: 'W',
+                          labelStyle:
+                              TextStyle(fontSize: 11, color: c.ink4),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text('×',
+                          style: TextStyle(color: c.ink3, fontSize: 14)),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: _customHCtrl,
+                        enabled: !_generating,
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(fontSize: 13, color: c.ink1),
+                        decoration: formInputDeco(c, 'H').copyWith(
+                          labelText: 'H',
+                          labelStyle:
+                              TextStyle(fontSize: 11, color: c.ink4),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'px',
+                      style: TextStyle(fontSize: 11.5, color: c.ink4),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                const SizedBox(height: 6),
+                Text(
+                  '${p.w} × ${p.h} px',
+                  style: TextStyle(fontSize: 11.5, color: c.ink4),
+                ),
+              ],
             ],
           ),
         ),
