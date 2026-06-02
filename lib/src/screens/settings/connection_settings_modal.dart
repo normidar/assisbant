@@ -10,16 +10,35 @@ import 'package:google_fonts/google_fonts.dart';
 
 // ─── Mode enum ────────────────────────────────────────────────────────────────
 
+/// ユーザーに提示する「実行モード」。
+///
+/// 内部的には [AppSettings.cliTool] と [AppSettings.modelMode] の 2 フィールドの
+/// 組み合わせだが、意味のある組み合わせは次の 3 通りだけなので UI ではこの enum
+/// として 1 つに束ねて扱う:
+///
+/// - [claudeWithClaude] → (cliTool: claudeCode, modelMode: claude)
+/// - [claudeWithLocal]  → (cliTool: claudeCode, modelMode: local)
+/// - [aiderWithLocal]   → (cliTool: aider,      modelMode: local)
+///
+/// Aider は常にローカルモデルを使うため (aider, claude) の組み合わせは存在しない。
 enum ConnectMode { claudeWithClaude, claudeWithLocal, aiderWithLocal }
 
+/// [ConnectMode] を保存用の 2 フィールド（cliTool / modelMode）へ変換する。
 extension _ModeX on ConnectMode {
   CliTool get cliTool =>
       this == ConnectMode.aiderWithLocal ? CliTool.aider : CliTool.claudeCode;
+
+  /// claudeWithClaude のみ Claude モデル。残り 2 つはローカルモデル扱い。
   ModelMode get modelMode =>
       this == ConnectMode.claudeWithClaude ? ModelMode.claude : ModelMode.local;
+
   bool get usesAider => this == ConnectMode.aiderWithLocal;
 }
 
+/// 保存済み [AppSettings] から現在の [ConnectMode] を復元する（逆変換）。
+///
+/// cliTool == aider なら modelMode の値に関わらず [aiderWithLocal] とみなす
+/// （Aider は常にローカルモデルのため）。この前提により判定順は入れ替え不可。
 ConnectMode _modeFromSettings(AppSettings s) {
   if (s.cliTool == CliTool.aider) return ConnectMode.aiderWithLocal;
   if (s.modelMode == ModelMode.local) return ConnectMode.claudeWithLocal;
