@@ -33,8 +33,10 @@ Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
 
   // ── cmake configure ────────────────────────────────────────────────────────
   final configureArgs = [
-    '-S', sdRoot,
-    '-B', buildDir,
+    '-S',
+    sdRoot,
+    '-B',
+    buildDir,
     '-DSD_BUILD_SHARED_LIBS=ON',
     '-DCMAKE_BUILD_TYPE=Release',
     '-DSD_BUILD_EXAMPLES=OFF',
@@ -56,8 +58,10 @@ Future<void> _build(BuildInput input, BuildOutputBuilder output) async {
 
   // ── cmake build ───────────────────────────────────────────────────────────
   await _run('cmake', [
-    '--build', buildDir,
-    '--config', 'Release',
+    '--build',
+    buildDir,
+    '--config',
+    'Release',
     '--parallel',
   ]);
 

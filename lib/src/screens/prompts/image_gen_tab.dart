@@ -53,13 +53,13 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
   int _steps = 8;
 
   static const List<({int h, String ratio, int w})> _presets = [
-    (ratio: '1:1',    w: 512,  h: 512),
-    (ratio: '3:2',    w: 768,  h: 512),
-    (ratio: '2:3',    w: 512,  h: 768),
-    (ratio: '4:3',    w: 768,  h: 576),
-    (ratio: '3:4',    w: 576,  h: 768),
-    (ratio: '16:9',   w: 896,  h: 512),
-    (ratio: '9:16',   w: 512,  h: 896),
+    (ratio: '1:1', w: 512, h: 512),
+    (ratio: '3:2', w: 768, h: 512),
+    (ratio: '2:3', w: 512, h: 768),
+    (ratio: '4:3', w: 768, h: 576),
+    (ratio: '3:4', w: 576, h: 768),
+    (ratio: '16:9', w: 896, h: 512),
+    (ratio: '9:16', w: 512, h: 896),
     (ratio: '1:1 XL', w: 1024, h: 1024),
   ];
 
@@ -73,8 +73,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
   }
 
   bool get _canGenerate =>
-      !_generating &&
-      _promptCtrls.any((ctrl) => ctrl.text.trim().isNotEmpty);
+      !_generating && _promptCtrls.any((ctrl) => ctrl.text.trim().isNotEmpty);
 
   @override
   void dispose() {
@@ -158,7 +157,9 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
               ),
             );
             result = ImageGenResult(
-                bytes: sdResult.pngBytes, seed: sdResult.seed);
+              bytes: sdResult.pngBytes,
+              seed: sdResult.seed,
+            );
           } else {
             result = await ImageGenService.generate(
               apiUrl: settings.imageGenApiUrl,
@@ -173,8 +174,8 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
           final modelLabel = settings.comfyuiEnabled
               ? settings.comfyuiUnetName
               : settings.sdLocalMode
-                  ? settings.sdModelPath.split('/').last
-                  : settings.imageGenModel;
+              ? settings.sdModelPath.split('/').last
+              : settings.imageGenModel;
           final record = await repo.insert(
             prompt: prompt,
             negativePrompt: _negativeCtrl.text.trim(),
@@ -200,22 +201,24 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
           final modelLabel = settings.comfyuiEnabled
               ? settings.comfyuiUnetName
               : settings.sdLocalMode
-                  ? settings.sdModelPath.split('/').last
-                  : settings.imageGenModel;
-          unawaited(repo.insert(
-            prompt: prompt,
-            negativePrompt: _negativeCtrl.text.trim(),
-            model: modelLabel,
-            width: _preset.w,
-            height: _preset.h,
-            steps: _steps,
-            generationTimeMs: finished.difference(started).inMilliseconds,
-            startedAt: started,
-            finishedAt: finished,
-            status: 'failed',
-            errorMessage: e.toString(),
-            iteration: _infiniteMode ? _infiniteIteration : 0,
-          ));
+              ? settings.sdModelPath.split('/').last
+              : settings.imageGenModel;
+          unawaited(
+            repo.insert(
+              prompt: prompt,
+              negativePrompt: _negativeCtrl.text.trim(),
+              model: modelLabel,
+              width: _preset.w,
+              height: _preset.h,
+              steps: _steps,
+              generationTimeMs: finished.difference(started).inMilliseconds,
+              startedAt: started,
+              finishedAt: finished,
+              status: 'failed',
+              errorMessage: e.toString(),
+              iteration: _infiniteMode ? _infiniteIteration : 0,
+            ),
+          );
           if (mounted) setState(() => _lastError = '#${i + 1}: $e');
         }
       }
@@ -247,8 +250,10 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
     await File(path).writeAsBytes(bytes);
     if (_recordIds.length > index && _recordIds[index] != null) {
       unawaited(
-          ref.read(imageGenRepositoryProvider).updateImagePath(
-              _recordIds[index]!, path));
+        ref
+            .read(imageGenRepositoryProvider)
+            .updateImagePath(_recordIds[index]!, path),
+      );
     }
     widget.onAttach(path);
   }
@@ -378,18 +383,21 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                       onTap: _generating
                           ? null
                           : () => setState(() {
-                                _selectedPreset = i;
-                                _customMode = false;
-                              }),
+                              _selectedPreset = i;
+                              _customMode = false;
+                            }),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 130),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: selected ? c.accent : c.surface3,
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                              color: selected ? c.accent : c.border),
+                            color: selected ? c.accent : c.border,
+                          ),
                         ),
                         child: Text(
                           preset.ratio,
@@ -410,12 +418,15 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 130),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: _customMode ? c.accent : c.surface3,
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                            color: _customMode ? c.accent : c.border),
+                          color: _customMode ? c.accent : c.border,
+                        ),
                       ),
                       child: Text(
                         'Custom',
@@ -441,18 +452,21 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                         style: TextStyle(fontSize: 13, color: c.ink),
                         decoration: formInputDeco(c, 'W').copyWith(
                           labelText: 'W',
-                          labelStyle:
-                              TextStyle(fontSize: 11, color: c.ink4),
+                          labelStyle: TextStyle(fontSize: 11, color: c.ink4),
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                         ),
                         onChanged: (_) => setState(() {}),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text('×',
-                          style: TextStyle(color: c.ink3, fontSize: 14)),
+                      child: Text(
+                        '×',
+                        style: TextStyle(color: c.ink3, fontSize: 14),
+                      ),
                     ),
                     Expanded(
                       child: TextField(
@@ -462,10 +476,11 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                         style: TextStyle(fontSize: 13, color: c.ink),
                         decoration: formInputDeco(c, 'H').copyWith(
                           labelText: 'H',
-                          labelStyle:
-                              TextStyle(fontSize: 11, color: c.ink4),
+                          labelStyle: TextStyle(fontSize: 11, color: c.ink4),
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                         ),
                         onChanged: (_) => setState(() {}),
                       ),
@@ -501,8 +516,10 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
 
     String progressText() {
       if (_generatingIndex < 0) return s.imageGenGenerating;
-      final prog =
-          s.imageGenProgressOf(_generatingIndex + 1, _promptCtrls.length);
+      final prog = s.imageGenProgressOf(
+        _generatingIndex + 1,
+        _promptCtrls.length,
+      );
       if (_infiniteMode && _infiniteIteration > 0) {
         return '${s.imageGenLoopIteration(_infiniteIteration)}  ·  $prog';
       }
@@ -527,20 +544,23 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
               SizedBox(
                 width: 14,
                 height: 14,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2, color: c.ink3),
+                child: CircularProgressIndicator(strokeWidth: 2, color: c.ink3),
               ),
               const SizedBox(width: 8),
               Text(
                 progressText(),
                 style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: c.ink3),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: c.ink3,
+                ),
               ),
             ] else ...[
-              Icon(Icons.auto_awesome_outlined,
-                  size: 14, color: enabled ? Colors.white : c.ink4),
+              Icon(
+                Icons.auto_awesome_outlined,
+                size: 14,
+                color: enabled ? Colors.white : c.ink4,
+              ),
               const SizedBox(width: 6),
               Text(
                 s.imageGenGenerateAllCount(activeCount),
@@ -620,8 +640,10 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                     children: [
                       Icon(Icons.add, size: 11, color: c.ink3),
                       const SizedBox(width: 3),
-                      Text(s.imageGenAddPrompt,
-                          style: TextStyle(fontSize: 11, color: c.ink3)),
+                      Text(
+                        s.imageGenAddPrompt,
+                        style: TextStyle(fontSize: 11, color: c.ink3),
+                      ),
                     ],
                   ),
                 ),
@@ -664,8 +686,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                       minLines: 1,
                       onChanged: (_) => setState(() {}),
                       style: GoogleFonts.ibmPlexMono(fontSize: 12.5),
-                      decoration:
-                          formInputDeco(c, s.imageGenPromptPlaceholder),
+                      decoration: formInputDeco(c, s.imageGenPromptPlaceholder),
                     ),
                   ),
                   if (_promptCtrls.length > 1)
@@ -705,8 +726,10 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
               if (_infiniteMode && _infiniteIteration > 0) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: c.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
@@ -778,8 +801,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
             const SizedBox(height: 10),
             Container(
               width: double.infinity,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.red.shade50,
                 border: Border.all(color: Colors.red.shade200),
@@ -787,14 +809,19 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline,
-                      size: 14, color: Colors.red.shade600),
+                  Icon(
+                    Icons.error_outline,
+                    size: 14,
+                    color: Colors.red.shade600,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: SelectableText(
                       _lastError!,
                       style: TextStyle(
-                          fontSize: 11.5, color: Colors.red.shade700),
+                        fontSize: 11.5,
+                        color: Colors.red.shade700,
+                      ),
                     ),
                   ),
                 ],
@@ -822,7 +849,9 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: c.accent.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
@@ -841,8 +870,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                           Expanded(
                             child: Text(
                               promptPreview,
-                              style: TextStyle(
-                                  fontSize: 11.5, color: c.ink3),
+                              style: TextStyle(fontSize: 11.5, color: c.ink3),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -868,8 +896,11 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.save_alt_outlined,
-                                size: 13, color: c.ink2),
+                            Icon(
+                              Icons.save_alt_outlined,
+                              size: 13,
+                              color: c.ink2,
+                            ),
                             const SizedBox(width: 5),
                             Text(
                               '${s.imageGenSave}  ·  ${s.imageGenAttach}',

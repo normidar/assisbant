@@ -40,7 +40,8 @@ class BatchCreateModal extends ConsumerStatefulWidget {
     required String claudeModel,
     required String imagePaths,
     required bool commitAfterRun,
-  }) onSave;
+  })
+  onSave;
   final VoidCallback onCancel;
 
   @override
@@ -70,10 +71,10 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
   void initState() {
     super.initState();
     _branch = TextEditingController(text: widget.initialBranch ?? '');
-    _projectPath =
-        TextEditingController(text: widget.initialProjectPath ?? '');
-    _priority =
-        TextEditingController(text: (widget.maxPriority + 1).toString());
+    _projectPath = TextEditingController(text: widget.initialProjectPath ?? '');
+    _priority = TextEditingController(
+      text: (widget.maxPriority + 1).toString(),
+    );
     _sessionId = TextEditingController();
 
     final initial = widget.initialProjectPath ?? '';
@@ -258,12 +259,18 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(s.batchCreateTitle,
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w600)),
+                        Text(
+                          s.batchCreateTitle,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 2),
-                        Text(s.batchInputHint,
-                            style: TextStyle(fontSize: 12.5, color: c.ink3)),
+                        Text(
+                          s.batchInputHint,
+                          style: TextStyle(fontSize: 12.5, color: c.ink3),
+                        ),
                       ],
                     ),
                   ),
@@ -288,20 +295,25 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                         onChanged: (v) {
                                           setState(() {});
                                           unawaited(
-                                              _fetchGitBranches(v.trim()));
+                                            _fetchGitBranches(v.trim()),
+                                          );
                                           unawaited(_fetchSessionIds());
                                         },
                                         style: GoogleFonts.ibmPlexMono(
-                                            fontSize: 13),
+                                          fontSize: 13,
+                                        ),
                                         decoration: formInputDeco(
-                                            c, s.projectPathPlaceholder),
+                                          c,
+                                          s.projectPathPlaceholder,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
                                     FormBrowseButton(
-                                        label: s.pickFolder,
-                                        onTap: _pickFolder,
-                                        c: c),
+                                      label: s.pickFolder,
+                                      onTap: _pickFolder,
+                                      c: c,
+                                    ),
                                   ],
                                 ),
                                 if (widget.projectPaths.isNotEmpty) ...[
@@ -316,8 +328,9 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                           label: path.split('/').last,
                                           selected: _projectPath.text == path,
                                           onTap: () {
-                                            setState(() =>
-                                                _projectPath.text = path);
+                                            setState(
+                                              () => _projectPath.text = path,
+                                            );
                                             unawaited(_fetchGitBranches(path));
                                             unawaited(_fetchSessionIds());
                                           },
@@ -343,10 +356,11 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                     setState(() {});
                                     unawaited(_fetchSessionIds());
                                   },
-                                  style:
-                                      GoogleFonts.ibmPlexMono(fontSize: 13),
-                                  decoration:
-                                      formInputDeco(c, s.branchPlaceholder),
+                                  style: GoogleFonts.ibmPlexMono(fontSize: 13),
+                                  decoration: formInputDeco(
+                                    c,
+                                    s.branchPlaceholder,
+                                  ),
                                 ),
                                 if (_projectPath.text.trim().isNotEmpty) ...[
                                   if (_loadingBranches) ...[
@@ -357,12 +371,18 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                           width: 12,
                                           height: 12,
                                           child: CircularProgressIndicator(
-                                              strokeWidth: 1.5, color: c.ink4),
+                                            strokeWidth: 1.5,
+                                            color: c.ink4,
+                                          ),
                                         ),
                                         const SizedBox(width: 8),
-                                        Text('Loading branches…',
-                                            style: TextStyle(
-                                                fontSize: 11.5, color: c.ink4)),
+                                        Text(
+                                          'Loading branches…',
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            color: c.ink4,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ] else if (_gitBranches.isNotEmpty) ...[
@@ -377,7 +397,8 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                               selected: _branch.text == b,
                                               onTap: () {
                                                 setState(
-                                                    () => _branch.text = b);
+                                                  () => _branch.text = b,
+                                                );
                                                 unawaited(_fetchSessionIds());
                                               },
                                               c: c,
@@ -404,17 +425,21 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                         controller: _sessionId,
                                         onChanged: (_) => setState(() {}),
                                         style: GoogleFonts.ibmPlexMono(
-                                            fontSize: 13),
+                                          fontSize: 13,
+                                        ),
                                         decoration: formInputDeco(
-                                            c, s.sessionIdPlaceholder),
+                                          c,
+                                          s.sessionIdPlaceholder,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
                                     FormBrowseButton(
                                       label: s.generateId,
-                                      onTap: () => setState(() =>
-                                          _sessionId.text =
-                                              _generateSessionId()),
+                                      onTap: () => setState(
+                                        () => _sessionId.text =
+                                            _generateSessionId(),
+                                      ),
                                       c: c,
                                     ),
                                   ],
@@ -428,15 +453,18 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                       ...(_showAllSessionIds
                                               ? _sessionIdCandidates
                                               : _sessionIdCandidates.take(
-                                                  _sessionIdPreviewCount))
-                                          .map((id) => FormChip(
-                                                label: id,
-                                                selected:
-                                                    _sessionId.text == id,
-                                                onTap: () => setState(
-                                                    () => _sessionId.text = id),
-                                                c: c,
-                                              )),
+                                                  _sessionIdPreviewCount,
+                                                ))
+                                          .map(
+                                            (id) => FormChip(
+                                              label: id,
+                                              selected: _sessionId.text == id,
+                                              onTap: () => setState(
+                                                () => _sessionId.text = id,
+                                              ),
+                                              c: c,
+                                            ),
+                                          ),
                                       if (_sessionIdCandidates.length >
                                           _sessionIdPreviewCount)
                                         FormChip(
@@ -444,18 +472,23 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                               ? '▲'
                                               : '+${_sessionIdCandidates.length - _sessionIdPreviewCount}',
                                           selected: false,
-                                          onTap: () => setState(() =>
-                                              _showAllSessionIds =
-                                                  !_showAllSessionIds),
+                                          onTap: () => setState(
+                                            () => _showAllSessionIds =
+                                                !_showAllSessionIds,
+                                          ),
                                           c: c,
                                         ),
                                     ],
                                   ),
                                 ],
                                 const SizedBox(height: 4),
-                                Text(s.sessionIdHint,
-                                    style: TextStyle(
-                                        fontSize: 11.5, color: c.ink4)),
+                                Text(
+                                  s.sessionIdHint,
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    color: c.ink4,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -478,15 +511,20 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                   child: TextField(
                                     controller: _priority,
                                     keyboardType: TextInputType.number,
-                                    style:
-                                        GoogleFonts.ibmPlexMono(fontSize: 13),
+                                    style: GoogleFonts.ibmPlexMono(
+                                      fontSize: 13,
+                                    ),
                                     decoration: formInputDeco(c, ''),
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(s.priorityHint,
-                                    style: TextStyle(
-                                        fontSize: 11.5, color: c.ink4)),
+                                Text(
+                                  s.priorityHint,
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    color: c.ink4,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -514,7 +552,8 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                     child: Container(
                                       height: 22,
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 7),
+                                        horizontal: 7,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: c.surface,
                                         border: Border.all(color: c.border),
@@ -523,13 +562,18 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.image_outlined,
-                                              size: 11, color: c.ink3),
+                                          Icon(
+                                            Icons.image_outlined,
+                                            size: 11,
+                                            color: c.ink3,
+                                          ),
                                           const SizedBox(width: 4),
                                           Text(
                                             s.attachImages,
                                             style: TextStyle(
-                                                fontSize: 11, color: c.ink3),
+                                              fontSize: 11,
+                                              color: c.ink3,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -554,103 +598,123 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                                 const SizedBox(height: 8),
                               ],
                               Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextField(
-                                  controller: _inputCtrl,
-                                  maxLines: null,
-                                  autofocus: true,
-                                  onChanged: _handleInputChange,
-                                  style:
-                                      GoogleFonts.ibmPlexMono(fontSize: 12.5),
-                                  decoration: formInputDeco(c, s.batchInputHint),
-                                ),
-                                const SizedBox(height: 12),
-                                if (_items.isEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
-                                    child: Center(
-                                      child: Text(s.batchEmpty,
-                                          style: TextStyle(
-                                              fontSize: 13, color: c.ink3)),
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextField(
+                                    controller: _inputCtrl,
+                                    maxLines: null,
+                                    autofocus: true,
+                                    onChanged: _handleInputChange,
+                                    style: GoogleFonts.ibmPlexMono(
+                                      fontSize: 12.5,
                                     ),
-                                  )
-                                else
-                                  ConstrainedBox(
-                                    constraints:
-                                        const BoxConstraints(maxHeight: 300),
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        children: List.generate(_items.length,
-                                            (i) {
-                                          return Padding(
-                                            padding: EdgeInsets.only(
-                                                bottom: i < _items.length - 1
-                                                    ? 6
-                                                    : 0),
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 8),
-                                              decoration: BoxDecoration(
-                                                color: c.surface2,
-                                                border: Border.all(
-                                                    color: c.border),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                    width: 22,
-                                                    height: 22,
-                                                    alignment: Alignment.center,
-                                                    decoration: BoxDecoration(
-                                                      color: c.surface3,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4),
-                                                    ),
-                                                    child: Text(
-                                                      '${i + 1}',
-                                                      style: GoogleFonts
-                                                          .ibmPlexMono(
-                                                              fontSize: 10.5,
-                                                              color: c.ink3),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Expanded(
-                                                    child: Text(
-                                                      _items[i],
-                                                      style: const TextStyle(
-                                                          fontSize: 13,
-                                                          height: 1.4),
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  GestureDetector(
-                                                    onTap: () =>
-                                                        _removeItem(i),
-                                                    child: Icon(Icons.close,
-                                                        size: 14,
-                                                        color: c.ink3),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        }),
-                                      ),
+                                    decoration: formInputDeco(
+                                      c,
+                                      s.batchInputHint,
                                     ),
                                   ),
-                              ],
-                            ),
+                                  const SizedBox(height: 12),
+                                  if (_items.isEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          s.batchEmpty,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: c.ink3,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxHeight: 300,
+                                      ),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          children: List.generate(_items.length, (
+                                            i,
+                                          ) {
+                                            return Padding(
+                                              padding: EdgeInsets.only(
+                                                bottom: i < _items.length - 1
+                                                    ? 6
+                                                    : 0,
+                                              ),
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 8,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: c.surface2,
+                                                  border: Border.all(
+                                                    color: c.border,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 22,
+                                                      height: 22,
+                                                      alignment:
+                                                          Alignment.center,
+                                                      decoration: BoxDecoration(
+                                                        color: c.surface3,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                      ),
+                                                      child: Text(
+                                                        '${i + 1}',
+                                                        style:
+                                                            GoogleFonts.ibmPlexMono(
+                                                              fontSize: 10.5,
+                                                              color: c.ink3,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Expanded(
+                                                      child: Text(
+                                                        _items[i],
+                                                        style: const TextStyle(
+                                                          fontSize: 13,
+                                                          height: 1.4,
+                                                        ),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    GestureDetector(
+                                                      onTap: () =>
+                                                          _removeItem(i),
+                                                      child: Icon(
+                                                        Icons.close,
+                                                        size: 14,
+                                                        color: c.ink3,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ],
                           ),
                         ],
@@ -664,7 +728,8 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                       color: c.surface2,
                       border: Border(top: BorderSide(color: c.border2)),
                       borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(14)),
+                        bottom: Radius.circular(14),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -680,8 +745,7 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                             Expanded(
                               child: Text(
                                 s.commitAfterAgent,
-                                style:
-                                    TextStyle(fontSize: 13, color: c.ink2),
+                                style: TextStyle(fontSize: 13, color: c.ink2),
                               ),
                             ),
                           ],
@@ -691,10 +755,11 @@ class _BatchCreateModalState extends ConsumerState<BatchCreateModal> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             FormModalBtn(
-                                label: s.cancel,
-                                ghost: true,
-                                onTap: widget.onCancel,
-                                c: c),
+                              label: s.cancel,
+                              ghost: true,
+                              onTap: widget.onCancel,
+                              c: c,
+                            ),
                             const SizedBox(width: 8),
                             FormModalBtn(
                               label: _items.isEmpty

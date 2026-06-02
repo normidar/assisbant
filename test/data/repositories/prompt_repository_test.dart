@@ -35,9 +35,21 @@ void main() {
       });
 
       test('auto-increments priority by 10 per entry', () async {
-        final a = await repo.insert(content: 'Task A', branch: 'main', projectPath: '/tmp/project');
-        final b = await repo.insert(content: 'Task B', branch: 'main', projectPath: '/tmp/project');
-        final c = await repo.insert(content: 'Task C', branch: 'main', projectPath: '/tmp/project');
+        final a = await repo.insert(
+          content: 'Task A',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        final b = await repo.insert(
+          content: 'Task B',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        final c = await repo.insert(
+          content: 'Task C',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
 
         expect(a.priority, 10);
         expect(b.priority, 20);
@@ -57,9 +69,24 @@ void main() {
 
     group('getAll', () {
       test('returns prompts ordered by priority ascending', () async {
-        await repo.insert(content: 'C', branch: 'main', projectPath: '/tmp/project', priority: 30);
-        await repo.insert(content: 'A', branch: 'main', projectPath: '/tmp/project', priority: 10);
-        await repo.insert(content: 'B', branch: 'main', projectPath: '/tmp/project', priority: 20);
+        await repo.insert(
+          content: 'C',
+          branch: 'main',
+          projectPath: '/tmp/project',
+          priority: 30,
+        );
+        await repo.insert(
+          content: 'A',
+          branch: 'main',
+          projectPath: '/tmp/project',
+          priority: 10,
+        );
+        await repo.insert(
+          content: 'B',
+          branch: 'main',
+          projectPath: '/tmp/project',
+          priority: 20,
+        );
 
         final all = await repo.getAll();
         expect(all.map((e) => e.content).toList(), ['A', 'B', 'C']);
@@ -68,8 +95,16 @@ void main() {
 
     group('getByBranch', () {
       test('filters by branch', () async {
-        await repo.insert(content: 'Main task', branch: 'main', projectPath: '/tmp/project');
-        await repo.insert(content: 'Feature task', branch: 'feature/auth', projectPath: '/tmp/project');
+        await repo.insert(
+          content: 'Main task',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        await repo.insert(
+          content: 'Feature task',
+          branch: 'feature/auth',
+          projectPath: '/tmp/project',
+        );
 
         final main = await repo.getByBranch('main');
         final feature = await repo.getByBranch('feature/auth');
@@ -83,10 +118,26 @@ void main() {
 
     group('getExecutable', () {
       test('excludes done, failed, and skipped prompts', () async {
-        final p1 = await repo.insert(content: 'Pending', branch: 'main', projectPath: '/tmp/project');
-        final p2 = await repo.insert(content: 'Done', branch: 'main', projectPath: '/tmp/project');
-        final p3 = await repo.insert(content: 'Skipped', branch: 'main', projectPath: '/tmp/project');
-        final p4 = await repo.insert(content: 'Failed', branch: 'main', projectPath: '/tmp/project');
+        final p1 = await repo.insert(
+          content: 'Pending',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        final p2 = await repo.insert(
+          content: 'Done',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        final p3 = await repo.insert(
+          content: 'Skipped',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        final p4 = await repo.insert(
+          content: 'Failed',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
 
         await repo.updateStatus(p2.id, PromptStatus.done);
         await repo.setSkipped(p3.id, isSkipped: true);
@@ -100,7 +151,11 @@ void main() {
 
     group('updateStatus', () {
       test('changes prompt status', () async {
-        final entry = await repo.insert(content: 'Task', branch: 'main', projectPath: '/tmp/project');
+        final entry = await repo.insert(
+          content: 'Task',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
         await repo.updateStatus(entry.id, PromptStatus.done);
 
         final all = await repo.getAll();
@@ -110,7 +165,11 @@ void main() {
 
     group('updatePriority', () {
       test('changes prompt priority', () async {
-        final entry = await repo.insert(content: 'Task', branch: 'main', projectPath: '/tmp/project');
+        final entry = await repo.insert(
+          content: 'Task',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
         await repo.updatePriority(entry.id, 5);
 
         final all = await repo.getAll();
@@ -120,7 +179,11 @@ void main() {
 
     group('setSkipped', () {
       test('marks prompt as skipped', () async {
-        final entry = await repo.insert(content: 'Task', branch: 'main', projectPath: '/tmp/project');
+        final entry = await repo.insert(
+          content: 'Task',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
         await repo.setSkipped(entry.id, isSkipped: true);
 
         final all = await repo.getAll();
@@ -128,7 +191,11 @@ void main() {
       });
 
       test('un-skips a prompt', () async {
-        final entry = await repo.insert(content: 'Task', branch: 'main', projectPath: '/tmp/project');
+        final entry = await repo.insert(
+          content: 'Task',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
         await repo.setSkipped(entry.id, isSkipped: true);
         await repo.setSkipped(entry.id, isSkipped: false);
 
@@ -139,7 +206,11 @@ void main() {
 
     group('delete', () {
       test('removes the prompt', () async {
-        final entry = await repo.insert(content: 'Task', branch: 'main', projectPath: '/tmp/project');
+        final entry = await repo.insert(
+          content: 'Task',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
         await repo.delete(entry.id);
 
         final all = await repo.getAll();
@@ -149,9 +220,21 @@ void main() {
 
     group('getBranchNames', () {
       test('returns unique branch names sorted', () async {
-        await repo.insert(content: 'A', branch: 'main', projectPath: '/tmp/project');
-        await repo.insert(content: 'B', branch: 'feature/auth', projectPath: '/tmp/project');
-        await repo.insert(content: 'C', branch: 'main', projectPath: '/tmp/project');
+        await repo.insert(
+          content: 'A',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        await repo.insert(
+          content: 'B',
+          branch: 'feature/auth',
+          projectPath: '/tmp/project',
+        );
+        await repo.insert(
+          content: 'C',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
 
         final names = await repo.getBranchNames();
         expect(names, ['feature/auth', 'main']);
@@ -160,16 +243,27 @@ void main() {
 
     group('getBranchSummaries', () {
       test('aggregates prompts by branch correctly', () async {
-        await repo.insert(content: 'A', branch: 'main', projectPath: '/tmp/project');
-        final b = await repo.insert(content: 'B', branch: 'main', projectPath: '/tmp/project');
-        await repo.insert(content: 'C', branch: 'feature/auth', projectPath: '/tmp/project');
+        await repo.insert(
+          content: 'A',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        final b = await repo.insert(
+          content: 'B',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
+        await repo.insert(
+          content: 'C',
+          branch: 'feature/auth',
+          projectPath: '/tmp/project',
+        );
 
         await repo.updateStatus(b.id, PromptStatus.done);
 
         final summaries = await repo.getBranchSummaries();
         final main = summaries.firstWhere((s) => s.name == 'main');
-        final feature =
-            summaries.firstWhere((s) => s.name == 'feature/auth');
+        final feature = summaries.firstWhere((s) => s.name == 'feature/auth');
 
         expect(main.totalCount, 2);
         expect(main.pendingCount, 1);
@@ -183,7 +277,11 @@ void main() {
       test('emits updated list when a prompt is added', () async {
         final stream = repo.watchAll();
 
-        await repo.insert(content: 'Task 1', branch: 'main', projectPath: '/tmp/project');
+        await repo.insert(
+          content: 'Task 1',
+          branch: 'main',
+          projectPath: '/tmp/project',
+        );
 
         final result = await stream.first;
         expect(result.length, 1);

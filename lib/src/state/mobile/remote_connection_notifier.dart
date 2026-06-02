@@ -29,19 +29,18 @@ class RemoteConnectionState {
     DiscoveredHost? connectedHost,
     bool? isScanning,
     bool clearHost = false,
-  }) =>
-      RemoteConnectionState(
-        status: status ?? this.status,
-        discoveredHosts: discoveredHosts ?? this.discoveredHosts,
-        connectedHost: clearHost ? null : (connectedHost ?? this.connectedHost),
-        isScanning: isScanning ?? this.isScanning,
-      );
+  }) => RemoteConnectionState(
+    status: status ?? this.status,
+    discoveredHosts: discoveredHosts ?? this.discoveredHosts,
+    connectedHost: clearHost ? null : (connectedHost ?? this.connectedHost),
+    isScanning: isScanning ?? this.isScanning,
+  );
 }
 
 final remoteConnectionProvider =
     NotifierProvider<RemoteConnectionNotifier, RemoteConnectionState>(
-  RemoteConnectionNotifier.new,
-);
+      RemoteConnectionNotifier.new,
+    );
 
 class RemoteConnectionNotifier extends Notifier<RemoteConnectionState> {
   final _client = RemoteClientService();
@@ -140,7 +139,9 @@ class RemoteConnectionNotifier extends Notifier<RemoteConnectionState> {
       case RemoteMsg.promptList:
         final data = msg['data'] as List<dynamic>?;
         if (data != null) {
-          ref.read(remotePromptProvider.notifier).update(
+          ref
+              .read(remotePromptProvider.notifier)
+              .update(
                 data.cast<Map<String, dynamic>>(),
               );
         }

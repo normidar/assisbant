@@ -42,7 +42,8 @@ class RemotePromptsScreen extends ConsumerWidget {
                   onSkip: () =>
                       send(buildPromptActionCmd(RemoteCmd.skipPrompt, p.id)),
                   onDuplicate: () => send(
-                      buildPromptActionCmd(RemoteCmd.duplicatePrompt, p.id)),
+                    buildPromptActionCmd(RemoteCmd.duplicatePrompt, p.id),
+                  ),
                   onReset: () =>
                       send(buildPromptActionCmd(RemoteCmd.resetPrompt, p.id)),
                 );
@@ -116,8 +117,7 @@ class _PromptTile extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             color: prompt.isSkipped ? Colors.grey : null,
-            decoration:
-                prompt.isSkipped ? TextDecoration.lineThrough : null,
+            decoration: prompt.isSkipped ? TextDecoration.lineThrough : null,
           ),
         ),
         subtitle: Text(
@@ -147,11 +147,12 @@ class _PromptTile extends StatelessWidget {
                 value: 'skip',
                 child: Text(prompt.isSkipped ? 'Unskip' : 'Skip'),
               ),
-            const PopupMenuItem(
-                value: 'duplicate', child: Text('Duplicate')),
+            const PopupMenuItem(value: 'duplicate', child: Text('Duplicate')),
             if (prompt.status == 'done' || prompt.status == 'failed')
               const PopupMenuItem(
-                  value: 'reset', child: Text('Reset to pending')),
+                value: 'reset',
+                child: Text('Reset to pending'),
+              ),
             const PopupMenuItem(
               value: 'delete',
               child: Text('Delete', style: TextStyle(color: Colors.red)),

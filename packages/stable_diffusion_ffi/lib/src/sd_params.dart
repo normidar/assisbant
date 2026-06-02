@@ -3,7 +3,8 @@ import 'package:stable_diffusion_ffi/src/ffi/sd_enums.dart';
 class SdGenerateParams {
   const SdGenerateParams({
     required this.modelPath,
-    required this.prompt, this.dylibPath = '',
+    required this.prompt,
+    this.dylibPath = '',
     this.negativePrompt = '',
     this.vaePath = '',
     this.width = 512,

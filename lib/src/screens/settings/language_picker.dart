@@ -48,12 +48,18 @@ class LangPickerRow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: const TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w500)),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(description,
-                      style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                  Text(
+                    description,
+                    style: TextStyle(fontSize: 11.5, color: c.ink3),
+                  ),
                 ],
               ),
             ),
@@ -61,11 +67,14 @@ class LangPickerRow extends ConsumerWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(langLabel,
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: c.ink2)),
+                Text(
+                  langLabel,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: c.ink2,
+                  ),
+                ),
                 const SizedBox(width: 4),
                 Icon(Icons.chevron_right_rounded, size: 16, color: c.ink3),
               ],
@@ -105,9 +114,10 @@ class LangPickerDialog extends ConsumerWidget {
               child: Text(
                 s.language,
                 style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: c.ink),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: c.ink,
+                ),
               ),
             ),
             Divider(color: c.border, height: 1),
@@ -123,23 +133,24 @@ class LangPickerDialog extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
                   decoration: BoxDecoration(
                     color: selected ? c.surface2 : Colors.transparent,
-                    border:
-                        Border(bottom: BorderSide(color: c.border2)),
+                    border: Border(bottom: BorderSide(color: c.border2)),
                   ),
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(label,
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: c.ink,
-                                fontWeight: selected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal)),
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: c.ink,
+                            fontWeight: selected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
                       ),
                       if (selected)
-                        Icon(Icons.check_rounded,
-                            size: 16, color: c.ink),
+                        Icon(Icons.check_rounded, size: 16, color: c.ink),
                     ],
                   ),
                 ),
@@ -156,8 +167,10 @@ class LangPickerDialog extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
-                    child: Text(s.cancel,
-                        style: TextStyle(fontSize: 13, color: c.ink3)),
+                    child: Text(
+                      s.cancel,
+                      style: TextStyle(fontSize: 13, color: c.ink3),
+                    ),
                   ),
                 ),
               ),

@@ -120,14 +120,21 @@ class ExecutionService {
 
       dev.log('[ExecSvc] args: $args', name: 'ExecutionService');
 
-      final process = await _spawnClaude(cliPath, args, workdir, environment: env);
+      final process = await _spawnClaude(
+        cliPath,
+        args,
+        workdir,
+        environment: env,
+      );
       unawaited(process.stdin.close());
 
       var cancelled = false;
-      unawaited(cancelToken?.then((_) {
-        cancelled = true;
-        process.kill();
-      }));
+      unawaited(
+        cancelToken?.then((_) {
+          cancelled = true;
+          process.kill();
+        }),
+      );
 
       final stdoutBuf = StringBuffer();
       final stderrBuf = StringBuffer();
@@ -146,7 +153,11 @@ class ExecutionService {
       final exitCode = await process.exitCode;
 
       if (cancelled) {
-        return const ExecutionResult(success: false, output: '', cancelled: true);
+        return const ExecutionResult(
+          success: false,
+          output: '',
+          cancelled: true,
+        );
       }
 
       final stdout = stdoutBuf.toString();
@@ -243,14 +254,21 @@ class ExecutionService {
 
     dev.log('[ExecSvc] args: $args', name: 'ExecutionService');
 
-    final process = await _spawnClaude(cliPath, args, workdir, environment: environment);
+    final process = await _spawnClaude(
+      cliPath,
+      args,
+      workdir,
+      environment: environment,
+    );
     unawaited(process.stdin.close());
 
     var cancelled = false;
-    unawaited(cancelToken?.then((_) {
-      cancelled = true;
-      process.kill();
-    }));
+    unawaited(
+      cancelToken?.then((_) {
+        cancelled = true;
+        process.kill();
+      }),
+    );
 
     final stdoutBuf = StringBuffer();
     final stderrBuf = StringBuffer();
@@ -291,7 +309,7 @@ class ExecutionService {
                     }
                   }
                 }
-              // 'result' イベント: 実行の最終結果と claudeSessionId が含まれる
+                // 'result' イベント: 実行の最終結果と claudeSessionId が含まれる
               } else if (type == 'result') {
                 capturedSessionId = (event['session_id'] as String?) ?? '';
                 capturedResult = (event['result'] as String?) ?? '';
@@ -328,8 +346,9 @@ class ExecutionService {
     }
 
     final ok = exitCode == 0 && !isStreamError;
-    final outputText =
-        capturedResult.isNotEmpty ? capturedResult : stdoutBuf.toString();
+    final outputText = capturedResult.isNotEmpty
+        ? capturedResult
+        : stdoutBuf.toString();
     final stderr = stderrBuf.toString();
     if (stderr.isNotEmpty) {
       dev.log('[ExecSvc] stderr: $stderr', name: 'ExecutionService');
@@ -372,8 +391,9 @@ class ExecutionService {
     void Function(String)? onOutput,
     Future<void>? cancelToken,
   }) async {
-    final modelFlag =
-        modelName.isNotEmpty ? ' --model ${_shellQuote(modelName)}' : '';
+    final modelFlag = modelName.isNotEmpty
+        ? ' --model ${_shellQuote(modelName)}'
+        : '';
     final cmd =
         '$_pathSetup${envPrefix}exec ${_shellQuote(aiderPath)} --yes --no-auto-commits --message ${_shellQuote(content)}$modelFlag';
 
@@ -387,10 +407,12 @@ class ExecutionService {
     unawaited(process.stdin.close());
 
     var cancelled = false;
-    unawaited(cancelToken?.then((_) {
-      cancelled = true;
-      process.kill();
-    }));
+    unawaited(
+      cancelToken?.then((_) {
+        cancelled = true;
+        process.kill();
+      }),
+    );
 
     final stdoutBuf = StringBuffer();
     final stderrBuf = StringBuffer();
@@ -473,10 +495,13 @@ class ExecutionService {
     return [
       '--dangerously-skip-permissions',
       ...modelArgs,
-      '--print', content,
+      '--print',
+      content,
       for (final img in imagePaths) ...['--image', img],
-      if (resumeSessionId != null && resumeSessionId.isNotEmpty)
-        ...['--resume', resumeSessionId],
+      if (resumeSessionId != null && resumeSessionId.isNotEmpty) ...[
+        '--resume',
+        resumeSessionId,
+      ],
       if (streamJson) ...['--output-format', 'stream-json', '--verbose'],
     ];
   }
@@ -490,7 +515,12 @@ class ExecutionService {
   }) {
     if (Platform.isWindows) {
       final exe = cliPath.isEmpty ? 'claude' : cliPath;
-      return Process.start(exe, args, workingDirectory: workdir, environment: environment);
+      return Process.start(
+        exe,
+        args,
+        workingDirectory: workdir,
+        environment: environment,
+      );
     }
     final buf = StringBuffer('exec ${_shellQuote(cliPath)}');
     for (final a in args) {
@@ -566,7 +596,8 @@ class ExecutionService {
 
   String _expandHome(String path) {
     if (path.startsWith('~/')) {
-      final home = Platform.environment['HOME'] ??
+      final home =
+          Platform.environment['HOME'] ??
           Platform.environment['USERPROFILE'] ??
           '';
       return home + path.substring(1);

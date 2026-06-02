@@ -64,8 +64,7 @@ class ImageGenService {
 
   static Future<List<String>> getModels(String apiUrl) async {
     final uri = Uri.parse('${_base(apiUrl)}/sdapi/v1/sd-models');
-    final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 8);
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 8);
     try {
       final request = await client.getUrl(uri);
       final response = await request.close();
@@ -74,10 +73,9 @@ class ImageGenService {
       final list = jsonDecode(responseBody) as List<dynamic>;
       return list
           .cast<Map<String, dynamic>>()
-          .map<String>((m) =>
-              m['model_name'] as String? ??
-               m['title'] as String? ??
-               '')
+          .map<String>(
+            (m) => m['model_name'] as String? ?? m['title'] as String? ?? '',
+          )
           .where((s) => s.isNotEmpty)
           .toList();
     } catch (_) {

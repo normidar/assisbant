@@ -43,19 +43,21 @@ class ExecState {
     String? currentOutput,
     String? pendingQuestion,
     bool clearQuestion = false,
-  }) =>
-      ExecState(
-        status: status ?? this.status,
-        currentPromptId: currentPromptId ?? this.currentPromptId,
-        completedCount: completedCount ?? this.completedCount,
-        totalCount: totalCount ?? this.totalCount,
-        currentOutput: currentOutput ?? this.currentOutput,
-        pendingQuestion: clearQuestion ? null : (pendingQuestion ?? this.pendingQuestion),
-      );
+  }) => ExecState(
+    status: status ?? this.status,
+    currentPromptId: currentPromptId ?? this.currentPromptId,
+    completedCount: completedCount ?? this.completedCount,
+    totalCount: totalCount ?? this.totalCount,
+    currentOutput: currentOutput ?? this.currentOutput,
+    pendingQuestion: clearQuestion
+        ? null
+        : (pendingQuestion ?? this.pendingQuestion),
+  );
 }
 
-final execNotifierProvider =
-    NotifierProvider<ExecNotifier, ExecState>(ExecNotifier.new);
+final execNotifierProvider = NotifierProvider<ExecNotifier, ExecState>(
+  ExecNotifier.new,
+);
 
 /// プロンプトキューを順番に実行するメインコントローラー。
 ///
@@ -171,8 +173,9 @@ class ExecNotifier extends Notifier<ExecState> {
       // --resume フラグで渡すことで Claude の会話コンテキストを継続する
       String? resumeSessionId;
       if (prompt.sessionId.isNotEmpty) {
-        resumeSessionId =
-            await _repo.getLatestClaudeSessionId(prompt.sessionId);
+        resumeSessionId = await _repo.getLatestClaudeSessionId(
+          prompt.sessionId,
+        );
       }
 
       await _repo.updateStatus(prompt.id, PromptStatus.running);
@@ -194,14 +197,16 @@ class ExecNotifier extends Notifier<ExecState> {
         cancelToken: _cancelCurrentRun!.future,
         resumeSessionId: resumeSessionId,
         // stop() 後は質問ハンドラを渡さない（ループを早期終了させるため）
-        onQuestion: _stopRequested ? null : (question) async {
-          _questionCompleter = Completer<String>();
-          state = state.copyWith(pendingQuestion: question);
-          // answerQuestion() が呼ばれるまで待機
-          final answer = await _questionCompleter!.future;
-          _questionCompleter = null;
-          return answer;
-        },
+        onQuestion: _stopRequested
+            ? null
+            : (question) async {
+                _questionCompleter = Completer<String>();
+                state = state.copyWith(pendingQuestion: question);
+                // answerQuestion() が呼ばれるまで待機
+                final answer = await _questionCompleter!.future;
+                _questionCompleter = null;
+                return answer;
+              },
       );
       _cancelCurrentRun = null;
 
@@ -217,12 +222,15 @@ class ExecNotifier extends Notifier<ExecState> {
         continue;
       }
 
-      final newStatus = result.success ? PromptStatus.done : PromptStatus.failed;
+      final newStatus = result.success
+          ? PromptStatus.done
+          : PromptStatus.failed;
       final output = result.success
           ? result.output
-          : [result.output, if (result.error != null) 'ERROR: ${result.error}']
-              .where((s) => s.isNotEmpty)
-              .join('\n\n');
+          : [
+              result.output,
+              if (result.error != null) 'ERROR: ${result.error}',
+            ].where((s) => s.isNotEmpty).join('\n\n');
       await _repo.updateStatus(prompt.id, newStatus);
       await _repo.updateOutput(prompt.id, output);
       // Claude が返した内部セッションIDを保存し、次のプロンプトで --resume に使う
@@ -230,7 +238,8 @@ class ExecNotifier extends Notifier<ExecState> {
         await _repo.updateClaudeSessionId(prompt.id, result.claudeSessionId);
       }
       // prompt 個別フラグ OR グローバル設定のどちらかが true なら自動コミット
-      if (result.success && (prompt.commitAfterRun || _settings.commitAfterPrompt)) {
+      if (result.success &&
+          (prompt.commitAfterRun || _settings.commitAfterPrompt)) {
         await _svc.commitChanges(prompt, _settings);
       }
       ref.invalidate(promptListNotifierProvider);
@@ -257,6 +266,6 @@ class ExecNotifier extends Notifier<ExecState> {
 
 List<PromptEntry> executableQueue(List<PromptEntry> prompts) =>
     (prompts
-            .where((p) => !p.isSkipped && p.status == PromptStatus.pending)
-            .toList()
-          ..sort((a, b) => a.priority.compareTo(b.priority)));
+        .where((p) => !p.isSkipped && p.status == PromptStatus.pending)
+        .toList()
+      ..sort((a, b) => a.priority.compareTo(b.priority)));

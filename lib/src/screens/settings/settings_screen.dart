@@ -57,7 +57,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
     );
     if (result != null && mounted) {
-      ref.read(settingsStateProvider.notifier).update(
+      ref
+          .read(settingsStateProvider.notifier)
+          .update(
             settings.copyWith(envOverrides: result),
           );
     }
@@ -119,9 +121,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  Text(s.settings,
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.w600)),
+                  Text(
+                    s.settings,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -137,13 +143,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         title: lang == 'zh'
                             ? '执行配置'
                             : lang == 'ja'
-                                ? '実行設定'
-                                : 'Execution',
+                            ? '実行設定'
+                            : 'Execution',
                         subtitle: lang == 'zh'
                             ? '控制 AI 工具如何被调用'
                             : lang == 'ja'
-                                ? 'プロンプトの実行設定'
-                                : 'Prompt execution settings',
+                            ? 'プロンプトの実行設定'
+                            : 'Prompt execution settings',
                         c: c,
                         children: [
                           // Connect settings (opens modal)
@@ -151,11 +157,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             onTap: _openConnectionSettings,
                             child: Container(
                               padding: const EdgeInsets.fromLTRB(
-                                  18, 14, 18, 14),
+                                18,
+                                14,
+                                18,
+                                14,
+                              ),
                               decoration: BoxDecoration(
                                 border: Border(
-                                    bottom:
-                                        BorderSide(color: c.border2)),
+                                  bottom: BorderSide(color: c.border2),
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -164,16 +174,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(s.connectSettings,
-                                            style: const TextStyle(
-                                                fontSize: 13,
-                                                fontWeight:
-                                                    FontWeight.w500)),
+                                        Text(
+                                          s.connectSettings,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
                                         const SizedBox(height: 2),
-                                        Text(s.connectSettingsDesc,
-                                            style: TextStyle(
-                                                fontSize: 11.5,
-                                                color: c.ink3)),
+                                        Text(
+                                          s.connectSettingsDesc,
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            color: c.ink3,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -184,15 +199,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                       Text(
                                         modeSummary(settings),
                                         style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: c.ink2),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: c.ink2,
+                                        ),
                                       ),
                                       const SizedBox(width: 4),
                                       Icon(
-                                          Icons.chevron_right_rounded,
-                                          size: 16,
-                                          color: c.ink3),
+                                        Icons.chevron_right_rounded,
+                                        size: 16,
+                                        color: c.ink3,
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -245,8 +262,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         subtitle: lang == 'zh'
                             ? '语言和主题'
                             : lang == 'ja'
-                                ? '言語とテーマ'
-                                : 'Language and theme',
+                            ? '言語とテーマ'
+                            : 'Language and theme',
                         c: c,
                         children: [
                           LangPickerRow(
@@ -264,32 +281,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   lang == 'ja'
                                       ? 'ライト'
                                       : lang == 'zh'
-                                          ? '浅色'
-                                          : 'Light',
+                                      ? '浅色'
+                                      : 'Light',
                                   lang == 'ja'
                                       ? 'ライト'
                                       : lang == 'zh'
-                                          ? '浅色'
-                                          : 'Light'
+                                      ? '浅色'
+                                      : 'Light',
                                 ),
                                 (
                                   lang == 'ja'
                                       ? 'ダーク'
                                       : lang == 'zh'
-                                          ? '深色'
-                                          : 'Dark',
+                                      ? '深色'
+                                      : 'Dark',
                                   lang == 'ja'
                                       ? 'ダーク'
                                       : lang == 'zh'
-                                          ? '深色'
-                                          : 'Dark'
+                                      ? '深色'
+                                      : 'Dark',
                                 ),
                               ],
                               selected: lang == 'ja'
                                   ? 'ライト'
                                   : lang == 'zh'
-                                      ? '浅色'
-                                      : 'Light',
+                                  ? '浅色'
+                                  : 'Light',
                               onSelect: (_) {},
                               c: c,
                             ),
@@ -351,13 +368,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         title: lang == 'zh'
                             ? '关于'
                             : lang == 'ja'
-                                ? 'このアプリについて'
-                                : 'About',
+                            ? 'このアプリについて'
+                            : 'About',
                         c: c,
                         children: [
                           Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(18, 14, 18, 14),
+                            padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
                             child: Row(
                               children: [
                                 const Text(

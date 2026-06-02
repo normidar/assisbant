@@ -486,8 +486,11 @@ class AppStrings {
     return '$n prompt${n == 1 ? '' : 's'}';
   }
 
-  static AppStrings forLang(String lang) =>
-      lang == 'zh' ? _zh : lang == 'ja' ? _ja : _en;
+  static AppStrings forLang(String lang) => lang == 'zh'
+      ? _zh
+      : lang == 'ja'
+      ? _ja
+      : _en;
 
   static const _en = AppStrings(
     prompts: 'Prompts',
@@ -562,7 +565,8 @@ class AppStrings {
     autoCheckout: 'Auto-checkout branch',
     autoCheckoutDesc: 'Run "git checkout <branch>" before each prompt.',
     pauseOnFail: 'Pause on failure',
-    pauseOnFailDesc: 'Stop the queue when a prompt fails instead of continuing.',
+    pauseOnFailDesc:
+        'Stop the queue when a prompt fails instead of continuing.',
     appearance: 'Appearance',
     language: 'Language',
     languageDesc: 'Interface language. Restart not required.',
@@ -585,9 +589,11 @@ class AppStrings {
         'Prompts sharing the same Session ID resume the same Claude conversation.',
     generateId: 'Generate',
     commitAfterPrompt: 'Commit after prompt',
-    commitAfterPromptDesc: 'Stage all changes and commit with the prompt content as the message after each successful run.',
+    commitAfterPromptDesc:
+        'Stage all changes and commit with the prompt content as the message after each successful run.',
     closeWhileRunning: 'Execution in progress',
-    closeWhileRunningMsg: 'A prompt is currently running. Close the window anyway?',
+    closeWhileRunningMsg:
+        'A prompt is currently running. Close the window anyway?',
     closeAnyway: 'Close anyway',
     commitHistory: 'Commit History',
     tabPrompts: 'Prompts',
@@ -606,7 +612,8 @@ class AppStrings {
     modelModeClaude: 'Claude',
     modelModeLocal: 'Local',
     localModelName: 'Local model name',
-    localModelNameDesc: 'Model identifier passed via --model flag (e.g. ollama/llama3).',
+    localModelNameDesc:
+        'Model identifier passed via --model flag (e.g. ollama/llama3).',
     localModelNamePlaceholder: 'e.g. ollama/llama3',
     claudeModelSelect: 'Claude model',
     claudeModelDefault: 'Default',
@@ -646,7 +653,8 @@ class AppStrings {
     cliToolClaudeCode: 'Claude Code',
     cliToolAider: 'Aider',
     aiderPath: 'Aider Path',
-    aiderPathDesc: 'Custom path to the aider executable. Leave empty to use PATH.',
+    aiderPathDesc:
+        'Custom path to the aider executable. Leave empty to use PATH.',
     connectSettings: 'Connect Settings',
     connectSettingsDesc: 'AI tool and model configuration',
     connectModeClaudeDesc: 'Use Anthropic Claude via the Claude Code CLI',
@@ -675,16 +683,19 @@ class AppStrings {
     imageGenApiUrlDesc: 'Automatic1111 WebUI endpoint.',
     imageGenApiUrlPlaceholder: 'http://localhost:7860',
     imageGenModel: 'Model',
-    imageGenModelDesc: 'Stable Diffusion model to use. Click Refresh to load available models.',
+    imageGenModelDesc:
+        'Stable Diffusion model to use. Click Refresh to load available models.',
     imageGenRefreshModels: 'Refresh',
     imageGenDownloadModels: 'Download Models',
-    imageGenDownloadModelsDesc: 'Open Civitai to browse and download SD models.',
+    imageGenDownloadModelsDesc:
+        'Open Civitai to browse and download SD models.',
     imageGenSize: 'Image size',
     imageGenAddPrompt: 'Add prompt',
     imageGenPresetModels: 'Popular models',
     imageGenInfiniteMode: 'Infinite Mode',
     sdLocalModeLabel: 'Local (stable-diffusion.cpp)',
-    sdLocalModeDesc: 'Use stable-diffusion.cpp dylib directly with .safetensors files. No web service required.',
+    sdLocalModeDesc:
+        'Use stable-diffusion.cpp dylib directly with .safetensors files. No web service required.',
     sdWebApiModeLabel: 'Web API (Automatic1111)',
     sdDylibPath: 'Library Path (.dylib)',
     sdDylibPathDesc: 'Absolute path to libstable-diffusion.dylib.',
@@ -693,10 +704,12 @@ class AppStrings {
     sdModelPathDesc: 'Absolute path to the .safetensors model file.',
     sdModelPathPlaceholder: '/path/to/model.safetensors',
     sdVaePath: 'VAE Path (optional)',
-    sdVaePathDesc: "Path to a custom VAE .safetensors. Leave empty to use the model's built-in VAE.",
+    sdVaePathDesc:
+        "Path to a custom VAE .safetensors. Leave empty to use the model's built-in VAE.",
     sdVaePathPlaceholder: '(optional)',
     comfyuiModeLabel: 'ComfyUI',
-    comfyuiModeDesc: 'Use ComfyUI API for image generation. Supports z-image-turbo and other ComfyUI-compatible models.',
+    comfyuiModeDesc:
+        'Use ComfyUI API for image generation. Supports z-image-turbo and other ComfyUI-compatible models.',
     comfyuiUrl: 'ComfyUI URL',
     comfyuiUrlDesc: 'Base URL of your ComfyUI instance.',
     comfyuiUnetName: 'UNet Model',
@@ -910,7 +923,8 @@ class AppStrings {
     imageGenPresetModels: '热门模型',
     imageGenInfiniteMode: '无限生成',
     sdLocalModeLabel: '本地（stable-diffusion.cpp）',
-    sdLocalModeDesc: '直接使用 stable-diffusion.cpp dylib 和 .safetensors 文件，无需 Web 服务。',
+    sdLocalModeDesc:
+        '直接使用 stable-diffusion.cpp dylib 和 .safetensors 文件，无需 Web 服务。',
     sdWebApiModeLabel: 'Web API（Automatic1111）',
     sdDylibPath: '库路径（.dylib）',
     sdDylibPathDesc: 'libstable-diffusion.dylib 的绝对路径。',

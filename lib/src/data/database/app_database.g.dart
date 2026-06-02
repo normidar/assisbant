@@ -427,113 +427,177 @@ class $ImageGenRecordsTable extends ImageGenRecords
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id', aliasedName, false,
-    type: DriftSqlType.string, requiredDuringInsert: true,
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _promptMeta = const VerificationMeta('prompt');
   @override
   late final GeneratedColumn<String> prompt = GeneratedColumn<String>(
-    'prompt', aliasedName, false,
-    type: DriftSqlType.string, requiredDuringInsert: true,
+    'prompt',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
   );
-  static const VerificationMeta _negativePromptMeta =
-      const VerificationMeta('negativePrompt');
+  static const VerificationMeta _negativePromptMeta = const VerificationMeta(
+    'negativePrompt',
+  );
   @override
   late final GeneratedColumn<String> negativePrompt = GeneratedColumn<String>(
-    'negative_prompt', aliasedName, false,
-    type: DriftSqlType.string, requiredDuringInsert: false,
+    'negative_prompt',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
   static const VerificationMeta _modelMeta = const VerificationMeta('model');
   @override
   late final GeneratedColumn<String> model = GeneratedColumn<String>(
-    'model', aliasedName, false,
-    type: DriftSqlType.string, requiredDuringInsert: false,
+    'model',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
   static const VerificationMeta _widthMeta = const VerificationMeta('width');
   @override
   late final GeneratedColumn<int> width = GeneratedColumn<int>(
-    'width', aliasedName, false,
-    type: DriftSqlType.int, requiredDuringInsert: false,
+    'width',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
     defaultValue: const Constant(512),
   );
   static const VerificationMeta _heightMeta = const VerificationMeta('height');
   @override
   late final GeneratedColumn<int> height = GeneratedColumn<int>(
-    'height', aliasedName, false,
-    type: DriftSqlType.int, requiredDuringInsert: false,
+    'height',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
     defaultValue: const Constant(512),
   );
   static const VerificationMeta _seedMeta = const VerificationMeta('seed');
   @override
   late final GeneratedColumn<int> seed = GeneratedColumn<int>(
-    'seed', aliasedName, true,
-    type: DriftSqlType.int, requiredDuringInsert: false,
+    'seed',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _stepsMeta = const VerificationMeta('steps');
   @override
   late final GeneratedColumn<int> steps = GeneratedColumn<int>(
-    'steps', aliasedName, false,
-    type: DriftSqlType.int, requiredDuringInsert: false,
+    'steps',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
     defaultValue: const Constant(20),
   );
-  static const VerificationMeta _generationTimeMsMeta =
-      const VerificationMeta('generationTimeMs');
+  static const VerificationMeta _generationTimeMsMeta = const VerificationMeta(
+    'generationTimeMs',
+  );
   @override
   late final GeneratedColumn<int> generationTimeMs = GeneratedColumn<int>(
-    'generation_time_ms', aliasedName, false,
-    type: DriftSqlType.int, requiredDuringInsert: false,
+    'generation_time_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _startedAtMeta =
-      const VerificationMeta('startedAt');
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
   @override
   late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
-    'started_at', aliasedName, false,
-    type: DriftSqlType.dateTime, requiredDuringInsert: true,
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
   );
-  static const VerificationMeta _finishedAtMeta =
-      const VerificationMeta('finishedAt');
+  static const VerificationMeta _finishedAtMeta = const VerificationMeta(
+    'finishedAt',
+  );
   @override
   late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
-    'finished_at', aliasedName, false,
-    type: DriftSqlType.dateTime, requiredDuringInsert: true,
+    'finished_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
   );
-  static const VerificationMeta _imagePathMeta =
-      const VerificationMeta('imagePath');
+  static const VerificationMeta _imagePathMeta = const VerificationMeta(
+    'imagePath',
+  );
   @override
   late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
-    'image_path', aliasedName, true,
-    type: DriftSqlType.string, requiredDuringInsert: false,
+    'image_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status', aliasedName, false,
-    type: DriftSqlType.string, requiredDuringInsert: false,
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
     defaultValue: const Constant('success'),
   );
-  static const VerificationMeta _errorMessageMeta =
-      const VerificationMeta('errorMessage');
+  static const VerificationMeta _errorMessageMeta = const VerificationMeta(
+    'errorMessage',
+  );
   @override
   late final GeneratedColumn<String> errorMessage = GeneratedColumn<String>(
-    'error_message', aliasedName, true,
-    type: DriftSqlType.string, requiredDuringInsert: false,
+    'error_message',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
-  static const VerificationMeta _iterationMeta =
-      const VerificationMeta('iteration');
+  static const VerificationMeta _iterationMeta = const VerificationMeta(
+    'iteration',
+  );
   @override
   late final GeneratedColumn<int> iteration = GeneratedColumn<int>(
-    'iteration', aliasedName, false,
-    type: DriftSqlType.int, requiredDuringInsert: false,
+    'iteration',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
   @override
   List<GeneratedColumn> get $columns => [
-    id, prompt, negativePrompt, model, width, height, seed, steps,
-    generationTimeMs, startedAt, finishedAt, imagePath, status,
-    errorMessage, iteration,
+    id,
+    prompt,
+    negativePrompt,
+    model,
+    width,
+    height,
+    seed,
+    steps,
+    generationTimeMs,
+    startedAt,
+    finishedAt,
+    imagePath,
+    status,
+    errorMessage,
+    iteration,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -553,70 +617,103 @@ class $ImageGenRecordsTable extends ImageGenRecords
       context.missing(_idMeta);
     }
     if (data.containsKey('prompt')) {
-      context.handle(_promptMeta,
-          prompt.isAcceptableOrUnknown(data['prompt']!, _promptMeta));
+      context.handle(
+        _promptMeta,
+        prompt.isAcceptableOrUnknown(data['prompt']!, _promptMeta),
+      );
     } else if (isInserting) {
       context.missing(_promptMeta);
     }
     if (data.containsKey('negative_prompt')) {
-      context.handle(_negativePromptMeta,
-          negativePrompt.isAcceptableOrUnknown(
-              data['negative_prompt']!, _negativePromptMeta));
+      context.handle(
+        _negativePromptMeta,
+        negativePrompt.isAcceptableOrUnknown(
+          data['negative_prompt']!,
+          _negativePromptMeta,
+        ),
+      );
     }
     if (data.containsKey('model')) {
       context.handle(
-          _modelMeta, model.isAcceptableOrUnknown(data['model']!, _modelMeta));
+        _modelMeta,
+        model.isAcceptableOrUnknown(data['model']!, _modelMeta),
+      );
     }
     if (data.containsKey('width')) {
       context.handle(
-          _widthMeta, width.isAcceptableOrUnknown(data['width']!, _widthMeta));
+        _widthMeta,
+        width.isAcceptableOrUnknown(data['width']!, _widthMeta),
+      );
     }
     if (data.containsKey('height')) {
-      context.handle(_heightMeta,
-          height.isAcceptableOrUnknown(data['height']!, _heightMeta));
+      context.handle(
+        _heightMeta,
+        height.isAcceptableOrUnknown(data['height']!, _heightMeta),
+      );
     }
     if (data.containsKey('seed')) {
       context.handle(
-          _seedMeta, seed.isAcceptableOrUnknown(data['seed']!, _seedMeta));
+        _seedMeta,
+        seed.isAcceptableOrUnknown(data['seed']!, _seedMeta),
+      );
     }
     if (data.containsKey('steps')) {
-      context.handle(_stepsMeta,
-          steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta));
+      context.handle(
+        _stepsMeta,
+        steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta),
+      );
     }
     if (data.containsKey('generation_time_ms')) {
-      context.handle(_generationTimeMsMeta,
-          generationTimeMs.isAcceptableOrUnknown(
-              data['generation_time_ms']!, _generationTimeMsMeta));
+      context.handle(
+        _generationTimeMsMeta,
+        generationTimeMs.isAcceptableOrUnknown(
+          data['generation_time_ms']!,
+          _generationTimeMsMeta,
+        ),
+      );
     }
     if (data.containsKey('started_at')) {
-      context.handle(_startedAtMeta,
-          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_startedAtMeta);
     }
     if (data.containsKey('finished_at')) {
-      context.handle(_finishedAtMeta,
-          finishedAt.isAcceptableOrUnknown(
-              data['finished_at']!, _finishedAtMeta));
+      context.handle(
+        _finishedAtMeta,
+        finishedAt.isAcceptableOrUnknown(data['finished_at']!, _finishedAtMeta),
+      );
     } else if (isInserting) {
       context.missing(_finishedAtMeta);
     }
     if (data.containsKey('image_path')) {
-      context.handle(_imagePathMeta,
-          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
+      context.handle(
+        _imagePathMeta,
+        imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta),
+      );
     }
     if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
     }
     if (data.containsKey('error_message')) {
-      context.handle(_errorMessageMeta,
-          errorMessage.isAcceptableOrUnknown(
-              data['error_message']!, _errorMessageMeta));
+      context.handle(
+        _errorMessageMeta,
+        errorMessage.isAcceptableOrUnknown(
+          data['error_message']!,
+          _errorMessageMeta,
+        ),
+      );
     }
     if (data.containsKey('iteration')) {
-      context.handle(_iterationMeta,
-          iteration.isAcceptableOrUnknown(data['iteration']!, _iterationMeta));
+      context.handle(
+        _iterationMeta,
+        iteration.isAcceptableOrUnknown(data['iteration']!, _iterationMeta),
+      );
     }
     return context;
   }
@@ -627,36 +724,66 @@ class $ImageGenRecordsTable extends ImageGenRecords
   ImageGenRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ImageGenRecord(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      prompt: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}prompt'])!,
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      prompt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}prompt'],
+      )!,
       negativePrompt: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}negative_prompt'])!,
-      model: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}model'])!,
-      width: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}width'])!,
-      height: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}height'])!,
-      seed: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}seed']),
-      steps: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}steps'])!,
+        DriftSqlType.string,
+        data['${effectivePrefix}negative_prompt'],
+      )!,
+      model: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model'],
+      )!,
+      width: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}width'],
+      )!,
+      height: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}height'],
+      )!,
+      seed: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}seed'],
+      ),
+      steps: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}steps'],
+      )!,
       generationTimeMs: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}generation_time_ms'])!,
-      startedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at'])!,
-      finishedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at'])!,
-      imagePath: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}image_path']),
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
-      errorMessage: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}error_message']),
-      iteration: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}iteration'])!,
+        DriftSqlType.int,
+        data['${effectivePrefix}generation_time_ms'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      )!,
+      finishedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}finished_at'],
+      )!,
+      imagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_path'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      errorMessage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_message'],
+      ),
+      iteration: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}iteration'],
+      )!,
     );
   }
 
@@ -1111,7 +1238,9 @@ class ImageGenRecord extends DataClass implements Insertable<ImageGenRecord> {
           ? data.generationTimeMs.value
           : this.generationTimeMs,
       startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
-      finishedAt: data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      finishedAt: data.finishedAt.present
+          ? data.finishedAt.value
+          : this.finishedAt,
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       status: data.status.present ? data.status.value : this.status,
       errorMessage: data.errorMessage.present
@@ -1145,9 +1274,21 @@ class ImageGenRecord extends DataClass implements Insertable<ImageGenRecord> {
 
   @override
   int get hashCode => Object.hash(
-    id, prompt, negativePrompt, model, width, height, seed, steps,
-    generationTimeMs, startedAt, finishedAt, imagePath, status,
-    errorMessage, iteration,
+    id,
+    prompt,
+    negativePrompt,
+    model,
+    width,
+    height,
+    seed,
+    steps,
+    generationTimeMs,
+    startedAt,
+    finishedAt,
+    imagePath,
+    status,
+    errorMessage,
+    iteration,
   );
   @override
   bool operator ==(Object other) =>
@@ -1446,10 +1587,10 @@ class ImageGenRecordsCompanion extends UpdateCompanion<ImageGenRecord> {
     this.errorMessage = const Value.absent(),
     this.iteration = const Value.absent(),
     this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        prompt = Value(prompt),
-        startedAt = Value(startedAt),
-        finishedAt = Value(finishedAt);
+  }) : id = Value(id),
+       prompt = Value(prompt),
+       startedAt = Value(startedAt),
+       finishedAt = Value(finishedAt);
   static Insertable<ImageGenRecord> custom({
     Expression<String>? id,
     Expression<String>? prompt,
@@ -1544,7 +1685,8 @@ class ImageGenRecordsCompanion extends UpdateCompanion<ImageGenRecord> {
       map['started_at'] = Variable<DateTime>(startedAt.value);
     if (finishedAt.present)
       map['finished_at'] = Variable<DateTime>(finishedAt.value);
-    if (imagePath.present) map['image_path'] = Variable<String>(imagePath.value);
+    if (imagePath.present)
+      map['image_path'] = Variable<String>(imagePath.value);
     if (status.present) map['status'] = Variable<String>(status.value);
     if (errorMessage.present)
       map['error_message'] = Variable<String>(errorMessage.value);
@@ -1581,12 +1723,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $PromptsTable prompts = $PromptsTable(this);
-  late final $ImageGenRecordsTable imageGenRecords = $ImageGenRecordsTable(this);
+  late final $ImageGenRecordsTable imageGenRecords = $ImageGenRecordsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [prompts, imageGenRecords];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    prompts,
+    imageGenRecords,
+  ];
 }
 
 typedef $$PromptsTableCreateCompanionBuilder =
@@ -2056,36 +2203,65 @@ class $$ImageGenRecordsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<String> get prompt => $composableBuilder(
-      column: $table.prompt, builder: (column) => ColumnFilters(column));
+    column: $table.prompt,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<String> get negativePrompt => $composableBuilder(
-      column: $table.negativePrompt, builder: (column) => ColumnFilters(column));
+    column: $table.negativePrompt,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<String> get model => $composableBuilder(
-      column: $table.model, builder: (column) => ColumnFilters(column));
+    column: $table.model,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<int> get width => $composableBuilder(
-      column: $table.width, builder: (column) => ColumnFilters(column));
+    column: $table.width,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<int> get height => $composableBuilder(
-      column: $table.height, builder: (column) => ColumnFilters(column));
+    column: $table.height,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<int> get seed => $composableBuilder(
-      column: $table.seed, builder: (column) => ColumnFilters(column));
+    column: $table.seed,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<int> get steps => $composableBuilder(
-      column: $table.steps, builder: (column) => ColumnFilters(column));
+    column: $table.steps,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<int> get generationTimeMs => $composableBuilder(
-      column: $table.generationTimeMs,
-      builder: (column) => ColumnFilters(column));
+    column: $table.generationTimeMs,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<DateTime> get startedAt => $composableBuilder(
-      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<DateTime> get finishedAt => $composableBuilder(
-      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+    column: $table.finishedAt,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<String> get imagePath => $composableBuilder(
-      column: $table.imagePath, builder: (column) => ColumnFilters(column));
+    column: $table.imagePath,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnFilters(column));
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<String> get errorMessage => $composableBuilder(
-      column: $table.errorMessage, builder: (column) => ColumnFilters(column));
+    column: $table.errorMessage,
+    builder: (column) => ColumnFilters(column),
+  );
   ColumnFilters<int> get iteration => $composableBuilder(
-      column: $table.iteration, builder: (column) => ColumnFilters(column));
+    column: $table.iteration,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$ImageGenRecordsTableOrderingComposer
@@ -2098,38 +2274,65 @@ class $$ImageGenRecordsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<String> get prompt => $composableBuilder(
-      column: $table.prompt, builder: (column) => ColumnOrderings(column));
+    column: $table.prompt,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<String> get negativePrompt => $composableBuilder(
-      column: $table.negativePrompt,
-      builder: (column) => ColumnOrderings(column));
+    column: $table.negativePrompt,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<String> get model => $composableBuilder(
-      column: $table.model, builder: (column) => ColumnOrderings(column));
+    column: $table.model,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<int> get width => $composableBuilder(
-      column: $table.width, builder: (column) => ColumnOrderings(column));
+    column: $table.width,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<int> get height => $composableBuilder(
-      column: $table.height, builder: (column) => ColumnOrderings(column));
+    column: $table.height,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<int> get seed => $composableBuilder(
-      column: $table.seed, builder: (column) => ColumnOrderings(column));
+    column: $table.seed,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<int> get steps => $composableBuilder(
-      column: $table.steps, builder: (column) => ColumnOrderings(column));
+    column: $table.steps,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<int> get generationTimeMs => $composableBuilder(
-      column: $table.generationTimeMs,
-      builder: (column) => ColumnOrderings(column));
+    column: $table.generationTimeMs,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<DateTime> get startedAt => $composableBuilder(
-      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
-      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+    column: $table.finishedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<String> get imagePath => $composableBuilder(
-      column: $table.imagePath, builder: (column) => ColumnOrderings(column));
+    column: $table.imagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<String> get errorMessage => $composableBuilder(
-      column: $table.errorMessage,
-      builder: (column) => ColumnOrderings(column));
+    column: $table.errorMessage,
+    builder: (column) => ColumnOrderings(column),
+  );
   ColumnOrderings<int> get iteration => $composableBuilder(
-      column: $table.iteration, builder: (column) => ColumnOrderings(column));
+    column: $table.iteration,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ImageGenRecordsTableAnnotationComposer
@@ -2146,7 +2349,9 @@ class $$ImageGenRecordsTableAnnotationComposer
   GeneratedColumn<String> get prompt =>
       $composableBuilder(column: $table.prompt, builder: (column) => column);
   GeneratedColumn<String> get negativePrompt => $composableBuilder(
-      column: $table.negativePrompt, builder: (column) => column);
+    column: $table.negativePrompt,
+    builder: (column) => column,
+  );
   GeneratedColumn<String> get model =>
       $composableBuilder(column: $table.model, builder: (column) => column);
   GeneratedColumn<int> get width =>
@@ -2158,17 +2363,23 @@ class $$ImageGenRecordsTableAnnotationComposer
   GeneratedColumn<int> get steps =>
       $composableBuilder(column: $table.steps, builder: (column) => column);
   GeneratedColumn<int> get generationTimeMs => $composableBuilder(
-      column: $table.generationTimeMs, builder: (column) => column);
+    column: $table.generationTimeMs,
+    builder: (column) => column,
+  );
   GeneratedColumn<DateTime> get startedAt =>
       $composableBuilder(column: $table.startedAt, builder: (column) => column);
   GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
-      column: $table.finishedAt, builder: (column) => column);
-  GeneratedColumn<String> get imagePath => $composableBuilder(
-      column: $table.imagePath, builder: (column) => column);
+    column: $table.finishedAt,
+    builder: (column) => column,
+  );
+  GeneratedColumn<String> get imagePath =>
+      $composableBuilder(column: $table.imagePath, builder: (column) => column);
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
   GeneratedColumn<String> get errorMessage => $composableBuilder(
-      column: $table.errorMessage, builder: (column) => column);
+    column: $table.errorMessage,
+    builder: (column) => column,
+  );
   GeneratedColumn<int> get iteration =>
       $composableBuilder(column: $table.iteration, builder: (column) => column);
 }
@@ -2186,102 +2397,106 @@ class $$ImageGenRecordsTableTableManager
           $$ImageGenRecordsTableUpdateCompanionBuilder,
           (
             ImageGenRecord,
-            BaseReferences<_$AppDatabase, $ImageGenRecordsTable, ImageGenRecord>,
+            BaseReferences<
+              _$AppDatabase,
+              $ImageGenRecordsTable,
+              ImageGenRecord
+            >,
           ),
           ImageGenRecord,
           PrefetchHooks Function()
         > {
   $$ImageGenRecordsTableTableManager(
-      _$AppDatabase db, $ImageGenRecordsTable table)
-      : super(
-          TableManagerState(
-            db: db,
-            table: table,
-            createFilteringComposer: () =>
-                $$ImageGenRecordsTableFilterComposer($db: db, $table: table),
-            createOrderingComposer: () =>
-                $$ImageGenRecordsTableOrderingComposer($db: db, $table: table),
-            createComputedFieldComposer: () =>
-                $$ImageGenRecordsTableAnnotationComposer(
-                    $db: db, $table: table),
-            updateCompanionCallback: ({
-              Value<String> id = const Value.absent(),
-              Value<String> prompt = const Value.absent(),
-              Value<String> negativePrompt = const Value.absent(),
-              Value<String> model = const Value.absent(),
-              Value<int> width = const Value.absent(),
-              Value<int> height = const Value.absent(),
-              Value<int?> seed = const Value.absent(),
-              Value<int> steps = const Value.absent(),
-              Value<int> generationTimeMs = const Value.absent(),
-              Value<DateTime> startedAt = const Value.absent(),
-              Value<DateTime> finishedAt = const Value.absent(),
-              Value<String?> imagePath = const Value.absent(),
-              Value<String> status = const Value.absent(),
-              Value<String?> errorMessage = const Value.absent(),
-              Value<int> iteration = const Value.absent(),
-              Value<int> rowid = const Value.absent(),
-            }) =>
-                ImageGenRecordsCompanion(
-                  id: id,
-                  prompt: prompt,
-                  negativePrompt: negativePrompt,
-                  model: model,
-                  width: width,
-                  height: height,
-                  seed: seed,
-                  steps: steps,
-                  generationTimeMs: generationTimeMs,
-                  startedAt: startedAt,
-                  finishedAt: finishedAt,
-                  imagePath: imagePath,
-                  status: status,
-                  errorMessage: errorMessage,
-                  iteration: iteration,
-                  rowid: rowid,
-                ),
-            createCompanionCallback: ({
-              required String id,
-              required String prompt,
-              Value<String> negativePrompt = const Value.absent(),
-              Value<String> model = const Value.absent(),
-              Value<int> width = const Value.absent(),
-              Value<int> height = const Value.absent(),
-              Value<int?> seed = const Value.absent(),
-              Value<int> steps = const Value.absent(),
-              Value<int> generationTimeMs = const Value.absent(),
-              required DateTime startedAt,
-              required DateTime finishedAt,
-              Value<String?> imagePath = const Value.absent(),
-              Value<String> status = const Value.absent(),
-              Value<String?> errorMessage = const Value.absent(),
-              Value<int> iteration = const Value.absent(),
-              Value<int> rowid = const Value.absent(),
-            }) =>
-                ImageGenRecordsCompanion.insert(
-                  id: id,
-                  prompt: prompt,
-                  negativePrompt: negativePrompt,
-                  model: model,
-                  width: width,
-                  height: height,
-                  seed: seed,
-                  steps: steps,
-                  generationTimeMs: generationTimeMs,
-                  startedAt: startedAt,
-                  finishedAt: finishedAt,
-                  imagePath: imagePath,
-                  status: status,
-                  errorMessage: errorMessage,
-                  iteration: iteration,
-                  rowid: rowid,
-                ),
-            withReferenceMapper: (p0) => p0
-                .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-                .toList(),
-            prefetchHooksCallback: null,
-          ),
-        );
+    _$AppDatabase db,
+    $ImageGenRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImageGenRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImageGenRecordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImageGenRecordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> prompt = const Value.absent(),
+                Value<String> negativePrompt = const Value.absent(),
+                Value<String> model = const Value.absent(),
+                Value<int> width = const Value.absent(),
+                Value<int> height = const Value.absent(),
+                Value<int?> seed = const Value.absent(),
+                Value<int> steps = const Value.absent(),
+                Value<int> generationTimeMs = const Value.absent(),
+                Value<DateTime> startedAt = const Value.absent(),
+                Value<DateTime> finishedAt = const Value.absent(),
+                Value<String?> imagePath = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> errorMessage = const Value.absent(),
+                Value<int> iteration = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImageGenRecordsCompanion(
+                id: id,
+                prompt: prompt,
+                negativePrompt: negativePrompt,
+                model: model,
+                width: width,
+                height: height,
+                seed: seed,
+                steps: steps,
+                generationTimeMs: generationTimeMs,
+                startedAt: startedAt,
+                finishedAt: finishedAt,
+                imagePath: imagePath,
+                status: status,
+                errorMessage: errorMessage,
+                iteration: iteration,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String prompt,
+                Value<String> negativePrompt = const Value.absent(),
+                Value<String> model = const Value.absent(),
+                Value<int> width = const Value.absent(),
+                Value<int> height = const Value.absent(),
+                Value<int?> seed = const Value.absent(),
+                Value<int> steps = const Value.absent(),
+                Value<int> generationTimeMs = const Value.absent(),
+                required DateTime startedAt,
+                required DateTime finishedAt,
+                Value<String?> imagePath = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> errorMessage = const Value.absent(),
+                Value<int> iteration = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImageGenRecordsCompanion.insert(
+                id: id,
+                prompt: prompt,
+                negativePrompt: negativePrompt,
+                model: model,
+                width: width,
+                height: height,
+                seed: seed,
+                steps: steps,
+                generationTimeMs: generationTimeMs,
+                startedAt: startedAt,
+                finishedAt: finishedAt,
+                imagePath: imagePath,
+                status: status,
+                errorMessage: errorMessage,
+                iteration: iteration,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
 }
 
 typedef $$ImageGenRecordsTableProcessedTableManager =
@@ -2296,7 +2511,7 @@ typedef $$ImageGenRecordsTableProcessedTableManager =
       $$ImageGenRecordsTableUpdateCompanionBuilder,
       (
         ImageGenRecord,
-        BaseReferences<_$AppDatabase, $ImageGenRecordsTable, ImageGenRecord>
+        BaseReferences<_$AppDatabase, $ImageGenRecordsTable, ImageGenRecord>,
       ),
       ImageGenRecord,
       PrefetchHooks Function()

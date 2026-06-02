@@ -32,24 +32,24 @@ class RemoteExecState {
     String? output,
     bool clearQuestion = false,
     bool clearCurrentId = false,
-  }) =>
-      RemoteExecState(
-        status: status ?? this.status,
-        currentPromptId: clearCurrentId
-            ? null
-            : (currentPromptId ?? this.currentPromptId),
-        completedCount: completedCount ?? this.completedCount,
-        totalCount: totalCount ?? this.totalCount,
-        pendingQuestion:
-            clearQuestion ? null : (pendingQuestion ?? this.pendingQuestion),
-        output: output ?? this.output,
-      );
+  }) => RemoteExecState(
+    status: status ?? this.status,
+    currentPromptId: clearCurrentId
+        ? null
+        : (currentPromptId ?? this.currentPromptId),
+    completedCount: completedCount ?? this.completedCount,
+    totalCount: totalCount ?? this.totalCount,
+    pendingQuestion: clearQuestion
+        ? null
+        : (pendingQuestion ?? this.pendingQuestion),
+    output: output ?? this.output,
+  );
 }
 
 final remoteExecProvider =
     NotifierProvider<RemoteExecNotifier, RemoteExecState>(
-  RemoteExecNotifier.new,
-);
+      RemoteExecNotifier.new,
+    );
 
 class RemoteExecNotifier extends Notifier<RemoteExecState> {
   @override

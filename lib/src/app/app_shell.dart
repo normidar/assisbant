@@ -148,8 +148,8 @@ class _AppShellState extends ConsumerState<AppShell> with WindowListener {
   @override
   Future<void> onWindowClose() async {
     final exec = ref.read(execNotifierProvider);
-    final isActive = exec.status == ExecStatus.running ||
-        exec.status == ExecStatus.paused;
+    final isActive =
+        exec.status == ExecStatus.running || exec.status == ExecStatus.paused;
 
     if (!isActive) {
       await windowManager.destroy();
@@ -255,15 +255,13 @@ class _DesktopLayout extends ConsumerWidget {
                   exec: exec,
                   prompts: allPrompts,
                   strings: strings,
-                  onStart: () => ref
-                      .read(execNotifierProvider.notifier)
-                      .start(),
+                  onStart: () =>
+                      ref.read(execNotifierProvider.notifier).start(),
                   onPause: () =>
                       ref.read(execNotifierProvider.notifier).pause(),
                   onResume: () =>
                       ref.read(execNotifierProvider.notifier).resume(),
-                  onStop: () =>
-                      ref.read(execNotifierProvider.notifier).stop(),
+                  onStop: () => ref.read(execNotifierProvider.notifier).stop(),
                 ),
               ],
             ),
@@ -309,7 +307,9 @@ class _MobileLayout extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: const Color(0xE61C1A17),
-              border: Border(top: BorderSide(color: c.border.withValues(alpha: 0.3))),
+              border: Border(
+                top: BorderSide(color: c.border.withValues(alpha: 0.3)),
+              ),
             ),
             child: Row(
               children: [
@@ -317,15 +317,14 @@ class _MobileLayout extends ConsumerWidget {
                   _MobileExecBtn(
                     label: s.start,
                     onTap: allPrompts.isNotEmpty
-                        ? () => ref
-                            .read(execNotifierProvider.notifier)
-                            .start()
+                        ? () => ref.read(execNotifierProvider.notifier).start()
                         : null,
                   )
                 else if (exec.status == ExecStatus.running)
                   _MobileExecBtn(
                     label: s.pause,
-                    onTap: () => ref.read(execNotifierProvider.notifier).pause(),
+                    onTap: () =>
+                        ref.read(execNotifierProvider.notifier).pause(),
                   )
                 else
                   _MobileExecBtn(
@@ -341,8 +340,8 @@ class _MobileLayout extends ConsumerWidget {
                       Text(
                         exec.status == ExecStatus.idle
                             ? (allPrompts.isNotEmpty
-                                ? '${executableQueue(allPrompts).length} ${s.pending}'
-                                : s.idle)
+                                  ? '${executableQueue(allPrompts).length} ${s.pending}'
+                                  : s.idle)
                             : '${exec.completedCount}/${exec.totalCount}',
                         style: const TextStyle(
                           color: Colors.white70,
@@ -376,9 +375,8 @@ class _MobileLayout extends ConsumerWidget {
             backgroundColor: c.surface,
             indicatorColor: c.accent.withValues(alpha: 0.12),
             selectedIndex: _tabIndex(tab),
-            onDestinationSelected: (i) => ref
-                .read(currentTabProvider.notifier)
-                .set(AppTab.values[i]),
+            onDestinationSelected: (i) =>
+                ref.read(currentTabProvider.notifier).set(AppTab.values[i]),
             destinations: [
               NavigationDestination(
                 icon: const Icon(Icons.notes_outlined),
@@ -408,11 +406,11 @@ class _MobileLayout extends ConsumerWidget {
   }
 
   int _tabIndex(AppTab tab) => switch (tab) {
-        AppTab.prompts => 0,
-        AppTab.branches => 1,
-        AppTab.logs => 2,
-        AppTab.settings => 3,
-      };
+    AppTab.prompts => 0,
+    AppTab.branches => 1,
+    AppTab.logs => 2,
+    AppTab.settings => 3,
+  };
 
   Widget _currentScreen(AppTab tab, AppStrings s) {
     return switch (tab) {
@@ -476,12 +474,13 @@ class _SidebarState extends ConsumerState<_Sidebar> {
     final isRunning = exec.status == ExecStatus.running;
 
     final allPrompts = promptsAsync.value ?? <PromptEntry>[];
-    final projectPaths = allPrompts
-        .map((e) => e.projectPath)
-        .where((e) => e.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
+    final projectPaths =
+        allPrompts
+            .map((e) => e.projectPath)
+            .where((e) => e.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
     final branchFilter = ref.watch(branchFilterProvider);
     final projectFilter = ref.watch(projectFilterProvider);
     final projectPendingCounts = <String, int>{};
@@ -566,7 +565,10 @@ class _SidebarState extends ConsumerState<_Sidebar> {
                   icon: Icons.notes_outlined,
                   label: s.prompts,
                   count: allPrompts.length,
-                  active: tab == AppTab.prompts && branchFilter == null && projectFilter == null,
+                  active:
+                      tab == AppTab.prompts &&
+                      branchFilter == null &&
+                      projectFilter == null,
                   onTap: () {
                     ref.read(currentTabProvider.notifier).set(AppTab.prompts);
                     ref.read(branchFilterProvider.notifier).set(null);
@@ -587,8 +589,9 @@ class _SidebarState extends ConsumerState<_Sidebar> {
                   icon: Icons.settings_outlined,
                   label: s.settings,
                   active: tab == AppTab.settings,
-                  onTap: () =>
-                      ref.read(currentTabProvider.notifier).set(AppTab.settings),
+                  onTap: () => ref
+                      .read(currentTabProvider.notifier)
+                      .set(AppTab.settings),
                   c: c,
                 ),
               ],
@@ -619,33 +622,42 @@ class _SidebarState extends ConsumerState<_Sidebar> {
                     final isProjectActive = projectFilter == path;
                     final isExpanded = _expandedProject == path;
                     final name = p.basename(path);
-                    final projectBranches = allPrompts
-                        .where((e) => e.projectPath == path)
-                        .map((e) => e.branch)
-                        .toSet()
-                        .toList()
-                      ..sort();
+                    final projectBranches =
+                        allPrompts
+                            .where((e) => e.projectPath == path)
+                            .map((e) => e.branch)
+                            .toSet()
+                            .toList()
+                          ..sort();
 
                     return <Widget>[
                       Tooltip(
                         message: path,
                         child: GestureDetector(
                           onTap: () {
-                            ref.read(currentTabProvider.notifier).set(AppTab.prompts);
+                            ref
+                                .read(currentTabProvider.notifier)
+                                .set(AppTab.prompts);
                             if (isExpanded && isProjectActive) {
                               setState(() => _expandedProject = null);
-                              ref.read(projectFilterProvider.notifier).set(null);
+                              ref
+                                  .read(projectFilterProvider.notifier)
+                                  .set(null);
                               ref.read(branchFilterProvider.notifier).set(null);
                             } else {
                               setState(() => _expandedProject = path);
-                              ref.read(projectFilterProvider.notifier).set(path);
+                              ref
+                                  .read(projectFilterProvider.notifier)
+                                  .set(path);
                               ref.read(branchFilterProvider.notifier).set(null);
                             }
                           },
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 1),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: isProjectActive
                                   ? c.ink.withValues(alpha: 0.07)
@@ -654,8 +666,11 @@ class _SidebarState extends ConsumerState<_Sidebar> {
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.folder_outlined,
-                                    size: 12, color: c.ink4),
+                                Icon(
+                                  Icons.folder_outlined,
+                                  size: 12,
+                                  color: c.ink4,
+                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -699,13 +714,18 @@ class _SidebarState extends ConsumerState<_Sidebar> {
                               branchFilter == b && isProjectActive;
                           return GestureDetector(
                             onTap: () {
-                              ref.read(branchFilterProvider.notifier)
+                              ref
+                                  .read(branchFilterProvider.notifier)
                                   .set(isBranchActive ? null : b);
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 1),
                               padding: const EdgeInsets.only(
-                                  left: 28, right: 10, top: 5, bottom: 5),
+                                left: 28,
+                                right: 10,
+                                top: 5,
+                                bottom: 5,
+                              ),
                               decoration: BoxDecoration(
                                 color: isBranchActive
                                     ? c.ink.withValues(alpha: 0.07)
@@ -742,8 +762,8 @@ class _SidebarState extends ConsumerState<_Sidebar> {
                                       style: TextStyle(
                                         fontSize: 11,
                                         color: c.ink3,
-                                        fontFamily:
-                                            GoogleFonts.ibmPlexMono().fontFamily,
+                                        fontFamily: GoogleFonts.ibmPlexMono()
+                                            .fontFamily,
                                       ),
                                     ),
                                 ],
@@ -885,7 +905,10 @@ class _NavItemState extends State<_NavItem> {
               ),
               if (widget.count != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     color: widget.active
                         ? Colors.white.withValues(alpha: 0.16)

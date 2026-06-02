@@ -40,11 +40,13 @@ class RemoteDiscoveryService {
           BonsoirDiscoveryEventType.discoveryServiceResolved) {
         final svc = event.service as ResolvedBonsoirService?;
         if (svc != null && svc.host != null) {
-          _hosts.add(DiscoveredHost(
-            name: svc.name,
-            host: svc.host!,
-            port: svc.port,
-          ));
+          _hosts.add(
+            DiscoveredHost(
+              name: svc.name,
+              host: svc.host!,
+              port: svc.port,
+            ),
+          );
           _controller.add(currentHosts);
         }
       } else if (event.type == BonsoirDiscoveryEventType.discoveryServiceLost) {

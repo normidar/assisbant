@@ -126,7 +126,9 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                     child: Text(
                       s.envOverridesTitle,
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w600),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   GestureDetector(
@@ -145,7 +147,9 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                     onTap: _applyDs4Preset,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
                       decoration: BoxDecoration(
                         color: c.accent,
                         borderRadius: BorderRadius.circular(8),
@@ -166,9 +170,10 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                     child: Text(
                       s.envOverridesClearAll,
                       style: TextStyle(
-                          fontSize: 12.5,
-                          color: c.ink3,
-                          fontWeight: FontWeight.w500),
+                        fontSize: 12.5,
+                        color: c.ink3,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -184,8 +189,7 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
-                      onTap: () =>
-                          setState(() => _unsetApiKey = !_unsetApiKey),
+                      onTap: () => setState(() => _unsetApiKey = !_unsetApiKey),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Row(
@@ -199,23 +203,26 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(4),
                                 border: Border.all(
-                                  color:
-                                      _unsetApiKey ? c.accent : c.border,
+                                  color: _unsetApiKey ? c.accent : c.border,
                                   width: 1.5,
                                 ),
                               ),
                               child: _unsetApiKey
-                                  ? const Icon(Icons.check_rounded,
-                                      size: 11, color: Colors.white)
+                                  ? const Icon(
+                                      Icons.check_rounded,
+                                      size: 11,
+                                      color: Colors.white,
+                                    )
                                   : null,
                             ),
                             const SizedBox(width: 10),
                             Text(
                               s.envOverridesUnsetApiKey,
                               style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: c.ink),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: c.ink,
+                              ),
                             ),
                           ],
                         ),
@@ -243,11 +250,15 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                               style: GoogleFonts.ibmPlexMono(fontSize: 12.5),
                               decoration: InputDecoration(
                                 hintText: kDs4Values[key],
-                                hintStyle:
-                                    TextStyle(color: c.ink4, fontSize: 12),
+                                hintStyle: TextStyle(
+                                  color: c.ink4,
+                                  fontSize: 12,
+                                ),
                                 isDense: true,
                                 contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 11, vertical: 8),
+                                  horizontal: 11,
+                                  vertical: 8,
+                                ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(color: c.border),
                                   borderRadius: BorderRadius.circular(8),
@@ -283,7 +294,9 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: c.border),
                         borderRadius: BorderRadius.circular(8),
@@ -291,9 +304,10 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                       child: Text(
                         s.cancel,
                         style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: c.ink2),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: c.ink2,
+                        ),
                       ),
                     ),
                   ),
@@ -302,7 +316,9 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                     onTap: _save,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
                       decoration: BoxDecoration(
                         color: c.accent,
                         borderRadius: BorderRadius.circular(8),
@@ -310,9 +326,10 @@ class _EnvOverridesDialogState extends State<EnvOverridesDialog> {
                       child: Text(
                         s.save,
                         style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),

@@ -51,13 +51,16 @@ class Prompts extends Table {
   BoolColumn get isSkipped =>
       boolean().withDefault(const Constant(false))(); // true のとき実行キューをスキップ
   TextColumn get output => text().nullable()(); // 実行後の stdout/stderr
-  TextColumn get projectPath => text().withDefault(const Constant(''))(); // 空の場合はグローバル workdir を使用
+  TextColumn get projectPath =>
+      text().withDefault(const Constant(''))(); // 空の場合はグローバル workdir を使用
   // ユーザーが定義する会話グループID。同じ sessionId のプロンプトは Claude の会話を引き継ぐ
   TextColumn get sessionId => text().withDefault(const Constant(''))();
   // Claude CLI が返す内部セッションID。--resume フラグに渡して会話を継続する
   TextColumn get claudeSessionId => text().withDefault(const Constant(''))();
-  TextColumn get claudeModel => text().withDefault(const Constant(''))(); // 空の場合はデフォルトモデル
-  TextColumn get imagePaths => text().withDefault(const Constant(''))(); // JSON配列文字列
+  TextColumn get claudeModel =>
+      text().withDefault(const Constant(''))(); // 空の場合はデフォルトモデル
+  TextColumn get imagePaths =>
+      text().withDefault(const Constant(''))(); // JSON配列文字列
   BoolColumn get commitAfterRun =>
       boolean().withDefault(const Constant(false))(); // 実行後に自動コミットするか
   DateTimeColumn get startedAt => dateTime().nullable()(); // 実行開始時刻（未実行は null）
@@ -70,8 +73,7 @@ class Prompts extends Table {
 
 @DriftDatabase(tables: [Prompts, ImageGenRecords])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? executor])
-      : super(executor ?? _openConnection());
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
   int get schemaVersion => 9;
@@ -94,25 +96,37 @@ class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         // 会話継続機能の追加 (sessionId: ユーザー定義, claudeSessionId: Claude内部)
         await m.addColumn(
-          prompts, prompts.sessionId as GeneratedColumn<Object>);
+          prompts,
+          prompts.sessionId as GeneratedColumn<Object>,
+        );
         await m.addColumn(
-          prompts, prompts.claudeSessionId as GeneratedColumn<Object>);
+          prompts,
+          prompts.claudeSessionId as GeneratedColumn<Object>,
+        );
       }
       if (from < 5) {
         await m.addColumn(
-          prompts, prompts.startedAt as GeneratedColumn<Object>);
+          prompts,
+          prompts.startedAt as GeneratedColumn<Object>,
+        );
       }
       if (from < 6) {
         await m.addColumn(
-          prompts, prompts.claudeModel as GeneratedColumn<Object>);
+          prompts,
+          prompts.claudeModel as GeneratedColumn<Object>,
+        );
       }
       if (from < 7) {
         await m.addColumn(
-          prompts, prompts.imagePaths as GeneratedColumn<Object>);
+          prompts,
+          prompts.imagePaths as GeneratedColumn<Object>,
+        );
       }
       if (from < 8) {
         await m.addColumn(
-          prompts, prompts.commitAfterRun as GeneratedColumn<Object>);
+          prompts,
+          prompts.commitAfterRun as GeneratedColumn<Object>,
+        );
       }
       if (from < 9) {
         await m.createTable(imageGenRecords);
@@ -120,6 +134,5 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
-  static QueryExecutor _openConnection() =>
-      driftDatabase(name: 'assisbant_db');
+  static QueryExecutor _openConnection() => driftDatabase(name: 'assisbant_db');
 }

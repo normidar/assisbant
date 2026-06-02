@@ -46,7 +46,9 @@ class PromptDetailPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _DetailHeader(prompt: p, strings: s, onClose: onClose, c: c),
-          Expanded(child: _DetailBody(prompt: p, strings: s, c: c)),
+          Expanded(
+            child: _DetailBody(prompt: p, strings: s, c: c),
+          ),
           _DetailFooter(
             prompt: p,
             strings: s,
@@ -101,8 +103,7 @@ class _DetailHeader extends StatelessWidget {
                 onPressed: onClose,
                 icon: const Icon(Icons.close, size: 16),
                 padding: EdgeInsets.zero,
-                constraints:
-                    const BoxConstraints(minWidth: 26, minHeight: 26),
+                constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
               ),
             ],
           ),
@@ -181,16 +182,23 @@ class _DetailBody extends StatelessWidget {
               child: p.output?.isNotEmpty ?? false
                   ? Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                       child: SelectableText(
                         p.output!,
                         style: GoogleFonts.ibmPlexMono(
-                            fontSize: 12, height: 1.5, color: c.ink),
+                          fontSize: 12,
+                          height: 1.5,
+                          color: c.ink,
+                        ),
                       ),
                     )
                   : Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                       child: Text(
                         s.noLogs,
                         style: TextStyle(fontSize: 12.5, color: c.ink3),
@@ -273,8 +281,7 @@ class _DetailFooter extends StatelessWidget {
             ),
             const SizedBox(width: 8),
           ],
-          if (p.status == PromptStatus.done ||
-              p.status == PromptStatus.failed)
+          if (p.status == PromptStatus.done || p.status == PromptStatus.failed)
             DetailActionBtn(
               label: s.reset,
               icon: Icons.refresh_rounded,
@@ -323,9 +330,10 @@ class DetailActionBtn extends StatelessWidget {
           children: [
             Icon(icon, size: 14, color: c.ink),
             const SizedBox(width: 6),
-            Text(label,
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            ),
           ],
         ),
       ),
@@ -404,8 +412,7 @@ class KeyValueList extends StatelessWidget {
               Expanded(
                 child: Text(
                   val,
-                  style:
-                      GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink),
+                  style: GoogleFonts.ibmPlexMono(fontSize: 12, color: c.ink),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -502,14 +509,18 @@ class DeleteConfirmOverlay extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(s.delete,
-                            style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600)),
+                        Text(
+                          s.delete,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         const SizedBox(height: 8),
-                        Text(s.confirmDelete,
-                            style: TextStyle(
-                                fontSize: 13.5, color: c.ink2)),
+                        Text(
+                          s.confirmDelete,
+                          style: TextStyle(fontSize: 13.5, color: c.ink2),
+                        ),
                       ],
                     ),
                   ),
@@ -519,7 +530,8 @@ class DeleteConfirmOverlay extends StatelessWidget {
                       color: c.surface2,
                       border: Border(top: BorderSide(color: c.border2)),
                       borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(14)),
+                        bottom: Radius.circular(14),
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -528,15 +540,15 @@ class DeleteConfirmOverlay extends StatelessWidget {
                           onTap: onCancel,
                           child: Container(
                             height: 32,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
                             alignment: Alignment.center,
                             child: Text(
                               s.cancel,
                               style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: c.ink2),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: c.ink2,
+                              ),
                             ),
                           ),
                         ),
@@ -545,8 +557,7 @@ class DeleteConfirmOverlay extends StatelessWidget {
                           onTap: onConfirm,
                           child: Container(
                             height: 32,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
                               color: c.stFailed,
                               borderRadius: BorderRadius.circular(8),
@@ -555,9 +566,10 @@ class DeleteConfirmOverlay extends StatelessWidget {
                             child: Text(
                               s.delete,
                               style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),

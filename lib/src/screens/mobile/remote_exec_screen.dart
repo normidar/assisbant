@@ -83,12 +83,16 @@ class _StatusCard extends StatelessWidget {
               Container(
                 width: 10,
                 height: 10,
-                decoration:
-                    BoxDecoration(color: statusColor, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                ),
               ),
               const SizedBox(width: 8),
-              Text(statusLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(
+                statusLabel,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
               if (execState.totalCount > 0) ...[
                 const Spacer(),
                 Text(
@@ -253,8 +257,10 @@ class _QuestionPanelState extends State<_QuestionPanel> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(widget.question,
-              style: const TextStyle(fontSize: 13, color: Colors.black87)),
+          Text(
+            widget.question,
+            style: const TextStyle(fontSize: 13, color: Colors.black87),
+          ),
           const SizedBox(height: 8),
           Row(
             children: [

@@ -29,8 +29,7 @@ class _RemotePromptFormState extends ConsumerState<RemotePromptForm> {
     _contentCtrl = TextEditingController(text: p?.content ?? '');
     _branchCtrl = TextEditingController(text: p?.branch ?? '');
     _projectCtrl = TextEditingController(text: p?.projectPath ?? '');
-    _priorityCtrl =
-        TextEditingController(text: p?.priority.toString() ?? '0');
+    _priorityCtrl = TextEditingController(text: p?.priority.toString() ?? '0');
     _sessionCtrl = TextEditingController(text: p?.sessionId ?? '');
     _isSkipped = p?.isSkipped ?? false;
     _commitAfterRun = p?.commitAfterRun ?? false;
@@ -54,27 +53,31 @@ class _RemotePromptFormState extends ConsumerState<RemotePromptForm> {
     final existing = widget.existing;
 
     if (existing == null) {
-      send(buildCreatePromptCmd(
-        content: content,
-        branch: _branchCtrl.text.trim(),
-        projectPath: _projectCtrl.text.trim(),
-        priority: int.tryParse(_priorityCtrl.text) ?? 0,
-        sessionId: _sessionCtrl.text.trim(),
-        commitAfterRun: _commitAfterRun,
-      ));
+      send(
+        buildCreatePromptCmd(
+          content: content,
+          branch: _branchCtrl.text.trim(),
+          projectPath: _projectCtrl.text.trim(),
+          priority: int.tryParse(_priorityCtrl.text) ?? 0,
+          sessionId: _sessionCtrl.text.trim(),
+          commitAfterRun: _commitAfterRun,
+        ),
+      );
     } else {
-      send(buildUpdatePromptCmd(
-        id: existing.id,
-        content: content,
-        branch: _branchCtrl.text.trim(),
-        projectPath: _projectCtrl.text.trim(),
-        priority: int.tryParse(_priorityCtrl.text) ?? existing.priority,
-        isSkipped: _isSkipped,
-        sessionId: _sessionCtrl.text.trim(),
-        claudeModel: existing.claudeModel,
-        imagePaths: existing.imagePaths,
-        commitAfterRun: _commitAfterRun,
-      ));
+      send(
+        buildUpdatePromptCmd(
+          id: existing.id,
+          content: content,
+          branch: _branchCtrl.text.trim(),
+          projectPath: _projectCtrl.text.trim(),
+          priority: int.tryParse(_priorityCtrl.text) ?? existing.priority,
+          isSkipped: _isSkipped,
+          sessionId: _sessionCtrl.text.trim(),
+          claudeModel: existing.claudeModel,
+          imagePaths: existing.imagePaths,
+          commitAfterRun: _commitAfterRun,
+        ),
+      );
     }
 
     Navigator.of(context).pop();
@@ -96,7 +99,9 @@ class _RemotePromptFormState extends ConsumerState<RemotePromptForm> {
               Text(
                 isNew ? 'New Prompt' : 'Edit Prompt',
                 style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w600),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const Spacer(),
               IconButton(
@@ -167,16 +172,14 @@ class _RemotePromptFormState extends ConsumerState<RemotePromptForm> {
             children: [
               Checkbox(
                 value: _commitAfterRun,
-                onChanged: (v) =>
-                    setState(() => _commitAfterRun = v ?? false),
+                onChanged: (v) => setState(() => _commitAfterRun = v ?? false),
               ),
               const Text('Commit after run', style: TextStyle(fontSize: 13)),
               if (!isNew) ...[
                 const SizedBox(width: 16),
                 Checkbox(
                   value: _isSkipped,
-                  onChanged: (v) =>
-                      setState(() => _isSkipped = v ?? false),
+                  onChanged: (v) => setState(() => _isSkipped = v ?? false),
                 ),
                 const Text('Skip', style: TextStyle(fontSize: 13)),
               ],

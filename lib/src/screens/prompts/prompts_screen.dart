@@ -181,8 +181,7 @@ class _FilterChips extends StatelessWidget {
         return GestureDetector(
           onTap: () => onChange(key),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
               color: active ? c.ink : c.surface,
               border: Border.all(color: active ? c.ink : c.border),
@@ -280,8 +279,7 @@ class _Toolbar extends StatelessWidget {
           const Spacer(),
           // Search field
           ConstrainedBox(
-            constraints:
-                const BoxConstraints(maxWidth: 260, minWidth: 80),
+            constraints: const BoxConstraints(maxWidth: 260, minWidth: 80),
             child: Container(
               height: 32,
               decoration: BoxDecoration(
@@ -311,7 +309,9 @@ class _Toolbar extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 5, vertical: 1),
+                      horizontal: 5,
+                      vertical: 1,
+                    ),
                     decoration: BoxDecoration(
                       color: c.surface3,
                       border: Border.all(color: c.border),
@@ -320,7 +320,9 @@ class _Toolbar extends StatelessWidget {
                     child: Text(
                       '⌘K',
                       style: GoogleFonts.ibmPlexMono(
-                          fontSize: 10.5, color: c.ink3),
+                        fontSize: 10.5,
+                        color: c.ink3,
+                      ),
                     ),
                   ),
                 ],
@@ -410,18 +412,26 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
       data: (allPrompts) {
-        final (branches, projectPaths, maxPriority) =
-            computePromptMetadata(allPrompts);
+        final (branches, projectPaths, maxPriority) = computePromptMetadata(
+          allPrompts,
+        );
         final list = applyPromptFilters(
-            allPrompts, projectFilter, branchFilter, query, filter);
+          allPrompts,
+          projectFilter,
+          branchFilter,
+          query,
+          filter,
+        );
         final counts = computePromptCounts(
-            applyProjectAndBranchFilter(allPrompts, projectFilter, branchFilter));
+          applyProjectAndBranchFilter(allPrompts, projectFilter, branchFilter),
+        );
         final pendingIds = list
             .where((p) => p.status == PromptStatus.pending && !p.isSkipped)
             .map((p) => p.id)
             .toList();
-        final selectedPrompt =
-            allPrompts.where((p) => p.id == selectedId).firstOrNull;
+        final selectedPrompt = allPrompts
+            .where((p) => p.id == selectedId)
+            .firstOrNull;
 
         // Only show the detail panel when there is enough horizontal space
         final screenWidth = MediaQuery.sizeOf(context).width;
@@ -435,9 +445,9 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
                   strings: s,
                   branchFilter: branchFilter,
                   pendingCount: allPrompts
-                      .where((p) =>
-                          !p.isSkipped &&
-                          p.status == PromptStatus.pending)
+                      .where(
+                        (p) => !p.isSkipped && p.status == PromptStatus.pending,
+                      )
                       .length,
                   onNew: _openNew,
                   searchCtrl: _searchCtrl,
@@ -461,8 +471,9 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
                                 branch: branchFilter ?? '',
                                 branchPrompts: branchFilter != null
                                     ? allPrompts
-                                          .where((p) =>
-                                              p.branch == branchFilter)
+                                          .where(
+                                            (p) => p.branch == branchFilter,
+                                          )
                                           .toList()
                                     : allPrompts,
                                 strings: s,
@@ -492,15 +503,13 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
                                 onDuplicate: _duplicatePrompt,
                                 onMoveUp: (id, peerId) async {
                                   await ref
-                                      .read(promptListNotifierProvider
-                                          .notifier)
+                                      .read(promptListNotifierProvider.notifier)
                                       .swapPriority(id, peerId);
                                   _showToast(s.reordered);
                                 },
                                 onMoveDown: (id, peerId) async {
                                   await ref
-                                      .read(promptListNotifierProvider
-                                          .notifier)
+                                      .read(promptListNotifierProvider.notifier)
                                       .swapPriority(id, peerId);
                                   _showToast(s.reordered);
                                 },
@@ -533,31 +542,32 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
                 maxPriority: maxPriority,
                 initial: _editingPrompt,
                 initialBranch: _editingPrompt == null ? branchFilter : null,
-                initialProjectPath:
-                    _editingPrompt == null ? projectFilter : null,
-                onSave: ({
-                  required content,
-                  required branch,
-                  required projectPath,
-                  required priority,
-                  required isSkipped,
-                  required sessionId,
-                  required claudeModel,
-                  required imagePaths,
-                  required commitAfterRun,
-                }) =>
-                    _savePrompt(
-                  content,
-                  branch,
-                  projectPath,
-                  priority,
-                  isSkipped,
-                  sessionId,
-                  allPrompts,
-                  claudeModel: claudeModel,
-                  imagePaths: imagePaths,
-                  commitAfterRun: commitAfterRun,
-                ),
+                initialProjectPath: _editingPrompt == null
+                    ? projectFilter
+                    : null,
+                onSave:
+                    ({
+                      required content,
+                      required branch,
+                      required projectPath,
+                      required priority,
+                      required isSkipped,
+                      required sessionId,
+                      required claudeModel,
+                      required imagePaths,
+                      required commitAfterRun,
+                    }) => _savePrompt(
+                      content,
+                      branch,
+                      projectPath,
+                      priority,
+                      isSkipped,
+                      sessionId,
+                      allPrompts,
+                      claudeModel: claudeModel,
+                      imagePaths: imagePaths,
+                      commitAfterRun: commitAfterRun,
+                    ),
                 onSaveAndStart: _editingPrompt == null
                     ? ({
                         required content,
@@ -569,20 +579,19 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
                         required claudeModel,
                         required imagePaths,
                         required commitAfterRun,
-                      }) =>
-                        _savePrompt(
-                          content,
-                          branch,
-                          projectPath,
-                          priority,
-                          isSkipped,
-                          sessionId,
-                          allPrompts,
-                          claudeModel: claudeModel,
-                          imagePaths: imagePaths,
-                          commitAfterRun: commitAfterRun,
-                          startAfterSave: true,
-                        )
+                      }) => _savePrompt(
+                        content,
+                        branch,
+                        projectPath,
+                        priority,
+                        isSkipped,
+                        sessionId,
+                        allPrompts,
+                        claudeModel: claudeModel,
+                        imagePaths: imagePaths,
+                        commitAfterRun: commitAfterRun,
+                        startAfterSave: true,
+                      )
                     : null,
                 onCancel: _closeModal,
                 onBatchCreate: _editingPrompt == null ? _openBatch : null,
@@ -604,8 +613,7 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
               DeleteConfirmOverlay(
                 strings: s,
                 onConfirm: _doDelete,
-                onCancel: () =>
-                    setState(() => _showDeleteConfirm = false),
+                onCancel: () => setState(() => _showDeleteConfirm = false),
               ),
             // Toast
             if (_toastMessage != null)
@@ -633,9 +641,9 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
   void _closeModal() => setState(() => _showEditModal = false);
 
   void _confirmDelete(String id) => setState(() {
-        _deleteTargetId = id;
-        _showDeleteConfirm = true;
-      });
+    _deleteTargetId = id;
+    _showDeleteConfirm = true;
+  });
 
   Future<void> _doDelete() async {
     if (_deleteTargetId == null) return;
@@ -650,19 +658,19 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
   }
 
   void _openBatch() => setState(() {
-        _showEditModal = false;
-        _showBatchModal = true;
-      });
+    _showEditModal = false;
+    _showBatchModal = true;
+  });
 
   void _openEdit(PromptEntry p) => setState(() {
-        _editingPrompt = p;
-        _showEditModal = true;
-      });
+    _editingPrompt = p;
+    _showEditModal = true;
+  });
 
   void _openNew() => setState(() {
-        _editingPrompt = null;
-        _showEditModal = true;
-      });
+    _editingPrompt = null;
+    _showEditModal = true;
+  });
 
   Future<void> _resetPrompt(String id) async {
     await ref.read(promptListNotifierProvider.notifier).reset(id);
@@ -684,7 +692,9 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
     required String imagePaths,
     required bool commitAfterRun,
   }) async {
-    await ref.read(promptListNotifierProvider.notifier).addBatch(
+    await ref
+        .read(promptListNotifierProvider.notifier)
+        .addBatch(
           contents: contents,
           branch: branch,
           projectPath: projectPath,
@@ -754,13 +764,14 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
 
   Future<void> _toggleSkip(String id) async {
     await ref.read(promptListNotifierProvider.notifier).toggleSkip(id);
-    final all =
-        ref.read(promptListNotifierProvider).value ?? <PromptEntry>[];
+    final all = ref.read(promptListNotifierProvider).value ?? <PromptEntry>[];
     final p = all.where((x) => x.id == id).firstOrNull;
     if (p != null) {
-      _showToast(p.isSkipped
-          ? widget.strings.skippedToast
-          : widget.strings.unskippedToast);
+      _showToast(
+        p.isSkipped
+            ? widget.strings.skippedToast
+            : widget.strings.unskippedToast,
+      );
     }
   }
 }
@@ -814,8 +825,7 @@ class _PromptListView extends StatelessWidget {
       children: [
         if (branchFilter != null)
           Padding(
-            padding:
-                const EdgeInsets.fromLTRB(24, 16, 24, 0),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
             child: Text(
               s.reorderHint,
               style: TextStyle(fontSize: 12, color: c.ink3),
@@ -853,13 +863,11 @@ class _PromptListView extends StatelessWidget {
                       onReset: () => onReset(p.id),
                       onDuplicate: () => onDuplicate(p.id),
                       canMoveUp: idx > 0,
-                      canMoveDown:
-                          idx >= 0 && idx < pendingIds.length - 1,
+                      canMoveDown: idx >= 0 && idx < pendingIds.length - 1,
                       onMoveUp: idx > 0
                           ? () => onMoveUp(p.id, pendingIds[idx - 1])
                           : null,
-                      onMoveDown:
-                          idx >= 0 && idx < pendingIds.length - 1
+                      onMoveDown: idx >= 0 && idx < pendingIds.length - 1
                           ? () => onMoveDown(p.id, pendingIds[idx + 1])
                           : null,
                     );

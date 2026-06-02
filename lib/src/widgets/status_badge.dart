@@ -51,14 +51,25 @@ class StatusBadge extends StatelessWidget {
       return (strings.statusSkipped, c.stSkipped, c.stSkippedBg, false);
     }
     return switch (status) {
-      PromptStatus.pending =>
-        (strings.statusPending, c.stPending, c.stPendingBg, false),
-      PromptStatus.running =>
-        (strings.statusRunning, c.stRunning, c.stRunningBg, true),
-      PromptStatus.done =>
-        (strings.statusDone, c.stDone, c.stDoneBg, false),
-      PromptStatus.failed =>
-        (strings.statusFailed, c.stFailed, c.stFailedBg, false),
+      PromptStatus.pending => (
+        strings.statusPending,
+        c.stPending,
+        c.stPendingBg,
+        false,
+      ),
+      PromptStatus.running => (
+        strings.statusRunning,
+        c.stRunning,
+        c.stRunningBg,
+        true,
+      ),
+      PromptStatus.done => (strings.statusDone, c.stDone, c.stDoneBg, false),
+      PromptStatus.failed => (
+        strings.statusFailed,
+        c.stFailed,
+        c.stFailedBg,
+        false,
+      ),
     };
   }
 }
@@ -85,10 +96,14 @@ class _StatusDotState extends State<_StatusDot>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     );
-    _opacity =
-        Tween<double>(begin: 1, end: 0.4).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
-    _scale =
-        Tween<double>(begin: 1, end: 1.5).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    _opacity = Tween<double>(
+      begin: 1,
+      end: 0.4,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    _scale = Tween<double>(
+      begin: 1,
+      end: 1.5,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
     if (widget.pulsing) unawaited(_ctrl.repeat(reverse: true));
   }
 
@@ -110,17 +125,17 @@ class _StatusDotState extends State<_StatusDot>
   }
 
   Widget _dot(double opacity, double scale) => Transform.scale(
-        scale: scale,
-        child: Opacity(
-          opacity: opacity,
-          child: Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: widget.color,
-              shape: BoxShape.circle,
-            ),
-          ),
+    scale: scale,
+    child: Opacity(
+      opacity: opacity,
+      child: Container(
+        width: 6,
+        height: 6,
+        decoration: BoxDecoration(
+          color: widget.color,
+          shape: BoxShape.circle,
         ),
-      );
+      ),
+    ),
+  );
 }

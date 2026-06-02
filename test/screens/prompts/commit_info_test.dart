@@ -4,21 +4,21 @@ import 'package:assibant/src/screens/prompts/commit_history_view.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 PromptEntry _entry({String id = 'id'}) => PromptEntry(
-      id: id,
-      content: 'content',
-      branch: 'main',
-      priority: 10,
-      status: PromptStatus.pending,
-      isSkipped: false,
-      projectPath: '',
-      sessionId: '',
-      claudeSessionId: '',
-      claudeModel: '',
-      imagePaths: '',
-      commitAfterRun: false,
-      createdAt: DateTime(2024),
-      updatedAt: DateTime(2024),
-    );
+  id: id,
+  content: 'content',
+  branch: 'main',
+  priority: 10,
+  status: PromptStatus.pending,
+  isSkipped: false,
+  projectPath: '',
+  sessionId: '',
+  claudeSessionId: '',
+  claudeModel: '',
+  imagePaths: '',
+  commitAfterRun: false,
+  createdAt: DateTime(2024),
+  updatedAt: DateTime(2024),
+);
 
 void main() {
   group('CommitInfo.shortHash', () {
@@ -84,7 +84,10 @@ void main() {
         hash: 'abc1234',
         date: DateTime(2024),
         message: 'Many matches',
-        matchedPrompts: [_entry(id: '1'), _entry(id: '2')],
+        matchedPrompts: [
+          _entry(id: '1'),
+          _entry(id: '2'),
+        ],
       );
       expect(info.hasMatch, isTrue);
     });

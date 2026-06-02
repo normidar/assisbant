@@ -68,7 +68,10 @@ class FormBrowseButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w500, color: c.ink2),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: c.ink2,
+              ),
             ),
           ],
         ),
@@ -127,8 +130,11 @@ class FormModalBtn extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           label,
-          style:
-              TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: fg),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: fg,
+          ),
         ),
       ),
     );
@@ -138,24 +144,24 @@ class FormModalBtn extends StatelessWidget {
 // ─── Input decoration ─────────────────────────────────────────────────────────
 
 InputDecoration formInputDeco(AppColors c, String hint) => InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: c.ink4),
-      filled: true,
-      fillColor: c.surface,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-      border: OutlineInputBorder(
-        borderSide: BorderSide(color: c.border),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: c.border),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: c.ink3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
+  hintText: hint,
+  hintStyle: TextStyle(color: c.ink4),
+  filled: true,
+  fillColor: c.surface,
+  contentPadding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+  border: OutlineInputBorder(
+    borderSide: BorderSide(color: c.border),
+    borderRadius: BorderRadius.circular(8),
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: c.border),
+    borderRadius: BorderRadius.circular(8),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: c.ink3),
+    borderRadius: BorderRadius.circular(8),
+  ),
+);
 
 // ─── Selectable chip ──────────────────────────────────────────────────────────
 

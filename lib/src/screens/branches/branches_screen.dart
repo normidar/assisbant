@@ -37,7 +37,10 @@ class BranchesScreen extends ConsumerWidget {
                 children: [
                   Text(
                     s.branches,
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -57,19 +60,24 @@ class BranchesScreen extends ConsumerWidget {
                     )
                   : GridView.builder(
                       padding: const EdgeInsets.all(24),
-                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 320,
-                        mainAxisExtent: 130,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 320,
+                            mainAxisExtent: 130,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
                       itemCount: branches.length,
                       itemBuilder: (_, i) => _BranchCard(
                         branch: branches[i],
-                        prompts: prompts.where((p) => p.branch == branches[i]).toList(),
+                        prompts: prompts
+                            .where((p) => p.branch == branches[i])
+                            .toList(),
                         strings: s,
                         onOpen: (b) {
-                          ref.read(currentTabProvider.notifier).set(AppTab.prompts);
+                          ref
+                              .read(currentTabProvider.notifier)
+                              .set(AppTab.prompts);
                           ref.read(branchFilterProvider.notifier).set(b);
                         },
                       ),
@@ -110,7 +118,9 @@ class _BranchCardState extends State<_BranchCard> {
     final done = ps.where((p) => p.status == PromptStatus.done).length;
     final failed = ps.where((p) => p.status == PromptStatus.failed).length;
     final skipped = ps.where((p) => p.isSkipped).length;
-    final pending = ps.where((p) => !p.isSkipped && p.status == PromptStatus.pending).length;
+    final pending = ps
+        .where((p) => !p.isSkipped && p.status == PromptStatus.pending)
+        .length;
 
     final donePct = total > 0 ? done / total : 0.0;
     final failedPct = total > 0 ? failed / total : 0.0;
@@ -128,7 +138,12 @@ class _BranchCardState extends State<_BranchCard> {
             border: Border.all(color: _hovered ? c.ink4 : c.border),
             borderRadius: BorderRadius.circular(12),
             boxShadow: _hovered
-                ? [BoxShadow(color: c.ink.withValues(alpha: 0.04), blurRadius: 4)]
+                ? [
+                    BoxShadow(
+                      color: c.ink.withValues(alpha: 0.04),
+                      blurRadius: 4,
+                    ),
+                  ]
                 : null,
           ),
           padding: const EdgeInsets.all(16),
@@ -180,7 +195,13 @@ class _BranchCardState extends State<_BranchCard> {
                         child: Container(color: c.stSkipped),
                       ),
                       Flexible(
-                        flex: ((1 - donePct - failedPct - skippedPct).clamp(0, 1) * 1000).round(),
+                        flex:
+                            ((1 - donePct - failedPct - skippedPct).clamp(
+                                      0,
+                                      1,
+                                    ) *
+                                    1000)
+                                .round(),
                         child: Container(color: c.surface3),
                       ),
                     ],
@@ -195,7 +216,12 @@ class _BranchCardState extends State<_BranchCard> {
                   _Stat(value: done, label: s.completed, c: c),
                   if (failed > 0) ...[
                     const SizedBox(width: 14),
-                    _Stat(value: failed, label: s.failed, c: c, color: c.stFailed),
+                    _Stat(
+                      value: failed,
+                      label: s.failed,
+                      c: c,
+                      color: c.stFailed,
+                    ),
                   ],
                 ],
               ),
@@ -208,7 +234,12 @@ class _BranchCardState extends State<_BranchCard> {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label, required this.c, this.color});
+  const _Stat({
+    required this.value,
+    required this.label,
+    required this.c,
+    this.color,
+  });
   final int value;
   final String label;
   final AppColors c;

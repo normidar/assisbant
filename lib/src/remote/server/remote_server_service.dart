@@ -32,19 +32,18 @@ class RemoteServerState {
     int? clientCount,
     String? errorMessage,
     bool clearError = false,
-  }) =>
-      RemoteServerState(
-        isRunning: isRunning ?? this.isRunning,
-        port: port ?? this.port,
-        clientCount: clientCount ?? this.clientCount,
-        errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      );
+  }) => RemoteServerState(
+    isRunning: isRunning ?? this.isRunning,
+    port: port ?? this.port,
+    clientCount: clientCount ?? this.clientCount,
+    errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+  );
 }
 
 final remoteServerProvider =
     NotifierProvider<RemoteServerNotifier, RemoteServerState>(
-  RemoteServerNotifier.new,
-);
+      RemoteServerNotifier.new,
+    );
 
 class RemoteServerNotifier extends Notifier<RemoteServerState> {
   HttpServer? _server;
@@ -162,7 +161,9 @@ class RemoteServerNotifier extends Notifier<RemoteServerState> {
 
     // Send current state to new client immediately
     _sendTo(channel, buildStateMsg(ref.read(execNotifierProvider)));
-    ref.read(promptListNotifierProvider).whenData(
+    ref
+        .read(promptListNotifierProvider)
+        .whenData(
           (prompts) => _sendTo(channel, buildPromptListMsg(prompts)),
         );
 
