@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:assibant/src/providers/prefs_provider.dart';
@@ -27,11 +28,28 @@ final langNotifierProvider = NotifierProvider<LangNotifier, String>(
   LangNotifier.new,
 );
 
+/// 表示言語を SharedPreferences に永続化する Notifier。
+/// 対応言語は en / zh / ja。未保存・未対応の値は en にフォールバックする。
 class LangNotifier extends Notifier<String> {
+  static const _prefsKey = 'appLang';
+  static const _supported = {'en', 'zh', 'ja'};
+
   @override
-  String build() => 'en';
-  void set(String lang) => state = lang;
-  void toggle() => state = state == 'en' ? 'zh' : 'en';
+  String build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final saved = prefs.getString(_prefsKey) ?? 'en';
+    return _supported.contains(saved) ? saved : 'en';
+  }
+
+  void set(String lang) {
+    if (!_supported.contains(lang) || lang == state) return;
+    state = lang;
+    unawaited(
+      ref.read(sharedPreferencesProvider).setString(_prefsKey, lang),
+    );
+  }
+
+  void toggle() => set(state == 'en' ? 'zh' : 'en');
 }
 
 // ─── Filter ───────────────────────────────────────────────────────────────────

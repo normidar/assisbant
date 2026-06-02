@@ -55,7 +55,20 @@ class RemoteServerNotifier extends Notifier<RemoteServerState> {
   RemoteServerState build() {
     // Broadcast exec state changes to all connected clients
     ref.listen(execNotifierProvider, (prev, next) {
-      if (prev != next) _broadcast(buildStateMsg(next));
+      _broadcast(buildStateMsg(next));
+
+      // Stream incremental output to clients. ExecState accumulates the
+      // running prompt's output, so broadcast only the newly-appended delta.
+      // Skip when the prompt changed (the buffer still holds the previous
+      // prompt's text) or when it was reset (next shorter than prev).
+      final id = next.currentPromptId;
+      final prevOutput = prev?.currentOutput ?? '';
+      if (id != null &&
+          prev?.currentPromptId == id &&
+          next.currentOutput.length > prevOutput.length) {
+        final delta = next.currentOutput.substring(prevOutput.length);
+        if (delta.isNotEmpty) _broadcast(buildOutputMsg(id, delta));
+      }
     });
 
     // Broadcast prompt list changes to all connected clients
@@ -191,11 +204,6 @@ class RemoteServerNotifier extends Notifier<RemoteServerState> {
     try {
       channel.sink.add(encodeMsg(message));
     } catch (_) {}
-  }
-
-  // Called by ExecNotifier to stream output to remote clients
-  void broadcastOutput(String promptId, String chunk) {
-    _broadcast(buildOutputMsg(promptId, chunk));
   }
 
   void broadcastNotification(String title, String body) {

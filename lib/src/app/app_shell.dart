@@ -548,7 +548,7 @@ class _SidebarState extends ConsumerState<_Sidebar> {
                       ],
                     ),
                     Text(
-                      'v0.1.0',
+                      'v1.0.0',
                       style: TextStyle(fontSize: 11, color: c.ink3),
                     ),
                   ],

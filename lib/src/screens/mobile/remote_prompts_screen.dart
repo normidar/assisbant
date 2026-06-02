@@ -37,13 +37,14 @@ class RemotePromptsScreen extends ConsumerWidget {
                   prompt: p,
                   isCurrentlyRunning: execState.currentPromptId == p.id,
                   onEdit: () => _showForm(context, ref, p),
-                  onDelete: () => send({'cmd': RemoteCmd.deletePrompt, 'id': p.id}),
+                  onDelete: () =>
+                      send(buildPromptActionCmd(RemoteCmd.deletePrompt, p.id)),
                   onSkip: () =>
-                      send({'cmd': RemoteCmd.skipPrompt, 'id': p.id}),
-                  onDuplicate: () =>
-                      send({'cmd': RemoteCmd.duplicatePrompt, 'id': p.id}),
+                      send(buildPromptActionCmd(RemoteCmd.skipPrompt, p.id)),
+                  onDuplicate: () => send(
+                      buildPromptActionCmd(RemoteCmd.duplicatePrompt, p.id)),
                   onReset: () =>
-                      send({'cmd': RemoteCmd.resetPrompt, 'id': p.id}),
+                      send(buildPromptActionCmd(RemoteCmd.resetPrompt, p.id)),
                 );
               },
             ),

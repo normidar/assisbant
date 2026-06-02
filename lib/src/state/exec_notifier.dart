@@ -153,6 +153,10 @@ class ExecNotifier extends Notifier<ExecState> {
         status: ExecStatus.running,
         currentPromptId: prompt.id,
         totalCount: state.completedCount + pending.length,
+        // Clear the output buffer the moment the current prompt switches so the
+        // UI (and remote clients) never attribute the previous prompt's output
+        // to this one.
+        currentOutput: '',
       );
 
       // sessionId が未設定のプロンプトには自動でランダムIDを割り当てる。
@@ -175,7 +179,6 @@ class ExecNotifier extends Notifier<ExecState> {
       await _repo.updateStartedAt(prompt.id);
       // UI のリストに running 状態を即時反映させる
       ref.invalidate(promptListNotifierProvider);
-      state = state.copyWith(currentOutput: '');
 
       // _cancelCurrentRun を ExecutionService に渡し、pause()/stop() 時に
       // complete() してプロセスを kill できるようにする

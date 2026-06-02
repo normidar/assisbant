@@ -5,23 +5,18 @@ import 'package:assibant/src/state/mobile/remote_connection_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MobileShell extends ConsumerStatefulWidget {
+class MobileShell extends ConsumerWidget {
   const MobileShell({super.key});
 
   @override
-  ConsumerState<MobileShell> createState() => _MobileShellState();
-}
-
-class _MobileShellState extends ConsumerState<MobileShell> {
-  int _tab = 0;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final connState = ref.watch(remoteConnectionProvider);
 
     if (!connState.isConnected) {
       return const ConnectionScreen();
     }
+
+    final tab = ref.watch(remoteTabProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -47,15 +42,16 @@ class _MobileShellState extends ConsumerState<MobileShell> {
         ],
       ),
       body: IndexedStack(
-        index: _tab,
+        index: tab,
         children: const [
           RemotePromptsScreen(),
           RemoteExecScreen(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
+        selectedIndex: tab,
+        onDestinationSelected: (i) =>
+            ref.read(remoteTabProvider.notifier).set(i),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.list_alt_rounded),

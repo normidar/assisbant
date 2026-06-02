@@ -54,29 +54,27 @@ class _RemotePromptFormState extends ConsumerState<RemotePromptForm> {
     final existing = widget.existing;
 
     if (existing == null) {
-      send({
-        'cmd': RemoteCmd.createPrompt,
-        'content': content,
-        'branch': _branchCtrl.text.trim(),
-        'projectPath': _projectCtrl.text.trim(),
-        'priority': int.tryParse(_priorityCtrl.text) ?? 0,
-        'sessionId': _sessionCtrl.text.trim(),
-        'commitAfterRun': _commitAfterRun,
-      });
+      send(buildCreatePromptCmd(
+        content: content,
+        branch: _branchCtrl.text.trim(),
+        projectPath: _projectCtrl.text.trim(),
+        priority: int.tryParse(_priorityCtrl.text) ?? 0,
+        sessionId: _sessionCtrl.text.trim(),
+        commitAfterRun: _commitAfterRun,
+      ));
     } else {
-      send({
-        'cmd': RemoteCmd.updatePrompt,
-        'id': existing.id,
-        'content': content,
-        'branch': _branchCtrl.text.trim(),
-        'projectPath': _projectCtrl.text.trim(),
-        'priority': int.tryParse(_priorityCtrl.text) ?? existing.priority,
-        'isSkipped': _isSkipped,
-        'sessionId': _sessionCtrl.text.trim(),
-        'claudeModel': existing.claudeModel,
-        'imagePaths': existing.imagePaths,
-        'commitAfterRun': _commitAfterRun,
-      });
+      send(buildUpdatePromptCmd(
+        id: existing.id,
+        content: content,
+        branch: _branchCtrl.text.trim(),
+        projectPath: _projectCtrl.text.trim(),
+        priority: int.tryParse(_priorityCtrl.text) ?? existing.priority,
+        isSkipped: _isSkipped,
+        sessionId: _sessionCtrl.text.trim(),
+        claudeModel: existing.claudeModel,
+        imagePaths: existing.imagePaths,
+        commitAfterRun: _commitAfterRun,
+      ));
     }
 
     Navigator.of(context).pop();

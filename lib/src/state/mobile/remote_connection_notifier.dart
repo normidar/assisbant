@@ -81,17 +81,11 @@ class RemoteConnectionNotifier extends Notifier<RemoteConnectionState> {
 
   Future<bool> connect(DiscoveredHost host) async {
     state = state.copyWith(status: ConnectionStatus.connecting);
-    final ok = await _client.connect(host.host, host.port);
-    if (!ok) {
-      state = state.copyWith(status: ConnectionStatus.disconnected);
-      return false;
-    }
 
-    state = state.copyWith(
-      status: ConnectionStatus.connected,
-      connectedHost: host,
-    );
-
+    // Subscribe before connecting. The server pushes its current exec state and
+    // prompt list the instant a client connects, and messageStream is a
+    // broadcast stream that silently drops events while it has no listener.
+    // Attaching first guarantees that initial snapshot is delivered.
     _statusSub?.cancel();
     _statusSub = _client.statusStream.listen((s) {
       if (s == ConnectionStatus.disconnected) {
@@ -101,10 +95,23 @@ class RemoteConnectionNotifier extends Notifier<RemoteConnectionState> {
         );
       }
     });
-
     _messageSub?.cancel();
     _messageSub = _client.messageStream.listen(_onMessage);
 
+    final ok = await _client.connect(host.host, host.port);
+    if (!ok) {
+      _statusSub?.cancel();
+      _messageSub?.cancel();
+      _statusSub = null;
+      _messageSub = null;
+      state = state.copyWith(status: ConnectionStatus.disconnected);
+      return false;
+    }
+
+    state = state.copyWith(
+      status: ConnectionStatus.connected,
+      connectedHost: host,
+    );
     return true;
   }
 
@@ -152,4 +159,15 @@ class RemoteConnectionNotifier extends Notifier<RemoteConnectionState> {
         }
     }
   }
+}
+
+/// Selected bottom-navigation tab index for the mobile remote shell.
+final remoteTabProvider = NotifierProvider<RemoteTabNotifier, int>(
+  RemoteTabNotifier.new,
+);
+
+class RemoteTabNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+  void set(int index) => state = index;
 }

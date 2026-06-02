@@ -39,8 +39,7 @@ class RemoteExecScreen extends ConsumerWidget {
           if (execState.pendingQuestion != null)
             _QuestionPanel(
               question: execState.pendingQuestion!,
-              onAnswer: (answer) =>
-                  send({'cmd': 'answerQuestion', 'answer': answer}),
+              onAnswer: (answer) => send(buildAnswerQuestionCmd(answer)),
             ),
         ],
       ),
@@ -135,7 +134,7 @@ class _ControlBar extends StatelessWidget {
           if (execState.isIdle)
             Expanded(
               child: FilledButton.icon(
-                onPressed: () => send({'cmd': RemoteCmd.start}),
+                onPressed: () => send(buildStartCmd()),
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: const Text('Start'),
               ),
@@ -143,7 +142,7 @@ class _ControlBar extends StatelessWidget {
           else if (execState.isRunning) ...[
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => send({'cmd': RemoteCmd.stop}),
+                onPressed: () => send(buildStopCmd()),
                 icon: const Icon(Icons.stop_rounded),
                 label: const Text('Stop'),
               ),
@@ -151,14 +150,14 @@ class _ControlBar extends StatelessWidget {
           ] else if (execState.isPaused) ...[
             Expanded(
               child: FilledButton.icon(
-                onPressed: () => send({'cmd': RemoteCmd.resume}),
+                onPressed: () => send(buildResumeCmd()),
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: const Text('Resume'),
               ),
             ),
             const SizedBox(width: 8),
             OutlinedButton.icon(
-              onPressed: () => send({'cmd': RemoteCmd.stop}),
+              onPressed: () => send(buildStopCmd()),
               icon: const Icon(Icons.stop_rounded),
               label: const Text('Stop'),
             ),
