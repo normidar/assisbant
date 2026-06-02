@@ -108,18 +108,19 @@ Map<String, dynamic> buildCreatePromptCmd({
   String claudeModel = '',
   String imagePaths = '',
   bool commitAfterRun = false,
-}) =>
-    {
-      'cmd': RemoteCmd.createPrompt,
-      'content': content,
-      'branch': branch,
-      'projectPath': projectPath,
-      'priority': priority,
-      'sessionId': sessionId,
-      'claudeModel': claudeModel,
-      'imagePaths': imagePaths,
-      'commitAfterRun': commitAfterRun,
-    };
+}) {
+  return {
+    'cmd': RemoteCmd.createPrompt,
+    'content': content,
+    'branch': branch,
+    'projectPath': projectPath,
+    'priority': priority,
+    'sessionId': sessionId,
+    'claudeModel': claudeModel,
+    'imagePaths': imagePaths,
+    'commitAfterRun': commitAfterRun,
+  };
+}
 
 Map<String, dynamic> buildUpdatePromptCmd({
   required String id,
@@ -132,20 +133,21 @@ Map<String, dynamic> buildUpdatePromptCmd({
   String claudeModel = '',
   String imagePaths = '',
   bool commitAfterRun = false,
-}) =>
-    {
-      'cmd': RemoteCmd.updatePrompt,
-      'id': id,
-      'content': content,
-      'branch': branch,
-      'projectPath': projectPath,
-      'priority': priority,
-      'isSkipped': isSkipped,
-      'sessionId': sessionId,
-      'claudeModel': claudeModel,
-      'imagePaths': imagePaths,
-      'commitAfterRun': commitAfterRun,
-    };
+}) {
+  return {
+    'cmd': RemoteCmd.updatePrompt,
+    'id': id,
+    'content': content,
+    'branch': branch,
+    'projectPath': projectPath,
+    'priority': priority,
+    'isSkipped': isSkipped,
+    'sessionId': sessionId,
+    'claudeModel': claudeModel,
+    'imagePaths': imagePaths,
+    'commitAfterRun': commitAfterRun,
+  };
+}
 
 /// Builds an id-only prompt command (delete / skip / duplicate / reset).
 Map<String, dynamic> buildPromptActionCmd(String cmd, String id) => {
