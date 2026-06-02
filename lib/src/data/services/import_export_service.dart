@@ -11,8 +11,15 @@ class ImportExportService {
   static const _uuid = Uuid();
 
   static const _headers = [
-    'content', 'branch', 'priority', 'status', 'isSkipped',
-    'output', 'projectPath', 'sessionId', 'claudeModel',
+    'content',
+    'branch',
+    'priority',
+    'status',
+    'isSkipped',
+    'output',
+    'projectPath',
+    'sessionId',
+    'claudeModel',
   ];
 
   // A-I covers all 9 columns
@@ -56,10 +63,12 @@ class ImportExportService {
       ..addFile(ArchiveFile.string('_rels/.rels', _relsXml))
       ..addFile(ArchiveFile.string('xl/workbook.xml', _workbookXml))
       ..addFile(
-          ArchiveFile.string('xl/_rels/workbook.xml.rels', _workbookRelsXml))
+        ArchiveFile.string('xl/_rels/workbook.xml.rels', _workbookRelsXml),
+      )
       ..addFile(ArchiveFile.string('xl/styles.xml', _stylesXml))
       ..addFile(
-          ArchiveFile.string('xl/worksheets/sheet1.xml', _sheetXml(prompts)));
+        ArchiveFile.string('xl/worksheets/sheet1.xml', _sheetXml(prompts)),
+      );
 
     return ZipEncoder().encode(archive);
   }
@@ -77,7 +86,10 @@ class ImportExportService {
     final buf = Uint8List(totalSize);
     final bd = ByteData.sublistView(buf);
 
-    buf[0] = 0x41; buf[1] = 0x53; buf[2] = 0x42; buf[3] = 0x42; // "ASBB"
+    buf[0] = 0x41;
+    buf[1] = 0x53;
+    buf[2] = 0x42;
+    buf[3] = 0x42; // "ASBB"
     bd
       ..setUint32(4, 1, Endian.little) // version
       ..setUint32(8, prompts.length, Endian.little); // count
@@ -99,14 +111,16 @@ class ImportExportService {
     final buf = StringBuffer()
       ..write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
       ..write(
-          '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">')
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">',
+      )
       ..write('<sheetData>');
 
     // header row
     buf.write('<row r="1">');
     for (var i = 0; i < _headers.length; i++) {
       buf.write(
-          '<c r="${_cols[i]}1" t="inlineStr"><is><t>${_xmlEsc(_headers[i])}</t></is></c>');
+        '<c r="${_cols[i]}1" t="inlineStr"><is><t>${_xmlEsc(_headers[i])}</t></is></c>',
+      );
     }
     buf.write('</row>');
 
@@ -115,14 +129,21 @@ class ImportExportService {
       final p = prompts[ri];
       final row = ri + 2;
       final vals = [
-        p.content, p.branch, p.priority.toString(), p.status.name,
-        p.isSkipped.toString(), p.output ?? '',
-        p.projectPath, p.sessionId, p.claudeModel,
+        p.content,
+        p.branch,
+        p.priority.toString(),
+        p.status.name,
+        p.isSkipped.toString(),
+        p.output ?? '',
+        p.projectPath,
+        p.sessionId,
+        p.claudeModel,
       ];
       buf.write('<row r="$row">');
       for (var ci = 0; ci < vals.length; ci++) {
         buf.write(
-            '<c r="${_cols[ci]}$row" t="inlineStr"><is><t>${_xmlEsc(vals[ci])}</t></is></c>');
+          '<c r="${_cols[ci]}$row" t="inlineStr"><is><t>${_xmlEsc(vals[ci])}</t></is></c>',
+        );
       }
       buf.write('</row>');
     }
@@ -193,16 +214,16 @@ class ImportExportService {
   // ─── Helpers ─────────────────────────────────────────────────────────────────
 
   static Map<String, dynamic> _promptToMap(PromptEntry p) => {
-        'content': p.content,
-        'branch': p.branch,
-        'priority': p.priority,
-        'status': p.status.name,
-        'isSkipped': p.isSkipped,
-        'output': p.output,
-        'projectPath': p.projectPath,
-        'sessionId': p.sessionId,
-        'claudeModel': p.claudeModel,
-      };
+    'content': p.content,
+    'branch': p.branch,
+    'priority': p.priority,
+    'status': p.status.name,
+    'isSkipped': p.isSkipped,
+    'output': p.output,
+    'projectPath': p.projectPath,
+    'sessionId': p.sessionId,
+    'claudeModel': p.claudeModel,
+  };
 
   static String _xmlEsc(String s) => s
       .replaceAll('&', '&amp;')

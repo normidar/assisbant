@@ -62,9 +62,11 @@ class _CommitHistoryViewState extends ConsumerState<CommitHistoryView> {
           children: [
             Icon(Icons.error_outline, size: 32, color: c.stFailed),
             const SizedBox(height: 8),
-            Text(_error!,
-                style: TextStyle(fontSize: 12.5, color: c.ink3),
-                textAlign: TextAlign.center),
+            Text(
+              _error!,
+              style: TextStyle(fontSize: 12.5, color: c.ink3),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       );
@@ -73,8 +75,7 @@ class _CommitHistoryViewState extends ConsumerState<CommitHistoryView> {
     final commits = _commits ?? [];
     if (commits.isEmpty) {
       return Center(
-        child: Text(s.noCommits,
-            style: TextStyle(fontSize: 13, color: c.ink3)),
+        child: Text(s.noCommits, style: TextStyle(fontSize: 13, color: c.ink3)),
       );
     }
 
@@ -88,8 +89,7 @@ class _CommitHistoryViewState extends ConsumerState<CommitHistoryView> {
         selectedId: widget.selectedId,
         timeAgo: _timeAgo(commits[i].date),
         onSelect: commits[i].hasMatch
-            ? () =>
-                widget.onSelectPrompt(commits[i].matchedPrompts.first.id)
+            ? () => widget.onSelectPrompt(commits[i].matchedPrompts.first.id)
             : null,
       ),
     );
@@ -128,7 +128,12 @@ class _CommitHistoryViewState extends ConsumerState<CommitHistoryView> {
     try {
       final result = await Process.run(
         '/usr/bin/git',
-        ['log', '--max-count=100', '--format=format:%H|||%aI|||%s', widget.branch],
+        [
+          'log',
+          '--max-count=100',
+          '--format=format:%H|||%aI|||%s',
+          widget.branch,
+        ],
         workingDirectory: workdir,
       );
 
@@ -188,8 +193,14 @@ class _CommitHistoryViewState extends ConsumerState<CommitHistoryView> {
             p.content.trim() == message.trim();
       }).toList();
 
-      commits.add(CommitInfo(
-          hash: hash, date: date, message: message, matchedPrompts: matched));
+      commits.add(
+        CommitInfo(
+          hash: hash,
+          date: date,
+          message: message,
+          matchedPrompts: matched,
+        ),
+      );
     }
     return commits;
   }
@@ -233,8 +244,9 @@ class _CommitCardState extends State<CommitCard> {
     final c = context.ac;
     final s = widget.strings;
     final commit = widget.commit;
-    final isSelected =
-        commit.matchedPrompts.any((p) => p.id == widget.selectedId);
+    final isSelected = commit.matchedPrompts.any(
+      (p) => p.id == widget.selectedId,
+    );
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -250,8 +262,8 @@ class _CommitCardState extends State<CommitCard> {
               color: isSelected
                   ? c.accent.withValues(alpha: 0.35)
                   : _hovered && widget.onSelect != null
-                      ? c.ink4
-                      : c.border,
+                  ? c.ink4
+                  : c.border,
             ),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -262,7 +274,9 @@ class _CommitCardState extends State<CommitCard> {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 7, vertical: 2),
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: c.surface2,
                       border: Border.all(color: c.border),
@@ -278,8 +292,10 @@ class _CommitCardState extends State<CommitCard> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(widget.timeAgo,
-                      style: TextStyle(fontSize: 12, color: c.ink3)),
+                  Text(
+                    widget.timeAgo,
+                    style: TextStyle(fontSize: 12, color: c.ink3),
+                  ),
                   const Spacer(),
                   if (commit.hasMatch)
                     StatusBadge(

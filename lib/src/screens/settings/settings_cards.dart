@@ -17,11 +17,11 @@ import 'package:path/path.dart' as p;
 // ─── Popular SD/Flux model presets ────────────────────────────────────────────
 // (display name, Automatic1111 model_name)
 const kImageGenPresets = [
-  ('SD 1.5',         'v1-5-pruned-emaonly'),
-  ('SDXL',           'sd_xl_base_1.0'),
-  ('SDXL Turbo',     'sdxl_turbo_1.0_fp16'),
-  ('SD 3.5 Medium',  'sd3.5_medium'),
-  ('Flux.1-dev',     'flux1-dev'),
+  ('SD 1.5', 'v1-5-pruned-emaonly'),
+  ('SDXL', 'sd_xl_base_1.0'),
+  ('SDXL Turbo', 'sdxl_turbo_1.0_fp16'),
+  ('SD 3.5 Medium', 'sd3.5_medium'),
+  ('Flux.1-dev', 'flux1-dev'),
   ('Flux.1-schnell', 'flux1-schnell'),
 ];
 
@@ -57,8 +57,9 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
       _modelsError = null;
     });
     try {
-      final models =
-          await ImageGenService.getModels(widget.settings.imageGenApiUrl);
+      final models = await ImageGenService.getModels(
+        widget.settings.imageGenApiUrl,
+      );
       if (mounted) setState(() => _models = models);
     } catch (e) {
       if (mounted) setState(() => _modelsError = e.toString());
@@ -97,8 +98,8 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
       subtitle: settings.comfyuiEnabled
           ? s.comfyuiModeLabel
           : settings.sdLocalMode
-              ? s.sdLocalModeLabel
-              : s.sdWebApiModeLabel,
+          ? s.sdLocalModeLabel
+          : s.sdWebApiModeLabel,
       c: c,
       children: [
         // Mode toggle (3 modes: A1111 / sd.cpp / ComfyUI)
@@ -106,7 +107,8 @@ class _ImageGenSettingsCardState extends ConsumerState<ImageGenSettingsCard> {
           localMode: settings.sdLocalMode,
           comfyuiEnabled: settings.comfyuiEnabled,
           onChanged: (local, comfyui) => widget.onUpdate(
-              settings.copyWith(sdLocalMode: local, comfyuiEnabled: comfyui)),
+            settings.copyWith(sdLocalMode: local, comfyuiEnabled: comfyui),
+          ),
           c: c,
           s: s,
         ),
@@ -235,13 +237,14 @@ class _ModeToggleRow extends StatelessWidget {
     final desc = comfyuiEnabled
         ? s.comfyuiModeDesc
         : localMode
-            ? s.sdLocalModeDesc
-            : s.imageGenSettingsDesc;
+        ? s.sdLocalModeDesc
+        : s.imageGenSettingsDesc;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: c.border2))),
+        border: Border(bottom: BorderSide(color: c.border2)),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -333,8 +336,7 @@ class _ModelPathSelectorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasModel = settings.sdModelPath.isNotEmpty;
-    final label =
-        hasModel ? p.basename(settings.sdModelPath) : '—';
+    final label = hasModel ? p.basename(settings.sdModelPath) : '—';
 
     return SetRowWidget(
       label: s.sdModelPath,
@@ -346,8 +348,7 @@ class _ModelPathSelectorRow extends StatelessWidget {
           if (hasModel)
             Container(
               constraints: const BoxConstraints(maxWidth: 200),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: c.surface3,
                 border: Border.all(color: c.border),
@@ -408,7 +409,8 @@ class _ModelSelectorRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: c.border2))),
+        border: Border(bottom: BorderSide(color: c.border2)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -418,12 +420,18 @@ class _ModelSelectorRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(s.imageGenModel,
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w500)),
+                    Text(
+                      s.imageGenModel,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(s.imageGenModelDesc,
-                        style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                    Text(
+                      s.imageGenModelDesc,
+                      style: TextStyle(fontSize: 11.5, color: c.ink3),
+                    ),
                   ],
                 ),
               ),
@@ -432,7 +440,9 @@ class _ModelSelectorRow extends StatelessWidget {
                 onTap: loadingModels ? null : onRefresh,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 5),
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: c.border),
                     borderRadius: BorderRadius.circular(7),
@@ -442,21 +452,28 @@ class _ModelSelectorRow extends StatelessWidget {
                           width: 12,
                           height: 12,
                           child: CircularProgressIndicator(
-                              strokeWidth: 1.5, color: c.ink3),
+                            strokeWidth: 1.5,
+                            color: c.ink3,
+                          ),
                         )
-                      : Text(s.imageGenRefreshModels,
+                      : Text(
+                          s.imageGenRefreshModels,
                           style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: c.ink2)),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: c.ink2,
+                          ),
+                        ),
                 ),
               ),
             ],
           ),
           if (modelsError != null) ...[
             const SizedBox(height: 8),
-            Text('Error: $modelsError',
-                style: const TextStyle(fontSize: 11.5, color: Colors.red)),
+            Text(
+              'Error: $modelsError',
+              style: const TextStyle(fontSize: 11.5, color: Colors.red),
+            ),
           ] else if (models.isNotEmpty) ...[
             const SizedBox(height: 10),
             Wrap(
@@ -469,18 +486,21 @@ class _ModelSelectorRow extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 130),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 9, vertical: 5),
+                      horizontal: 9,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: selected ? c.accent : c.surface3,
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                          color: selected ? c.accent : c.border),
+                      border: Border.all(color: selected ? c.accent : c.border),
                     ),
-                    child: Text(m,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: selected ? Colors.white : c.ink2,
-                        )),
+                    child: Text(
+                      m,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: selected ? Colors.white : c.ink2,
+                      ),
+                    ),
                   ),
                 );
               }).toList(),
@@ -518,16 +538,20 @@ class _PresetModelsRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: c.border2))),
+        border: Border(bottom: BorderSide(color: c.border2)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(s.imageGenPresetModels,
-              style:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          Text(
+            s.imageGenPresetModels,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          ),
           const SizedBox(height: 2),
-          Text('SD 1.5 · SDXL · Flux.1 など。タップでモデル名をセット。',
-              style: TextStyle(fontSize: 11.5, color: c.ink3)),
+          Text(
+            'SD 1.5 · SDXL · Flux.1 など。タップでモデル名をセット。',
+            style: TextStyle(fontSize: 11.5, color: c.ink3),
+          ),
           const SizedBox(height: 10),
           Wrap(
             spacing: 6,
@@ -540,12 +564,13 @@ class _PresetModelsRow extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 130),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 5),
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: selected ? c.accent : c.surface3,
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                        color: selected ? c.accent : c.border),
+                    border: Border.all(color: selected ? c.accent : c.border),
                   ),
                   child: Text(
                     label,
@@ -560,11 +585,12 @@ class _PresetModelsRow extends StatelessWidget {
             }).toList(),
           ),
           if (settings.imageGenModel.isNotEmpty &&
-              !kImageGenPresets
-                  .any((p) => p.$2 == settings.imageGenModel)) ...[
+              !kImageGenPresets.any((p) => p.$2 == settings.imageGenModel)) ...[
             const SizedBox(height: 8),
-            Text('現在: ${settings.imageGenModel}',
-                style: TextStyle(fontSize: 11.5, color: c.ink4)),
+            Text(
+              '現在: ${settings.imageGenModel}',
+              style: TextStyle(fontSize: 11.5, color: c.ink4),
+            ),
           ],
         ],
       ),
@@ -598,8 +624,9 @@ class _RemoteControlCardState extends ConsumerState<RemoteControlCard> {
   @override
   void initState() {
     super.initState();
-    _portCtrl =
-        TextEditingController(text: widget.settings.remotePort.toString());
+    _portCtrl = TextEditingController(
+      text: widget.settings.remotePort.toString(),
+    );
   }
 
   @override
@@ -615,29 +642,33 @@ class _RemoteControlCardState extends ConsumerState<RemoteControlCard> {
       title: lang == 'zh'
           ? '手机遥控'
           : lang == 'ja'
-              ? 'スマホリモコン'
-              : 'Mobile Remote Control',
+          ? 'スマホリモコン'
+          : 'Mobile Remote Control',
       subtitle: lang == 'zh'
           ? '通过 WiFi 让手机远程控制电脑上的任务'
           : lang == 'ja'
-              ? '同一WiFiでスマホからリモートコントロール'
-              : 'Control this Mac remotely from phone over WiFi',
+          ? '同一WiFiでスマホからリモートコントロール'
+          : 'Control this Mac remotely from phone over WiFi',
       enableLabel: lang == 'zh'
           ? '启用远程连接'
           : lang == 'ja'
-              ? 'リモート接続を有効化'
-              : 'Enable Remote Connection',
+          ? 'リモート接続を有効化'
+          : 'Enable Remote Connection',
       enableDesc: lang == 'zh'
           ? '在本机启动 WebSocket 服务器并广播 mDNS'
           : lang == 'ja'
-              ? 'WebSocketサーバーを起動しmDNSでアドバタイズ'
-              : 'Starts a WebSocket server and advertises via mDNS',
-      portLabel: lang == 'zh' ? '端口' : lang == 'ja' ? 'ポート番号' : 'Port',
+          ? 'WebSocketサーバーを起動しmDNSでアドバタイズ'
+          : 'Starts a WebSocket server and advertises via mDNS',
+      portLabel: lang == 'zh'
+          ? '端口'
+          : lang == 'ja'
+          ? 'ポート番号'
+          : 'Port',
       portDesc: lang == 'zh'
           ? '监听端口 (默认 8765)'
           : lang == 'ja'
-              ? 'リッスンポート (デフォルト: 8765)'
-              : 'Listen port (default: 8765)',
+          ? 'リッスンポート (デフォルト: 8765)'
+          : 'Listen port (default: 8765)',
     );
   }
 
@@ -668,19 +699,26 @@ class _RemoteControlCardState extends ConsumerState<RemoteControlCard> {
         Container(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
           decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: c.border2))),
+            border: Border(bottom: BorderSide(color: c.border2)),
+          ),
           child: Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(labels.portLabel,
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w500)),
+                    Text(
+                      labels.portLabel,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(labels.portDesc,
-                        style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                    Text(
+                      labels.portDesc,
+                      style: TextStyle(fontSize: 11.5, color: c.ink3),
+                    ),
                   ],
                 ),
               ),
@@ -695,14 +733,17 @@ class _RemoteControlCardState extends ConsumerState<RemoteControlCard> {
                     final port = int.tryParse(v);
                     if (port != null && port > 0 && port < 65536) {
                       widget.onUpdate(
-                          widget.settings.copyWith(remotePort: port));
+                        widget.settings.copyWith(remotePort: port),
+                      );
                     }
                   },
                   style: GoogleFonts.ibmPlexMono(fontSize: 13),
                   decoration: InputDecoration(
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 11, vertical: 8),
+                      horizontal: 11,
+                      vertical: 8,
+                    ),
                     border: OutlineInputBorder(
                       borderSide: BorderSide(color: c.border),
                       borderRadius: BorderRadius.circular(8),
@@ -737,8 +778,10 @@ class _RemoteControlCardState extends ConsumerState<RemoteControlCard> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(statusText,
-                    style: TextStyle(fontSize: 12, color: c.ink3)),
+                child: Text(
+                  statusText,
+                  style: TextStyle(fontSize: 12, color: c.ink3),
+                ),
               ),
             ],
           ),
@@ -748,21 +791,27 @@ class _RemoteControlCardState extends ConsumerState<RemoteControlCard> {
   }
 
   (String text, Color color) _buildStatus(
-      RemoteServerState serverState, String lang, AppColors c) {
+    RemoteServerState serverState,
+    String lang,
+    AppColors c,
+  ) {
     if (serverState.isRunning) {
       final count = serverState.clientCount;
       final text = lang == 'zh'
           ? '运行中 · 端口 ${serverState.port}${count > 0 ? ' · $count 台设备已连接' : ''}'
           : lang == 'ja'
-              ? '稼働中 · ポート ${serverState.port}${count > 0 ? ' · $count 台接続中' : ''}'
-              : 'Running · port ${serverState.port}${count > 0 ? ' · $count device(s) connected' : ''}';
+          ? '稼働中 · ポート ${serverState.port}${count > 0 ? ' · $count 台接続中' : ''}'
+          : 'Running · port ${serverState.port}${count > 0 ? ' · $count device(s) connected' : ''}';
       return (text, Colors.green.shade600);
     }
     if (serverState.errorMessage != null) {
       return (serverState.errorMessage!, Colors.red.shade600);
     }
-    final stopped =
-        lang == 'zh' ? '已停止' : lang == 'ja' ? '停止中' : 'Stopped';
+    final stopped = lang == 'zh'
+        ? '已停止'
+        : lang == 'ja'
+        ? '停止中'
+        : 'Stopped';
     return (stopped, c.ink3);
   }
 }

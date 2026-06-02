@@ -33,8 +33,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
 
   Future<void> _connectTo(DiscoveredHost host) async {
     setState(() => _connecting = true);
-    final ok =
-        await ref.read(remoteConnectionProvider.notifier).connect(host);
+    final ok = await ref.read(remoteConnectionProvider.notifier).connect(host);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Connection failed')),
@@ -84,8 +83,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
             IconButton(
               icon: const Icon(Icons.refresh_rounded),
               onPressed: () async {
-                final notifier =
-                    ref.read(remoteConnectionProvider.notifier);
+                final notifier = ref.read(remoteConnectionProvider.notifier);
                 await notifier.stopScan();
                 notifier.startScan();
               },
@@ -145,8 +143,7 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
                           ? const SizedBox(
                               height: 18,
                               width: 18,
-                              child:
-                                  CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Connect'),
                     ),
@@ -159,10 +156,9 @@ class _ConnectionScreenState extends ConsumerState<ConnectionScreen> {
           const SizedBox(height: 20),
           Text(
             'Make sure the Mac app has "Remote Connection" enabled in Settings, and both devices are on the same WiFi.',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Colors.grey),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey),
             textAlign: TextAlign.center,
           ),
         ],
@@ -181,10 +177,9 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: Theme.of(context)
-            .textTheme
-            .labelMedium
-            ?.copyWith(color: Colors.grey.shade600),
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: Colors.grey.shade600),
       ),
     );
   }

@@ -81,8 +81,11 @@ void main() {
     test('all entries have non-empty name, description and sizeLabel', () {
       for (final m in kCuratedModels) {
         expect(m.name, isNotEmpty, reason: '${m.id} name is empty');
-        expect(m.description, isNotEmpty,
-            reason: '${m.id} description is empty');
+        expect(
+          m.description,
+          isNotEmpty,
+          reason: '${m.id} description is empty',
+        );
         expect(m.sizeLabel, isNotEmpty, reason: '${m.id} sizeLabel is empty');
       }
     });
@@ -198,7 +201,9 @@ void main() {
         }
       });
 
-      final updated = await completer.future.timeout(const Duration(seconds: 8));
+      final updated = await completer.future.timeout(
+        const Duration(seconds: 8),
+      );
       await sub.cancel();
       expect(updated.map((m) => m.name), contains('new.gguf'));
     });

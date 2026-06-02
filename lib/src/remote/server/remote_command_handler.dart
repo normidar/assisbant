@@ -18,6 +18,8 @@ class RemoteCommandHandler {
         exec.stop();
       case RemoteCmd.resume:
         exec.resume();
+      case RemoteCmd.answerQuestion:
+        exec.answerQuestion(cmd['answer'] as String? ?? '');
       case RemoteCmd.createPrompt:
         await prompts.add(
           content: cmd['content'] as String? ?? '',

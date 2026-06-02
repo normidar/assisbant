@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:assibant/src/providers/prefs_provider.dart';
@@ -27,11 +28,28 @@ final langNotifierProvider = NotifierProvider<LangNotifier, String>(
   LangNotifier.new,
 );
 
+/// 表示言語を SharedPreferences に永続化する Notifier。
+/// 対応言語は en / zh / ja。未保存・未対応の値は en にフォールバックする。
 class LangNotifier extends Notifier<String> {
+  static const _prefsKey = 'appLang';
+  static const _supported = {'en', 'zh', 'ja'};
+
   @override
-  String build() => 'en';
-  void set(String lang) => state = lang;
-  void toggle() => state = state == 'en' ? 'zh' : 'en';
+  String build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final saved = prefs.getString(_prefsKey) ?? 'en';
+    return _supported.contains(saved) ? saved : 'en';
+  }
+
+  void set(String lang) {
+    if (!_supported.contains(lang) || lang == state) return;
+    state = lang;
+    unawaited(
+      ref.read(sharedPreferencesProvider).setString(_prefsKey, lang),
+    );
+  }
+
+  void toggle() => set(state == 'en' ? 'zh' : 'en');
 }
 
 // ─── Filter ───────────────────────────────────────────────────────────────────
@@ -62,8 +80,8 @@ class SearchQueryNotifier extends Notifier<String> {
 
 final selectedPromptIdProvider =
     NotifierProvider<SelectedPromptIdNotifier, String?>(
-  SelectedPromptIdNotifier.new,
-);
+      SelectedPromptIdNotifier.new,
+    );
 
 class SelectedPromptIdNotifier extends Notifier<String?> {
   @override
@@ -74,8 +92,9 @@ class SelectedPromptIdNotifier extends Notifier<String?> {
 
 // ─── Branch filter ────────────────────────────────────────────────────────────
 
-final branchFilterProvider =
-    NotifierProvider<BranchFilterNotifier, String?>(BranchFilterNotifier.new);
+final branchFilterProvider = NotifierProvider<BranchFilterNotifier, String?>(
+  BranchFilterNotifier.new,
+);
 
 class BranchFilterNotifier extends Notifier<String?> {
   @override
@@ -85,8 +104,9 @@ class BranchFilterNotifier extends Notifier<String?> {
 
 // ─── Project filter ───────────────────────────────────────────────────────────
 
-final projectFilterProvider =
-    NotifierProvider<ProjectFilterNotifier, String?>(ProjectFilterNotifier.new);
+final projectFilterProvider = NotifierProvider<ProjectFilterNotifier, String?>(
+  ProjectFilterNotifier.new,
+);
 
 class ProjectFilterNotifier extends Notifier<String?> {
   @override
@@ -98,8 +118,8 @@ class ProjectFilterNotifier extends Notifier<String?> {
 
 final newPromptDraftProvider =
     NotifierProvider<NewPromptDraftNotifier, NewPromptDraft>(
-  NewPromptDraftNotifier.new,
-);
+      NewPromptDraftNotifier.new,
+    );
 
 class NewPromptDraft {
   const NewPromptDraft({
@@ -140,8 +160,9 @@ class NewPromptDraftNotifier extends Notifier<NewPromptDraft> {
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
 
-final settingsStateProvider =
-    NotifierProvider<SettingsNotifier, AppSettings>(SettingsNotifier.new);
+final settingsStateProvider = NotifierProvider<SettingsNotifier, AppSettings>(
+  SettingsNotifier.new,
+);
 
 /// アプリ設定を SharedPreferences に永続化する Notifier。
 ///
@@ -171,7 +192,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
       aiderPath: prefs.getString('aiderPath') ?? '',
       remoteEnabled: prefs.getBool('remoteEnabled') ?? false,
       remotePort: prefs.getInt('remotePort') ?? 8765,
-      imageGenApiUrl: prefs.getString('imageGenApiUrl') ?? 'http://localhost:7860',
+      imageGenApiUrl:
+          prefs.getString('imageGenApiUrl') ?? 'http://localhost:7860',
       imageGenModel: prefs.getString('imageGenModel') ?? '',
       sdLocalMode: prefs.getBool('sdLocalMode') ?? false,
       sdDylibPath: prefs.getString('sdDylibPath') ?? '',
@@ -179,8 +201,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
       sdVaePath: prefs.getString('sdVaePath') ?? '',
       comfyuiEnabled: prefs.getBool('comfyuiEnabled') ?? false,
       comfyuiUrl: prefs.getString('comfyuiUrl') ?? 'http://127.0.0.1:8188',
-      comfyuiUnetName: prefs.getString('comfyuiUnetName') ?? 'z_image_turbo_bf16.safetensors',
-      comfyuiClipName: prefs.getString('comfyuiClipName') ?? 'qwen_3_4b.safetensors',
+      comfyuiUnetName:
+          prefs.getString('comfyuiUnetName') ??
+          'z_image_turbo_bf16.safetensors',
+      comfyuiClipName:
+          prefs.getString('comfyuiClipName') ?? 'qwen_3_4b.safetensors',
       comfyuiVaeName: prefs.getString('comfyuiVaeName') ?? 'ae.safetensors',
     );
   }
@@ -303,30 +328,29 @@ class AppSettings {
     String? comfyuiUnetName,
     String? comfyuiClipName,
     String? comfyuiVaeName,
-  }) =>
-      AppSettings(
-        cliPath: cliPath ?? this.cliPath,
-        workdir: workdir ?? this.workdir,
-        autoCheckout: autoCheckout ?? this.autoCheckout,
-        pauseOnFail: pauseOnFail ?? this.pauseOnFail,
-        commitAfterPrompt: commitAfterPrompt ?? this.commitAfterPrompt,
-        modelMode: modelMode ?? this.modelMode,
-        localModelName: localModelName ?? this.localModelName,
-        envOverrides: envOverrides ?? this.envOverrides,
-        cliTool: cliTool ?? this.cliTool,
-        aiderPath: aiderPath ?? this.aiderPath,
-        remoteEnabled: remoteEnabled ?? this.remoteEnabled,
-        remotePort: remotePort ?? this.remotePort,
-        imageGenApiUrl: imageGenApiUrl ?? this.imageGenApiUrl,
-        imageGenModel: imageGenModel ?? this.imageGenModel,
-        sdLocalMode: sdLocalMode ?? this.sdLocalMode,
-        sdDylibPath: sdDylibPath ?? this.sdDylibPath,
-        sdModelPath: sdModelPath ?? this.sdModelPath,
-        sdVaePath: sdVaePath ?? this.sdVaePath,
-        comfyuiEnabled: comfyuiEnabled ?? this.comfyuiEnabled,
-        comfyuiUrl: comfyuiUrl ?? this.comfyuiUrl,
-        comfyuiUnetName: comfyuiUnetName ?? this.comfyuiUnetName,
-        comfyuiClipName: comfyuiClipName ?? this.comfyuiClipName,
-        comfyuiVaeName: comfyuiVaeName ?? this.comfyuiVaeName,
-      );
+  }) => AppSettings(
+    cliPath: cliPath ?? this.cliPath,
+    workdir: workdir ?? this.workdir,
+    autoCheckout: autoCheckout ?? this.autoCheckout,
+    pauseOnFail: pauseOnFail ?? this.pauseOnFail,
+    commitAfterPrompt: commitAfterPrompt ?? this.commitAfterPrompt,
+    modelMode: modelMode ?? this.modelMode,
+    localModelName: localModelName ?? this.localModelName,
+    envOverrides: envOverrides ?? this.envOverrides,
+    cliTool: cliTool ?? this.cliTool,
+    aiderPath: aiderPath ?? this.aiderPath,
+    remoteEnabled: remoteEnabled ?? this.remoteEnabled,
+    remotePort: remotePort ?? this.remotePort,
+    imageGenApiUrl: imageGenApiUrl ?? this.imageGenApiUrl,
+    imageGenModel: imageGenModel ?? this.imageGenModel,
+    sdLocalMode: sdLocalMode ?? this.sdLocalMode,
+    sdDylibPath: sdDylibPath ?? this.sdDylibPath,
+    sdModelPath: sdModelPath ?? this.sdModelPath,
+    sdVaePath: sdVaePath ?? this.sdVaePath,
+    comfyuiEnabled: comfyuiEnabled ?? this.comfyuiEnabled,
+    comfyuiUrl: comfyuiUrl ?? this.comfyuiUrl,
+    comfyuiUnetName: comfyuiUnetName ?? this.comfyuiUnetName,
+    comfyuiClipName: comfyuiClipName ?? this.comfyuiClipName,
+    comfyuiVaeName: comfyuiVaeName ?? this.comfyuiVaeName,
+  );
 }

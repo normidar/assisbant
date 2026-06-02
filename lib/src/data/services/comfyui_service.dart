@@ -49,7 +49,8 @@ class ComfyUIService {
 
     if (postResp.statusCode != 200) {
       throw Exception(
-          'ComfyUI /prompt HTTP ${postResp.statusCode}\n${postResp.body}');
+        'ComfyUI /prompt HTTP ${postResp.statusCode}\n${postResp.body}',
+      );
     }
 
     final promptId =
@@ -58,7 +59,8 @@ class ComfyUIService {
 
     final wsBase = base.replaceFirst(RegExp(r'^http'), 'ws');
     final channel = WebSocketChannel.connect(
-        Uri.parse('$wsBase/ws?client_id=$clientId'));
+      Uri.parse('$wsBase/ws?client_id=$clientId'),
+    );
 
     String? filename;
     String? subfolder;
@@ -71,8 +73,7 @@ class ComfyUIService {
         if (type == 'execution_error') {
           final data = msg['data'] as Map<String, dynamic>;
           if (data['prompt_id'] == promptId) {
-            throw Exception(
-                'ComfyUI error: ${data['exception_message']}');
+            throw Exception('ComfyUI error: ${data['exception_message']}');
           }
         }
 
@@ -97,11 +98,13 @@ class ComfyUIService {
       throw Exception('ComfyUI: no image received');
     }
 
-    final viewUrl = Uri.parse('$base/view').replace(queryParameters: {
-      'filename': filename,
-      'subfolder': subfolder ?? '',
-      'type': 'output',
-    });
+    final viewUrl = Uri.parse('$base/view').replace(
+      queryParameters: {
+        'filename': filename,
+        'subfolder': subfolder ?? '',
+        'type': 'output',
+      },
+    );
 
     final imgResp = await http.get(viewUrl);
     if (imgResp.statusCode != 200) {
@@ -128,62 +131,75 @@ class ComfyUIService {
     required int height,
     required int steps,
     required int seed,
-  }) =>
-      {
-        '28': {
-          'class_type': 'UNETLoader',
-          'inputs': {'unet_name': unetName, 'weight_dtype': 'default'},
-        },
-        '30': {
-          'class_type': 'CLIPLoader',
-          'inputs': {
-            'clip_name': clipName,
-            'type': 'lumina2',
-            'device': 'default',
-          },
-        },
-        '29': {
-          'class_type': 'VAELoader',
-          'inputs': {'vae_name': vaeName},
-        },
-        '27': {
-          'class_type': 'CLIPTextEncode',
-          'inputs': {'text': prompt, 'clip': ['30', 0]},
-        },
-        '33': {
-          'class_type': 'ConditioningZeroOut',
-          'inputs': {'conditioning': ['27', 0]},
-        },
-        '11': {
-          'class_type': 'ModelSamplingAuraFlow',
-          'inputs': {'model': ['28', 0], 'shift': 3},
-        },
-        '13': {
-          'class_type': 'EmptySD3LatentImage',
-          'inputs': {'width': width, 'height': height, 'batch_size': 1},
-        },
-        '3': {
-          'class_type': 'KSampler',
-          'inputs': {
-            'seed': seed,
-            'steps': steps,
-            'cfg': 1,
-            'sampler_name': 'res_multistep',
-            'scheduler': 'simple',
-            'denoise': 1.0,
-            'model': ['11', 0],
-            'positive': ['27', 0],
-            'negative': ['33', 0],
-            'latent_image': ['13', 0],
-          },
-        },
-        '8': {
-          'class_type': 'VAEDecode',
-          'inputs': {'samples': ['3', 0], 'vae': ['29', 0]},
-        },
-        '9': {
-          'class_type': 'SaveImage',
-          'inputs': {'images': ['8', 0], 'filename_prefix': 'assisbant'},
-        },
-      };
+  }) => {
+    '28': {
+      'class_type': 'UNETLoader',
+      'inputs': {'unet_name': unetName, 'weight_dtype': 'default'},
+    },
+    '30': {
+      'class_type': 'CLIPLoader',
+      'inputs': {
+        'clip_name': clipName,
+        'type': 'lumina2',
+        'device': 'default',
+      },
+    },
+    '29': {
+      'class_type': 'VAELoader',
+      'inputs': {'vae_name': vaeName},
+    },
+    '27': {
+      'class_type': 'CLIPTextEncode',
+      'inputs': {
+        'text': prompt,
+        'clip': ['30', 0],
+      },
+    },
+    '33': {
+      'class_type': 'ConditioningZeroOut',
+      'inputs': {
+        'conditioning': ['27', 0],
+      },
+    },
+    '11': {
+      'class_type': 'ModelSamplingAuraFlow',
+      'inputs': {
+        'model': ['28', 0],
+        'shift': 3,
+      },
+    },
+    '13': {
+      'class_type': 'EmptySD3LatentImage',
+      'inputs': {'width': width, 'height': height, 'batch_size': 1},
+    },
+    '3': {
+      'class_type': 'KSampler',
+      'inputs': {
+        'seed': seed,
+        'steps': steps,
+        'cfg': 1,
+        'sampler_name': 'res_multistep',
+        'scheduler': 'simple',
+        'denoise': 1.0,
+        'model': ['11', 0],
+        'positive': ['27', 0],
+        'negative': ['33', 0],
+        'latent_image': ['13', 0],
+      },
+    },
+    '8': {
+      'class_type': 'VAEDecode',
+      'inputs': {
+        'samples': ['3', 0],
+        'vae': ['29', 0],
+      },
+    },
+    '9': {
+      'class_type': 'SaveImage',
+      'inputs': {
+        'images': ['8', 0],
+        'filename_prefix': 'assisbant',
+      },
+    },
+  };
 }

@@ -13,9 +13,9 @@ class PromptRepository {
 
   // ── Queries ──────────────────────────────────────────────────────────────
 
-  Future<List<PromptEntry>> getAll() =>
-      (_db.select(_db.prompts)..orderBy([(t) => OrderingTerm.asc(t.priority)]))
-          .get();
+  Future<List<PromptEntry>> getAll() => (_db.select(
+    _db.prompts,
+  )..orderBy([(t) => OrderingTerm.asc(t.priority)])).get();
 
   Future<List<PromptEntry>> getByBranch(String branch) =>
       (_db.select(_db.prompts)
@@ -35,21 +35,23 @@ class PromptRepository {
           .get();
 
   Future<List<String>> getProjectPaths() async {
-    final rows = await (_db.selectOnly(_db.prompts)
-          ..addColumns([_db.prompts.projectPath])
-          ..where(_db.prompts.projectPath.isNotValue(''))
-          ..groupBy([_db.prompts.projectPath])
-          ..orderBy([OrderingTerm.asc(_db.prompts.projectPath)]))
-        .get();
+    final rows =
+        await (_db.selectOnly(_db.prompts)
+              ..addColumns([_db.prompts.projectPath])
+              ..where(_db.prompts.projectPath.isNotValue(''))
+              ..groupBy([_db.prompts.projectPath])
+              ..orderBy([OrderingTerm.asc(_db.prompts.projectPath)]))
+            .get();
     return rows.map((r) => r.read(_db.prompts.projectPath)!).toList();
   }
 
   Future<List<String>> getBranchNames() async {
-    final rows = await (_db.selectOnly(_db.prompts)
-          ..addColumns([_db.prompts.branch])
-          ..groupBy([_db.prompts.branch])
-          ..orderBy([OrderingTerm.asc(_db.prompts.branch)]))
-        .get();
+    final rows =
+        await (_db.selectOnly(_db.prompts)
+              ..addColumns([_db.prompts.branch])
+              ..groupBy([_db.prompts.branch])
+              ..orderBy([OrderingTerm.asc(_db.prompts.branch)]))
+            .get();
     return rows.map((r) => r.read(_db.prompts.branch)!).toList();
   }
 
@@ -69,7 +71,9 @@ class PromptRepository {
   /// Returns the next available priority value (max + 1, or 1 if empty).
   Future<int> getNextPriority() async {
     final expr = _db.prompts.priority.max();
-    final row = await (_db.selectOnly(_db.prompts)..addColumns([expr])).getSingle();
+    final row = await (_db.selectOnly(
+      _db.prompts,
+    )..addColumns([expr])).getSingle();
     final max = row.read(expr);
     return (max ?? 0) + 1;
   }
@@ -102,10 +106,9 @@ class PromptRepository {
       updatedAt: now,
     );
     await _db.into(_db.prompts).insert(entry);
-    return (
-      _db.select(_db.prompts)
-        ..where((t) => t.id.equals(entry.id.value))
-    ).getSingle();
+    return (_db.select(
+      _db.prompts,
+    )..where((t) => t.id.equals(entry.id.value))).getSingle();
   }
 
   Future<void> update(PromptEntry prompt) => _db
@@ -195,15 +198,16 @@ class PromptRepository {
   /// 指定された projectPath と branch で使用された sessionId を重複なしで返す。
   /// プロンプト作成フォームのドロップダウン候補として使用する。
   Future<List<String>> getSessionIds(String projectPath, String branch) async {
-    final rows = await (_db.select(_db.prompts)
-          ..where(
-            (t) =>
-                t.projectPath.equals(projectPath) &
-                t.branch.equals(branch) &
-                t.sessionId.isNotValue(''),
-          )
-          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
-        .get();
+    final rows =
+        await (_db.select(_db.prompts)
+              ..where(
+                (t) =>
+                    t.projectPath.equals(projectPath) &
+                    t.branch.equals(branch) &
+                    t.sessionId.isNotValue(''),
+              )
+              ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
+            .get();
     final seen = <String>{};
     return rows.map((r) => r.sessionId).where(seen.add).toList();
   }
@@ -211,16 +215,17 @@ class PromptRepository {
   /// Returns the claude session ID from the most recently completed prompt
   /// sharing the same user-defined [sessionId], or null if none exists yet.
   Future<String?> getLatestClaudeSessionId(String sessionId) async {
-    final rows = await (_db.select(_db.prompts)
-          ..where(
-            (t) =>
-                t.sessionId.equals(sessionId) &
-                t.claudeSessionId.isNotValue('') &
-                t.status.equals(PromptStatus.done.name),
-          )
-          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])
-          ..limit(1))
-        .get();
+    final rows =
+        await (_db.select(_db.prompts)
+              ..where(
+                (t) =>
+                    t.sessionId.equals(sessionId) &
+                    t.claudeSessionId.isNotValue('') &
+                    t.status.equals(PromptStatus.done.name),
+              )
+              ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])
+              ..limit(1))
+            .get();
     return rows.isEmpty ? null : rows.first.claudeSessionId;
   }
 
@@ -243,18 +248,16 @@ class PromptRepository {
     return entries.length;
   }
 
-  Future<void> resetStatus(String id) =>
-      updateStatus(id, PromptStatus.pending);
+  Future<void> resetStatus(String id) => updateStatus(id, PromptStatus.pending);
 
   Future<int> delete(String id) =>
       (_db.delete(_db.prompts)..where((t) => t.id.equals(id))).go();
 
   // ── Streams ───────────────────────────────────────────────────────────────
 
-  Stream<List<PromptEntry>> watchAll() =>
-      (_db.select(_db.prompts)
-            ..orderBy([(t) => OrderingTerm.asc(t.priority)]))
-          .watch();
+  Stream<List<PromptEntry>> watchAll() => (_db.select(
+    _db.prompts,
+  )..orderBy([(t) => OrderingTerm.asc(t.priority)])).watch();
 
   Stream<List<PromptEntry>> watchByBranch(String branch) =>
       (_db.select(_db.prompts)

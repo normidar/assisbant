@@ -37,13 +37,19 @@ class SetCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
-                  Text(subtitle!,
-                      style: TextStyle(fontSize: 12, color: c.ink3)),
+                  Text(
+                    subtitle!,
+                    style: TextStyle(fontSize: 12, color: c.ink3),
+                  ),
                 ],
               ],
             ),
@@ -78,19 +84,26 @@ class SetRowSwitch extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: c.border2))),
+        border: Border(bottom: BorderSide(color: c.border2)),
+      ),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w500)),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(description,
-                    style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                Text(
+                  description,
+                  style: TextStyle(fontSize: 11.5, color: c.ink3),
+                ),
               ],
             ),
           ),
@@ -119,7 +132,7 @@ class SetRowSwitch extends StatelessWidget {
                         color: Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(color: Colors.black26, blurRadius: 2)
+                          BoxShadow(color: Colors.black26, blurRadius: 2),
                         ],
                       ),
                     ),
@@ -154,6 +167,7 @@ class SetRowInput extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final AppColors c;
   final String placeholder;
+
   /// When non-null a folder-icon button is shown; calling it should open a
   /// file picker and eventually call [onChanged] with the selected path.
   final Future<void> Function()? onPickFile;
@@ -177,8 +191,7 @@ class _SetRowInputState extends State<SetRowInput> {
     // Sync controller when the value is changed externally (e.g. file picker).
     if (widget.value != old.value && widget.value != _ctrl.text) {
       _ctrl.text = widget.value;
-      _ctrl.selection =
-          TextSelection.collapsed(offset: widget.value.length);
+      _ctrl.selection = TextSelection.collapsed(offset: widget.value.length);
     }
   }
 
@@ -194,19 +207,26 @@ class _SetRowInputState extends State<SetRowInput> {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: c.border2))),
+        border: Border(bottom: BorderSide(color: c.border2)),
+      ),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.label,
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w500)),
+                Text(
+                  widget.label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(widget.description,
-                    style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                Text(
+                  widget.description,
+                  style: TextStyle(fontSize: 11.5, color: c.ink3),
+                ),
               ],
             ),
           ),
@@ -225,7 +245,9 @@ class _SetRowInputState extends State<SetRowInput> {
                       hintStyle: TextStyle(color: c.ink4),
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 11, vertical: 8),
+                        horizontal: 11,
+                        vertical: 8,
+                      ),
                       border: OutlineInputBorder(
                         borderSide: BorderSide(color: c.border),
                         borderRadius: BorderRadius.circular(8),
@@ -248,12 +270,17 @@ class _SetRowInputState extends State<SetRowInput> {
                     height: 28,
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: Icon(Icons.folder_open_outlined,
-                          size: 16, color: c.ink3),
+                      icon: Icon(
+                        Icons.folder_open_outlined,
+                        size: 16,
+                        color: c.ink3,
+                      ),
                       tooltip: 'ファイルを選択',
                       onPressed: widget.onPickFile == null
-                        ? null
-                        : () { widget.onPickFile!(); },
+                          ? null
+                          : () {
+                              widget.onPickFile!();
+                            },
                     ),
                   ),
                 ],
@@ -287,19 +314,26 @@ class SetRowWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
       decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: c.border2))),
+        border: Border(bottom: BorderSide(color: c.border2)),
+      ),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w500)),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(description,
-                    style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                Text(
+                  description,
+                  style: TextStyle(fontSize: 11.5, color: c.ink3),
+                ),
               ],
             ),
           ),
@@ -345,8 +379,7 @@ class SegControl extends StatelessWidget {
             onTap: () => onSelect(key),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: active ? c.ink : Colors.transparent,
                 borderRadius: BorderRadius.circular(999),
@@ -394,7 +427,10 @@ class SettingsActionBtn extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w500, color: c.ink),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: c.ink,
+          ),
         ),
       ),
     );

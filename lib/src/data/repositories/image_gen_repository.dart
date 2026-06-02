@@ -14,7 +14,12 @@ class ImageGenRepository {
     required String model,
     required int width,
     required int height,
-    required int steps, required int generationTimeMs, required DateTime startedAt, required DateTime finishedAt, required String status, int? seed,
+    required int steps,
+    required int generationTimeMs,
+    required DateTime startedAt,
+    required DateTime finishedAt,
+    required String status,
+    int? seed,
     String? imagePath,
     String? errorMessage,
     int iteration = 0,
@@ -38,15 +43,14 @@ class ImageGenRepository {
       iteration: Value(iteration),
     );
     await _db.into(_db.imageGenRecords).insert(entry);
-    return (_db.select(_db.imageGenRecords)
-          ..where((t) => t.id.equals(id)))
-        .getSingle();
+    return (_db.select(
+      _db.imageGenRecords,
+    )..where((t) => t.id.equals(id))).getSingle();
   }
 
-  Future<List<ImageGenRecord>> getAll() =>
-      (_db.select(_db.imageGenRecords)
-            ..orderBy([(t) => OrderingTerm.desc(t.startedAt)]))
-          .get();
+  Future<List<ImageGenRecord>> getAll() => (_db.select(
+    _db.imageGenRecords,
+  )..orderBy([(t) => OrderingTerm.desc(t.startedAt)])).get();
 
   Future<void> updateImagePath(String id, String imagePath) =>
       (_db.update(_db.imageGenRecords)..where((t) => t.id.equals(id))).write(

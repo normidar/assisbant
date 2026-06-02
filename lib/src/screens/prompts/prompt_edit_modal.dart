@@ -51,7 +51,8 @@ class PromptEditModal extends ConsumerStatefulWidget {
     required String claudeModel,
     required String imagePaths,
     required bool commitAfterRun,
-  }) onSave;
+  })
+  onSave;
   final void Function({
     required String content,
     required String branch,
@@ -62,7 +63,8 @@ class PromptEditModal extends ConsumerStatefulWidget {
     required String claudeModel,
     required String imagePaths,
     required bool commitAfterRun,
-  })? onSaveAndStart;
+  })?
+  onSaveAndStart;
   final VoidCallback onCancel;
   final VoidCallback? onBatchCreate;
 
@@ -103,17 +105,20 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
       if (!draft.isEmpty) {
         _content = TextEditingController(text: draft.content);
         _branch = TextEditingController(
-            text: draft.branch.isNotEmpty
-                ? draft.branch
-                : (widget.initialBranch ?? ''));
+          text: draft.branch.isNotEmpty
+              ? draft.branch
+              : (widget.initialBranch ?? ''),
+        );
         _projectPath = TextEditingController(
-            text: draft.projectPath.isNotEmpty
-                ? draft.projectPath
-                : (widget.initialProjectPath ?? ''));
+          text: draft.projectPath.isNotEmpty
+              ? draft.projectPath
+              : (widget.initialProjectPath ?? ''),
+        );
         _priority = TextEditingController(
-            text: draft.priority.isNotEmpty
-                ? draft.priority
-                : (widget.maxPriority + 1).toString());
+          text: draft.priority.isNotEmpty
+              ? draft.priority
+              : (widget.maxPriority + 1).toString(),
+        );
         _sessionId = TextEditingController(text: draft.sessionId);
         _isSkipped = draft.isSkipped;
         _commitAfterAgent = draft.commitAfterAgent;
@@ -127,21 +132,20 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
     }
     _content = TextEditingController(text: widget.initial?.content ?? '');
     _branch = TextEditingController(
-        text: widget.initial?.branch ?? widget.initialBranch ?? '');
+      text: widget.initial?.branch ?? widget.initialBranch ?? '',
+    );
     _projectPath = TextEditingController(
-        text: widget.initial?.projectPath ?? widget.initialProjectPath ?? '');
+      text: widget.initial?.projectPath ?? widget.initialProjectPath ?? '',
+    );
     _priority = TextEditingController(
       text: (widget.initial?.priority ?? (widget.maxPriority + 1)).toString(),
     );
-    _sessionId =
-        TextEditingController(text: widget.initial?.sessionId ?? '');
+    _sessionId = TextEditingController(text: widget.initial?.sessionId ?? '');
     _isSkipped = widget.initial?.isSkipped ?? false;
     _commitAfterAgent = true;
     _claudeModel = widget.initial?.claudeModel ?? '';
     final raw = widget.initial?.imagePaths ?? '';
-    _imagePaths = raw.isEmpty
-        ? []
-        : List<String>.from(jsonDecode(raw) as List);
+    _imagePaths = raw.isEmpty ? [] : List<String>.from(jsonDecode(raw) as List);
 
     final initial =
         widget.initial?.projectPath ?? widget.initialProjectPath ?? '';
@@ -153,22 +157,27 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
   void dispose() {
     _tabController.dispose();
     if (_isNew && !_submitted) {
-      final hasInput = _content.text.isNotEmpty ||
+      final hasInput =
+          _content.text.isNotEmpty ||
           _branch.text.isNotEmpty ||
           _projectPath.text.isNotEmpty ||
           _sessionId.text.isNotEmpty;
       if (hasInput) {
-        ref.read(newPromptDraftProvider.notifier).save(NewPromptDraft(
-              content: _content.text,
-              branch: _branch.text,
-              projectPath: _projectPath.text,
-              sessionId: _sessionId.text,
-              priority: _priority.text,
-              isSkipped: _isSkipped,
-              commitAfterAgent: _commitAfterAgent,
-              claudeModel: _claudeModel,
-              imagePaths: _imagePaths,
-            ));
+        ref
+            .read(newPromptDraftProvider.notifier)
+            .save(
+              NewPromptDraft(
+                content: _content.text,
+                branch: _branch.text,
+                projectPath: _projectPath.text,
+                sessionId: _sessionId.text,
+                priority: _priority.text,
+                isSkipped: _isSkipped,
+                commitAfterAgent: _commitAfterAgent,
+                claudeModel: _claudeModel,
+                imagePaths: _imagePaths,
+              ),
+            );
       } else {
         ref.read(newPromptDraftProvider.notifier).clear();
       }
@@ -362,8 +371,9 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                             onTap: widget.onBatchCreate,
                             child: Container(
                               height: 28,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
                               decoration: BoxDecoration(
                                 color: c.surface,
                                 border: Border.all(color: c.border),
@@ -372,15 +382,19 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.list_alt_outlined,
-                                      size: 13, color: c.ink3),
+                                  Icon(
+                                    Icons.list_alt_outlined,
+                                    size: 13,
+                                    color: c.ink3,
+                                  ),
                                   const SizedBox(width: 5),
                                   Text(
                                     s.batchCreate,
                                     style: TextStyle(
-                                        fontSize: 12.5,
-                                        color: c.ink2,
-                                        fontWeight: FontWeight.w500),
+                                      fontSize: 12.5,
+                                      color: c.ink2,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -400,7 +414,9 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                       unselectedLabelColor: c.ink3,
                       indicatorSize: TabBarIndicatorSize.label,
                       labelStyle: const TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w500),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
                       tabs: [
                         Tab(text: s.promptTab),
                         Tab(
@@ -447,25 +463,30 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                         child: Container(
                                           height: 22,
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 7),
+                                            horizontal: 7,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: c.surface,
-                                            border:
-                                                Border.all(color: c.border),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
+                                            border: Border.all(color: c.border),
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(Icons.image_outlined,
-                                                  size: 11, color: c.ink3),
+                                              Icon(
+                                                Icons.image_outlined,
+                                                size: 11,
+                                                color: c.ink3,
+                                              ),
                                               const SizedBox(width: 4),
                                               Text(
                                                 s.attachImages,
                                                 style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: c.ink3),
+                                                  fontSize: 11,
+                                                  color: c.ink3,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -480,10 +501,13 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                     maxLines: 5,
                                     minLines: 4,
                                     onChanged: (_) => setState(() {}),
-                                    style:
-                                        GoogleFonts.ibmPlexMono(fontSize: 12.5),
-                                    decoration:
-                                        formInputDeco(c, s.promptPlaceholder),
+                                    style: GoogleFonts.ibmPlexMono(
+                                      fontSize: 12.5,
+                                    ),
+                                    decoration: formInputDeco(
+                                      c,
+                                      s.promptPlaceholder,
+                                    ),
                                   ),
                                   if (_imagePaths.isNotEmpty) ...[
                                     const SizedBox(height: 6),
@@ -517,13 +541,17 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                             onChanged: (v) {
                                               setState(() {});
                                               unawaited(
-                                                  _fetchGitBranches(v.trim()));
+                                                _fetchGitBranches(v.trim()),
+                                              );
                                               unawaited(_fetchSessionIds());
                                             },
                                             style: GoogleFonts.ibmPlexMono(
-                                                fontSize: 13),
+                                              fontSize: 13,
+                                            ),
                                             decoration: formInputDeco(
-                                                c, s.projectPathPlaceholder),
+                                              c,
+                                              s.projectPathPlaceholder,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 8),
@@ -539,8 +567,9 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                       Wrap(
                                         spacing: 6,
                                         runSpacing: 6,
-                                        children:
-                                            widget.projectPaths.map((path) {
+                                        children: widget.projectPaths.map((
+                                          path,
+                                        ) {
                                           return Tooltip(
                                             message: path,
                                             child: FormChip(
@@ -548,10 +577,13 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                               selected:
                                                   _projectPath.text == path,
                                               onTap: () {
-                                                setState(() =>
-                                                    _projectPath.text = path);
+                                                setState(
+                                                  () =>
+                                                      _projectPath.text = path,
+                                                );
                                                 unawaited(
-                                                    _fetchGitBranches(path));
+                                                  _fetchGitBranches(path),
+                                                );
                                                 unawaited(_fetchSessionIds());
                                               },
                                               c: c,
@@ -576,10 +608,13 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                         setState(() {});
                                         unawaited(_fetchSessionIds());
                                       },
-                                      style:
-                                          GoogleFonts.ibmPlexMono(fontSize: 13),
-                                      decoration:
-                                          formInputDeco(c, s.branchPlaceholder),
+                                      style: GoogleFonts.ibmPlexMono(
+                                        fontSize: 13,
+                                      ),
+                                      decoration: formInputDeco(
+                                        c,
+                                        s.branchPlaceholder,
+                                      ),
                                     ),
                                     if (_projectPath.text
                                         .trim()
@@ -600,8 +635,9 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                             Text(
                                               'Loading branches…',
                                               style: TextStyle(
-                                                  fontSize: 11.5,
-                                                  color: c.ink4),
+                                                fontSize: 11.5,
+                                                color: c.ink4,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -617,9 +653,11 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                                   selected: _branch.text == b,
                                                   onTap: () {
                                                     setState(
-                                                        () => _branch.text = b);
+                                                      () => _branch.text = b,
+                                                    );
                                                     unawaited(
-                                                        _fetchSessionIds());
+                                                      _fetchSessionIds(),
+                                                    );
                                                   },
                                                   c: c,
                                                 ),
@@ -645,9 +683,12 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                             controller: _sessionId,
                                             onChanged: (_) => setState(() {}),
                                             style: GoogleFonts.ibmPlexMono(
-                                                fontSize: 13),
+                                              fontSize: 13,
+                                            ),
                                             decoration: formInputDeco(
-                                                c, s.sessionIdPlaceholder),
+                                              c,
+                                              s.sessionIdPlaceholder,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 8),
@@ -670,15 +711,19 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                           ...(_showAllSessionIds
                                                   ? _sessionIdCandidates
                                                   : _sessionIdCandidates.take(
-                                                      _sessionIdPreviewCount))
-                                              .map((id) => FormChip(
-                                                    label: id,
-                                                    selected:
-                                                        _sessionId.text == id,
-                                                    onTap: () => setState(() =>
-                                                        _sessionId.text = id),
-                                                    c: c,
-                                                  )),
+                                                      _sessionIdPreviewCount,
+                                                    ))
+                                              .map(
+                                                (id) => FormChip(
+                                                  label: id,
+                                                  selected:
+                                                      _sessionId.text == id,
+                                                  onTap: () => setState(
+                                                    () => _sessionId.text = id,
+                                                  ),
+                                                  c: c,
+                                                ),
+                                              ),
                                           if (_sessionIdCandidates.length >
                                               _sessionIdPreviewCount)
                                             FormChip(
@@ -686,9 +731,10 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                                   ? '▲'
                                                   : '+${_sessionIdCandidates.length - _sessionIdPreviewCount}',
                                               selected: false,
-                                              onTap: () => setState(() =>
-                                                  _showAllSessionIds =
-                                                      !_showAllSessionIds),
+                                              onTap: () => setState(
+                                                () => _showAllSessionIds =
+                                                    !_showAllSessionIds,
+                                              ),
                                               c: c,
                                             ),
                                         ],
@@ -698,7 +744,9 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                     Text(
                                       s.sessionIdHint,
                                       style: TextStyle(
-                                          fontSize: 11.5, color: c.ink4),
+                                        fontSize: 11.5,
+                                        color: c.ink4,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -727,14 +775,17 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                             controller: _priority,
                                             keyboardType: TextInputType.number,
                                             style: GoogleFonts.ibmPlexMono(
-                                                fontSize: 13),
+                                              fontSize: 13,
+                                            ),
                                             decoration: formInputDeco(c, ''),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             s.priorityHint,
                                             style: TextStyle(
-                                                fontSize: 11.5, color: c.ink4),
+                                              fontSize: 11.5,
+                                              color: c.ink4,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -745,22 +796,23 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                     child: PromptFormField(
                                       label: ' ',
                                       child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 8),
+                                        padding: const EdgeInsets.only(top: 8),
                                         child: Row(
                                           children: [
                                             Checkbox(
                                               value: _isSkipped,
-                                              onChanged: (v) => setState(() =>
-                                                  _isSkipped = v ?? false),
+                                              onChanged: (v) => setState(
+                                                () => _isSkipped = v ?? false,
+                                              ),
                                               activeColor: c.accent,
                                             ),
                                             Expanded(
                                               child: Text(
                                                 s.skipThis,
                                                 style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: c.ink2),
+                                                  fontSize: 13,
+                                                  color: c.ink2,
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -776,15 +828,18 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                                   children: [
                                     Checkbox(
                                       value: _commitAfterAgent,
-                                      onChanged: (v) => setState(() =>
-                                          _commitAfterAgent = v ?? true),
+                                      onChanged: (v) => setState(
+                                        () => _commitAfterAgent = v ?? true,
+                                      ),
                                       activeColor: c.accent,
                                     ),
                                     Expanded(
                                       child: Text(
                                         s.commitAfterAgent,
                                         style: TextStyle(
-                                            fontSize: 13, color: c.ink2),
+                                          fontSize: 13,
+                                          color: c.ink2,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -809,14 +864,13 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                     builder: (context, _) {
                       if (_tabController.index == 1) {
                         return Container(
-                          padding:
-                              const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                           decoration: BoxDecoration(
                             color: c.surface2,
-                            border:
-                                Border(top: BorderSide(color: c.border2)),
+                            border: Border(top: BorderSide(color: c.border2)),
                             borderRadius: const BorderRadius.vertical(
-                                bottom: Radius.circular(14)),
+                              bottom: Radius.circular(14),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -831,59 +885,65 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
                           ),
                         );
                       }
-                      return Builder(builder: (context) {
-                        final execStatus =
-                            ref.watch(execNotifierProvider).status;
-                        final allPrompts =
-                            ref.watch(promptListNotifierProvider).value ??
-                                <PromptEntry>[];
-                        final hasPending = allPrompts.any((p) =>
-                            p.status == PromptStatus.pending && !p.isSkipped);
-                        final showCreateAndStart = _isNew &&
-                            widget.onSaveAndStart != null &&
-                            execStatus == ExecStatus.idle &&
-                            !hasPending;
-                        return Container(
-                          padding:
-                              const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                          decoration: BoxDecoration(
-                            color: c.surface2,
-                            border:
-                                Border(top: BorderSide(color: c.border2)),
-                            borderRadius: const BorderRadius.vertical(
-                                bottom: Radius.circular(14)),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              FormModalBtn(
-                                label: s.cancel,
-                                ghost: true,
-                                onTap: widget.onCancel,
-                                c: c,
+                      return Builder(
+                        builder: (context) {
+                          final execStatus = ref
+                              .watch(execNotifierProvider)
+                              .status;
+                          final allPrompts =
+                              ref.watch(promptListNotifierProvider).value ??
+                              <PromptEntry>[];
+                          final hasPending = allPrompts.any(
+                            (p) =>
+                                p.status == PromptStatus.pending &&
+                                !p.isSkipped,
+                          );
+                          final showCreateAndStart =
+                              _isNew &&
+                              widget.onSaveAndStart != null &&
+                              execStatus == ExecStatus.idle &&
+                              !hasPending;
+                          return Container(
+                            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                            decoration: BoxDecoration(
+                              color: c.surface2,
+                              border: Border(top: BorderSide(color: c.border2)),
+                              borderRadius: const BorderRadius.vertical(
+                                bottom: Radius.circular(14),
                               ),
-                              const SizedBox(width: 8),
-                              FormModalBtn(
-                                label: _isNew ? s.create : s.save,
-                                primary: true,
-                                enabled: _canSave,
-                                onTap: _canSave ? _save : () {},
-                                c: c,
-                              ),
-                              if (showCreateAndStart) ...[
-                                const SizedBox(width: 8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
                                 FormModalBtn(
-                                  label: s.createAndStart,
-                                  primary: true,
-                                  enabled: _canSave,
-                                  onTap: _canSave ? _saveAndStart : () {},
+                                  label: s.cancel,
+                                  ghost: true,
+                                  onTap: widget.onCancel,
                                   c: c,
                                 ),
+                                const SizedBox(width: 8),
+                                FormModalBtn(
+                                  label: _isNew ? s.create : s.save,
+                                  primary: true,
+                                  enabled: _canSave,
+                                  onTap: _canSave ? _save : () {},
+                                  c: c,
+                                ),
+                                if (showCreateAndStart) ...[
+                                  const SizedBox(width: 8),
+                                  FormModalBtn(
+                                    label: s.createAndStart,
+                                    primary: true,
+                                    enabled: _canSave,
+                                    onTap: _canSave ? _saveAndStart : () {},
+                                    c: c,
+                                  ),
+                                ],
                               ],
-                            ],
-                          ),
-                        );
-                      });
+                            ),
+                          );
+                        },
+                      );
                     },
                   ),
                 ],
@@ -895,7 +955,6 @@ class _PromptEditModalState extends ConsumerState<PromptEditModal>
     );
   }
 }
-
 
 class _ModalHeader extends StatelessWidget {
   const _ModalHeader({
@@ -924,13 +983,19 @@ class _ModalHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
-                  Text(subtitle!,
-                      style: TextStyle(fontSize: 12.5, color: c.ink3)),
+                  Text(
+                    subtitle!,
+                    style: TextStyle(fontSize: 12.5, color: c.ink3),
+                  ),
                 ],
               ],
             ),

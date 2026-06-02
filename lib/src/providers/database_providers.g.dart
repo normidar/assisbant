@@ -123,8 +123,9 @@ final class ImageGenRepositoryProvider
 
   @$internal
   @override
-  $ProviderElement<ImageGenRepository> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $ProviderElement<ImageGenRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
   ImageGenRepository create(Ref ref) {
@@ -140,7 +141,8 @@ final class ImageGenRepositoryProvider
   }
 }
 
-String _$imageGenRepositoryHash() => r'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0';
+String _$imageGenRepositoryHash() =>
+    r'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0';
 
 @ProviderFor(executionService)
 const executionServiceProvider = ExecutionServiceProvider._();

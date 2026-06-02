@@ -97,14 +97,16 @@ class _ExecBarState extends ConsumerState<ExecBar> {
   void didUpdateWidget(ExecBar old) {
     super.didUpdateWidget(old);
     // Cancel scheduled timer when execution leaves idle
-    if (widget.exec.status != ExecStatus.idle && old.exec.status == ExecStatus.idle) {
+    if (widget.exec.status != ExecStatus.idle &&
+        old.exec.status == ExecStatus.idle) {
       _tickTimer?.cancel();
       _tickTimer = null;
       _scheduledTime = null;
       ref.read(sharedPreferencesProvider).remove(_kScheduledTimeKey);
     }
     // Auto-scroll to bottom when new output arrives
-    if (widget.exec.currentOutput != old.exec.currentOutput && _outputExpanded) {
+    if (widget.exec.currentOutput != old.exec.currentOutput &&
+        _outputExpanded) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollCtrl.hasClients) {
           _scrollCtrl.jumpTo(_scrollCtrl.position.maxScrollExtent);
@@ -118,7 +120,10 @@ class _ExecBarState extends ConsumerState<ExecBar> {
     }
   }
 
-  Future<void> _showTimerDialog(BuildContext context, AppStrings strings) async {
+  Future<void> _showTimerDialog(
+    BuildContext context,
+    AppStrings strings,
+  ) async {
     final target = await showDialog<DateTime>(
       context: context,
       builder: (ctx) => _TimerSetupDialog(strings: strings),
@@ -126,8 +131,9 @@ class _ExecBarState extends ConsumerState<ExecBar> {
     if (target == null || !mounted) return;
 
     setState(() => _scheduledTime = target);
-    ref.read(sharedPreferencesProvider).setInt(
-      _kScheduledTimeKey, target.millisecondsSinceEpoch);
+    ref
+        .read(sharedPreferencesProvider)
+        .setInt(_kScheduledTimeKey, target.millisecondsSinceEpoch);
     _startTickTimer();
   }
 
@@ -180,7 +186,9 @@ class _ExecBarState extends ConsumerState<ExecBar> {
             height: _outputExpanded ? 180 : 0,
             decoration: BoxDecoration(
               color: const Color(0xFF1C1A17),
-              border: Border(top: BorderSide(color: c.border.withValues(alpha: 0.4))),
+              border: Border(
+                top: BorderSide(color: c.border.withValues(alpha: 0.4)),
+              ),
             ),
             child: _outputExpanded
                 ? Column(
@@ -192,7 +200,8 @@ class _ExecBarState extends ConsumerState<ExecBar> {
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.07)),
+                              color: Colors.white.withValues(alpha: 0.07),
+                            ),
                           ),
                         ),
                         child: Row(
@@ -219,8 +228,11 @@ class _ExecBarState extends ConsumerState<ExecBar> {
                             GestureDetector(
                               onTap: () =>
                                   setState(() => _outputExpanded = false),
-                              child: const Icon(Icons.keyboard_arrow_down,
-                                  size: 16, color: Colors.white38),
+                              child: const Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 16,
+                                color: Colors.white38,
+                              ),
                             ),
                           ],
                         ),
@@ -256,19 +268,25 @@ class _ExecBarState extends ConsumerState<ExecBar> {
               height: 22,
               decoration: BoxDecoration(
                 color: const Color(0xFF1C1A17),
-                border:
-                    Border(top: BorderSide(color: c.border.withValues(alpha: 0.4))),
+                border: Border(
+                  top: BorderSide(color: c.border.withValues(alpha: 0.4)),
+                ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Row(
                 children: [
-                  const Icon(Icons.keyboard_arrow_up,
-                      size: 14, color: Colors.white38),
+                  const Icon(
+                    Icons.keyboard_arrow_up,
+                    size: 14,
+                    color: Colors.white38,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     'output',
                     style: GoogleFonts.ibmPlexMono(
-                        fontSize: 10.5, color: Colors.white38),
+                      fontSize: 10.5,
+                      color: Colors.white38,
+                    ),
                   ),
                 ],
               ),
@@ -340,8 +358,8 @@ class _ExecBarState extends ConsumerState<ExecBar> {
               Text(
                 exec.status == ExecStatus.idle
                     ? (queue.isNotEmpty
-                        ? '${strings.progress}: 0/${queue.length}'
-                        : strings.queueEmpty)
+                          ? '${strings.progress}: 0/${queue.length}'
+                          : strings.queueEmpty)
                     : '${strings.progress}: $done/$total',
                 style: TextStyle(fontSize: 12, color: c.ink3),
               ),

@@ -30,16 +30,21 @@ class _LogsScreenState extends ConsumerState<LogsScreen> {
       error: (e, _) => Center(child: Text('Error: $e')),
       data: (prompts) {
         // Show prompts that have been executed (done/failed/running)
-        final ran = prompts
-            .where((p) =>
-                p.status.name == 'done' ||
-                p.status.name == 'failed' ||
-                p.status.name == 'running')
-            .toList()
-          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        final ran =
+            prompts
+                .where(
+                  (p) =>
+                      p.status.name == 'done' ||
+                      p.status.name == 'failed' ||
+                      p.status.name == 'running',
+                )
+                .toList()
+              ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
         _selectedId ??= ran.isNotEmpty ? ran.first.id : null;
-        final cur = ran.where((p) => p.id == _selectedId).firstOrNull ?? ran.firstOrNull;
+        final cur =
+            ran.where((p) => p.id == _selectedId).firstOrNull ??
+            ran.firstOrNull;
 
         return Column(
           children: [
@@ -54,7 +59,10 @@ class _LogsScreenState extends ConsumerState<LogsScreen> {
                 children: [
                   Text(
                     s.logs,
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -65,9 +73,16 @@ class _LogsScreenState extends ConsumerState<LogsScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.receipt_long_outlined, size: 32, color: c.ink4),
+                          Icon(
+                            Icons.receipt_long_outlined,
+                            size: 32,
+                            color: c.ink4,
+                          ),
                           const SizedBox(height: 12),
-                          Text(s.noLogs, style: TextStyle(color: c.ink3, fontSize: 13)),
+                          Text(
+                            s.noLogs,
+                            style: TextStyle(color: c.ink3, fontSize: 13),
+                          ),
                         ],
                       ),
                     )
@@ -81,7 +96,8 @@ class _LogsScreenState extends ConsumerState<LogsScreen> {
                             width: 300,
                             child: ListView.separated(
                               itemCount: ran.length,
-                              separatorBuilder: (_, _) => const SizedBox(height: 4),
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 4),
                               itemBuilder: (_, i) {
                                 final p = ran[i];
                                 final selected = cur?.id == p.id;
@@ -89,7 +105,8 @@ class _LogsScreenState extends ConsumerState<LogsScreen> {
                                   prompt: p,
                                   strings: s,
                                   selected: selected,
-                                  onTap: () => setState(() => _selectedId = p.id),
+                                  onTap: () =>
+                                      setState(() => _selectedId = p.id),
                                 );
                               },
                             ),

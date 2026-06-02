@@ -62,7 +62,9 @@ class _ModelPickerDialogState extends ConsumerState<ModelPickerDialog> {
                     Text(
                       s.modelPickerTitle,
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w600),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const Spacer(),
                     IconButton(
@@ -70,7 +72,9 @@ class _ModelPickerDialogState extends ConsumerState<ModelPickerDialog> {
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
-                          minWidth: 28, minHeight: 28),
+                        minWidth: 28,
+                        minHeight: 28,
+                      ),
                     ),
                   ],
                 ),
@@ -99,12 +103,12 @@ class _ModelPickerDialogState extends ConsumerState<ModelPickerDialog> {
                     labelColor: Colors.white,
                     unselectedLabelColor: c.ink3,
                     labelStyle: const TextStyle(
-                        fontSize: 12.5, fontWeight: FontWeight.w500),
-                    unselectedLabelStyle:
-                        const TextStyle(fontSize: 12.5),
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    unselectedLabelStyle: const TextStyle(fontSize: 12.5),
                     splashFactory: NoSplash.splashFactory,
-                    overlayColor:
-                        WidgetStateProperty.all(Colors.transparent),
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
                   ),
                 ),
               ),
@@ -152,32 +156,36 @@ class _ModelPickerDialogState extends ConsumerState<ModelPickerDialog> {
       _errors.remove(model.id);
     });
 
-    await ref.read(modelManagerServiceProvider).downloadModel(
-      model,
-      onProgress: (received, total) {
-        if (mounted) {
-          setState(() => _bytes[model.id] = (received: received, total: total));
-        }
-      },
-      onComplete: (path) {
-        if (mounted) {
-          setState(() {
-            _downloading.remove(model.id);
-            _done.add(model.id);
-            _bytes.remove(model.id);
-          });
-        }
-      },
-      onError: (e) {
-        if (mounted) {
-          setState(() {
-            _downloading.remove(model.id);
-            _errors[model.id] = e;
-            _bytes.remove(model.id);
-          });
-        }
-      },
-    );
+    await ref
+        .read(modelManagerServiceProvider)
+        .downloadModel(
+          model,
+          onProgress: (received, total) {
+            if (mounted) {
+              setState(
+                () => _bytes[model.id] = (received: received, total: total),
+              );
+            }
+          },
+          onComplete: (path) {
+            if (mounted) {
+              setState(() {
+                _downloading.remove(model.id);
+                _done.add(model.id);
+                _bytes.remove(model.id);
+              });
+            }
+          },
+          onError: (e) {
+            if (mounted) {
+              setState(() {
+                _downloading.remove(model.id);
+                _errors[model.id] = e;
+                _bytes.remove(model.id);
+              });
+            }
+          },
+        );
   }
 
   void _cancelDownload(String modelId) {
@@ -217,8 +225,10 @@ class _LocalModelsTab extends ConsumerWidget {
           child: modelsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(
-              child: Text(e.toString(),
-                  style: TextStyle(fontSize: 12, color: c.ink3)),
+              child: Text(
+                e.toString(),
+                style: TextStyle(fontSize: 12, color: c.ink3),
+              ),
             ),
             data: (models) {
               if (models.isEmpty) {
@@ -234,8 +244,10 @@ class _LocalModelsTab extends ConsumerWidget {
                 );
               }
               return ListView.builder(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 itemCount: models.length,
                 itemBuilder: (context, i) {
                   final m = models[i];
@@ -253,8 +265,9 @@ class _LocalModelsTab extends ConsumerWidget {
         ),
         Container(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-          decoration:
-              BoxDecoration(border: Border(top: BorderSide(color: c.border2))),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: c.border2)),
+          ),
           child: Row(
             children: [
               _OutlineBtn(
@@ -296,7 +309,9 @@ class _LocalModelRow extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 3),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? c.accent.withValues(alpha: 0.08) : Colors.transparent,
+          color: selected
+              ? c.accent.withValues(alpha: 0.08)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: selected ? c.accent : c.border2,
@@ -313,10 +328,10 @@ class _LocalModelRow extends StatelessWidget {
               child: Text(
                 model.name,
                 style: TextStyle(
-                    fontSize: 13,
-                    fontWeight:
-                        selected ? FontWeight.w600 : FontWeight.normal,
-                    color: c.ink),
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                  color: c.ink,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -396,15 +411,17 @@ class _DownloadTab extends ConsumerWidget {
           onSelect: isInstalled
               ? () => onSelect(installedPath)
               : isDone
-                  ? null
-                  : null,
+              ? null
+              : null,
         );
       },
     );
   }
 
   static String? _installedPath(
-      DownloadableModel model, List<LocalModelInfo> locals) {
+    DownloadableModel model,
+    List<LocalModelInfo> locals,
+  ) {
     final expected = p.basename(model.url);
     for (final m in locals) {
       if (m.name == expected) return m.path;
@@ -459,7 +476,9 @@ class _DownloadModelRow extends StatelessWidget {
                     Text(
                       model.name,
                       style: const TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w500),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -513,9 +532,10 @@ class _DownloadModelRow extends StatelessWidget {
               Text(
                 s.modelPickerDownloadDone,
                 style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: c.accent),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: c.accent,
+                ),
               ),
             ],
           ),
@@ -535,7 +555,10 @@ class _DownloadModelRow extends StatelessWidget {
           child: Text(
             s.modelPickerCancel,
             style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w500, color: c.ink2),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: c.ink2,
+            ),
           ),
         ),
       );
@@ -553,7 +576,10 @@ class _DownloadModelRow extends StatelessWidget {
           child: Text(
             s.modelPickerDownloadFailed,
             style: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w500, color: Colors.red),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.red,
+            ),
           ),
         ),
       );
@@ -570,7 +596,10 @@ class _DownloadModelRow extends StatelessWidget {
         child: Text(
           s.modelPickerDownloadStart,
           style: const TextStyle(
-              fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -610,7 +639,10 @@ class _OutlineBtn extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-              fontSize: 12.5, fontWeight: FontWeight.w500, color: c.ink2),
+            fontSize: 12.5,
+            fontWeight: FontWeight.w500,
+            color: c.ink2,
+          ),
         ),
       ),
     );

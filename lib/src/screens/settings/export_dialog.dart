@@ -18,18 +18,18 @@ enum ExportFormat {
   binary;
 
   String get label => switch (this) {
-        ExportFormat.json => 'JSON',
-        ExportFormat.csv => 'CSV',
-        ExportFormat.excel => 'Excel (.xlsx)',
-        ExportFormat.binary => 'Binary (.ab)',
-      };
+    ExportFormat.json => 'JSON',
+    ExportFormat.csv => 'CSV',
+    ExportFormat.excel => 'Excel (.xlsx)',
+    ExportFormat.binary => 'Binary (.ab)',
+  };
 
   String get defaultFileName => switch (this) {
-        ExportFormat.json => 'assisbant_export.json',
-        ExportFormat.csv => 'assisbant_export.csv',
-        ExportFormat.excel => 'assisbant_export.xlsx',
-        ExportFormat.binary => 'assisbant_export.ab',
-      };
+    ExportFormat.json => 'assisbant_export.json',
+    ExportFormat.csv => 'assisbant_export.csv',
+    ExportFormat.excel => 'assisbant_export.xlsx',
+    ExportFormat.binary => 'assisbant_export.ab',
+  };
 
   bool get isBinary =>
       this == ExportFormat.excel || this == ExportFormat.binary;
@@ -100,17 +100,21 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
       if (outputPath != null) {
         final typed = prompts.cast<dynamic>().cast<PromptEntry>();
         if (_format == ExportFormat.binary) {
-          await File(outputPath)
-              .writeAsBytes(ImportExportService.exportToBinary(typed));
+          await File(
+            outputPath,
+          ).writeAsBytes(ImportExportService.exportToBinary(typed));
         } else if (_format == ExportFormat.excel) {
-          await File(outputPath)
-              .writeAsBytes(ImportExportService.exportToExcel(typed));
+          await File(
+            outputPath,
+          ).writeAsBytes(ImportExportService.exportToExcel(typed));
         } else if (_format == ExportFormat.csv) {
-          await File(outputPath)
-              .writeAsString(ImportExportService.exportToCsv(typed));
+          await File(
+            outputPath,
+          ).writeAsString(ImportExportService.exportToCsv(typed));
         } else {
-          await File(outputPath)
-              .writeAsString(ImportExportService.exportToJson(typed));
+          await File(
+            outputPath,
+          ).writeAsString(ImportExportService.exportToJson(typed));
         }
         if (mounted) Navigator.of(context).pop(true);
         return;
@@ -125,7 +129,8 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
   Widget build(BuildContext context) {
     final c = context.ac;
     final s = widget.strings;
-    final allSelected = _selected.length == _projects.length &&
+    final allSelected =
+        _selected.length == _projects.length &&
         (!_hasUnassigned || _includeUnassigned);
 
     return Dialog(
@@ -152,13 +157,14 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
                     child: Text(
                       s.exportDialogTitle,
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w600),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(false),
-                    child:
-                        Icon(Icons.close_rounded, size: 18, color: c.ink3),
+                    child: Icon(Icons.close_rounded, size: 18, color: c.ink3),
                   ),
                 ],
               ),
@@ -178,9 +184,10 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
                       child: Text(
                         s.exportSelectProjects,
                         style: TextStyle(
-                            fontSize: 12.5,
-                            color: c.ink2,
-                            fontWeight: FontWeight.w500),
+                          fontSize: 12.5,
+                          color: c.ink2,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                     GestureDetector(
@@ -198,9 +205,10 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
                       child: Text(
                         allSelected ? s.deselectAll : s.selectAll,
                         style: TextStyle(
-                            fontSize: 12,
-                            color: c.accent,
-                            fontWeight: FontWeight.w500),
+                          fontSize: 12,
+                          color: c.accent,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -262,7 +270,9 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 130),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
                             decoration: BoxDecoration(
                               color: active ? c.accent : c.surface3,
                               borderRadius: BorderRadius.circular(6),
@@ -299,7 +309,9 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
                     onTap: () => Navigator.of(context).pop(false),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: c.border),
                         borderRadius: BorderRadius.circular(8),
@@ -307,9 +319,10 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
                       child: Text(
                         s.cancel,
                         style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: c.ink2),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: c.ink2,
+                        ),
                       ),
                     ),
                   ),
@@ -318,7 +331,9 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
                     onTap: (_loading || _exporting) ? null : _doExport,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
                       decoration: BoxDecoration(
                         color: c.accent,
                         borderRadius: BorderRadius.circular(8),
@@ -335,9 +350,10 @@ class _ExportDialogState extends ConsumerState<ExportDialog> {
                           : Text(
                               s.exportBtn,
                               style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
                             ),
                     ),
                   ),
@@ -393,8 +409,11 @@ class ExportProjectCheckbox extends StatelessWidget {
                 ),
               ),
               child: checked
-                  ? const Icon(Icons.check_rounded,
-                      size: 11, color: Colors.white)
+                  ? const Icon(
+                      Icons.check_rounded,
+                      size: 11,
+                      color: Colors.white,
+                    )
                   : null,
             ),
             const SizedBox(width: 10),

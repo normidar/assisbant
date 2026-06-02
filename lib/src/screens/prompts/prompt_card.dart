@@ -66,11 +66,14 @@ class _PromptCardState extends State<PromptCard> {
   }
 
   void _syncTimer() {
-    final isRunning = widget.prompt.status == PromptStatus.running &&
+    final isRunning =
+        widget.prompt.status == PromptStatus.running &&
         widget.prompt.startedAt != null;
     if (isRunning) {
-      _runningTimer ??=
-          Timer.periodic(const Duration(seconds: 1), (_) => setState(() {}));
+      _runningTimer ??= Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => setState(() {}),
+      );
     } else {
       _runningTimer?.cancel();
       _runningTimer = null;
@@ -98,14 +101,17 @@ class _PromptCardState extends State<PromptCard> {
           decoration: BoxDecoration(
             color: c.surface,
             border: Border.all(
-              color: widget.selected
-                  ? c.ink
-                  : (_hovered ? c.ink4 : c.border),
+              color: widget.selected ? c.ink : (_hovered ? c.ink4 : c.border),
               width: widget.selected ? 1.5 : 1,
             ),
             borderRadius: BorderRadius.circular(12),
             boxShadow: (widget.selected || _hovered)
-                ? [BoxShadow(color: c.ink.withValues(alpha: 0.04), blurRadius: 4)]
+                ? [
+                    BoxShadow(
+                      color: c.ink.withValues(alpha: 0.04),
+                      blurRadius: 4,
+                    ),
+                  ]
                 : null,
           ),
           child: Opacity(
@@ -312,10 +318,10 @@ class _Actions extends StatelessWidget {
     final c = context.ac;
     final p = prompt;
     final canEdit = p.status == PromptStatus.pending || p.isSkipped;
-    final canSkip = p.status != PromptStatus.running &&
-        p.status != PromptStatus.done;
-    final canReset = p.status == PromptStatus.done ||
-        p.status == PromptStatus.failed;
+    final canSkip =
+        p.status != PromptStatus.running && p.status != PromptStatus.done;
+    final canReset =
+        p.status == PromptStatus.done || p.status == PromptStatus.failed;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -413,7 +419,9 @@ class _SessionChip extends StatelessWidget {
           Text(
             sessionId,
             style: GoogleFonts.ibmPlexMono(
-                fontSize: 11, color: const Color(0xFF4F5FA0)),
+              fontSize: 11,
+              color: const Color(0xFF4F5FA0),
+            ),
           ),
         ],
       ),

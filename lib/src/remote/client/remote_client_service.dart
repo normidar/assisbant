@@ -8,10 +8,8 @@ enum ConnectionStatus { disconnected, connecting, connected }
 class RemoteClientService {
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _sub;
-  final _statusCtrl =
-      StreamController<ConnectionStatus>.broadcast();
-  final _messageCtrl =
-      StreamController<Map<String, dynamic>>.broadcast();
+  final _statusCtrl = StreamController<ConnectionStatus>.broadcast();
+  final _messageCtrl = StreamController<Map<String, dynamic>>.broadcast();
 
   Stream<ConnectionStatus> get statusStream => _statusCtrl.stream;
   Stream<Map<String, dynamic>> get messageStream => _messageCtrl.stream;

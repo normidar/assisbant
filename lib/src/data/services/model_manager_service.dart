@@ -104,17 +104,18 @@ class ModelManagerService {
   Future<List<LocalModelInfo>> _listModels() async {
     try {
       final dir = await modelsDir();
-      final files = dir
-          .listSync()
-          .whereType<File>()
-          .where(
-            (f) =>
-                f.path.endsWith('.gguf') || f.path.endsWith('.safetensors'),
-          )
-          .toList()
-        ..sort(
-          (a, b) => p.basename(a.path).compareTo(p.basename(b.path)),
-        );
+      final files =
+          dir
+              .listSync()
+              .whereType<File>()
+              .where(
+                (f) =>
+                    f.path.endsWith('.gguf') || f.path.endsWith('.safetensors'),
+              )
+              .toList()
+            ..sort(
+              (a, b) => p.basename(a.path).compareTo(p.basename(b.path)),
+            );
       return files
           .map(
             (f) => LocalModelInfo(

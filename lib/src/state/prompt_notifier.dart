@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final promptListNotifierProvider =
     AsyncNotifierProvider<PromptListNotifier, List<PromptEntry>>(
-  PromptListNotifier.new,
-);
+      PromptListNotifier.new,
+    );
 
 class PromptListNotifier extends AsyncNotifier<List<PromptEntry>> {
   PromptRepository get _repo => ref.read(promptRepositoryProvider);

@@ -15,11 +15,9 @@ enum ConnectMode { claudeWithClaude, claudeWithLocal, aiderWithLocal }
 extension _ModeX on ConnectMode {
   CliTool get cliTool =>
       this == ConnectMode.aiderWithLocal ? CliTool.aider : CliTool.claudeCode;
-  ModelMode get modelMode => this == ConnectMode.claudeWithClaude
-      ? ModelMode.claude
-      : ModelMode.local;
+  ModelMode get modelMode =>
+      this == ConnectMode.claudeWithClaude ? ModelMode.claude : ModelMode.local;
   bool get usesAider => this == ConnectMode.aiderWithLocal;
-  bool get needsModel => this != ConnectMode.claudeWithClaude;
 }
 
 ConnectMode _modeFromSettings(AppSettings s) {
@@ -114,10 +112,8 @@ class _ConnectionSettingsModalState
     });
   }
 
-  bool _claudeOk() =>
-      _claudePath != null || _claudeCtrl.text.trim().isNotEmpty;
-  bool _aiderOk() =>
-      _aiderPath != null || _aiderCtrl.text.trim().isNotEmpty;
+  bool _claudeOk() => _claudePath != null || _claudeCtrl.text.trim().isNotEmpty;
+  bool _aiderOk() => _aiderPath != null || _aiderCtrl.text.trim().isNotEmpty;
   bool _canSave() => _mode.usesAider ? _aiderOk() : _claudeOk();
 
   Future<void> _openEnvOverrides(BuildContext ctx) async {
@@ -131,7 +127,9 @@ class _ConnectionSettingsModalState
       ),
     );
     if (result != null) {
-      ref.read(settingsStateProvider.notifier).update(
+      ref
+          .read(settingsStateProvider.notifier)
+          .update(
             settings.copyWith(envOverrides: result),
           );
       setState(() {});
@@ -141,7 +139,9 @@ class _ConnectionSettingsModalState
   void _save() {
     if (!_canSave()) return;
     final settings = ref.read(settingsStateProvider);
-    ref.read(settingsStateProvider.notifier).update(
+    ref
+        .read(settingsStateProvider.notifier)
+        .update(
           settings.copyWith(
             cliTool: _mode.cliTool,
             modelMode: _mode.modelMode,
@@ -264,70 +264,82 @@ class _ConnectionSettingsModalState
                     ),
                     // ─ Env Overrides ──────────────────────────────────────
                     const SizedBox(height: 10),
-                    Builder(builder: (ctx) {
-                      final overrides =
-                          ref.watch(settingsStateProvider).envOverrides;
-                      return GestureDetector(
-                        onTap: () => _openEnvOverrides(ctx),
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                          decoration: BoxDecoration(
-                            color: c.surface,
-                            border: Border.all(color: c.border),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      s.envOverrides,
-                                      style: const TextStyle(
+                    Builder(
+                      builder: (ctx) {
+                        final overrides = ref
+                            .watch(settingsStateProvider)
+                            .envOverrides;
+                        return GestureDetector(
+                          onTap: () => _openEnvOverrides(ctx),
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                            decoration: BoxDecoration(
+                              color: c.surface,
+                              border: Border.all(color: c.border),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        s.envOverrides,
+                                        style: const TextStyle(
                                           fontSize: 13,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      s.envOverridesDesc,
-                                      style: TextStyle(
-                                          fontSize: 11.5, color: c.ink3),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: overrides.isEmpty
-                                      ? c.surface3
-                                      : c.accent.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  overrides.isEmpty
-                                      ? s.envOverridesNone
-                                      : 'Active (${overrides.length})',
-                                  style: TextStyle(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w500,
-                                    color: overrides.isEmpty
-                                        ? c.ink3
-                                        : c.accent,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        s.envOverridesDesc,
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          color: c.ink3,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(Icons.chevron_right_rounded,
-                                  size: 16, color: c.ink3),
-                            ],
+                                const SizedBox(width: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: overrides.isEmpty
+                                        ? c.surface3
+                                        : c.accent.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    overrides.isEmpty
+                                        ? s.envOverridesNone
+                                        : 'Active (${overrides.length})',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w500,
+                                      color: overrides.isEmpty
+                                          ? c.ink3
+                                          : c.accent,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  size: 16,
+                                  color: c.ink3,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -354,11 +366,15 @@ class _ConnectionSettingsModalState
                 Text(
                   s.connectSettings,
                   style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w600),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 2),
-                Text(s.connectSettingsDesc,
-                    style: TextStyle(fontSize: 12, color: c.ink3)),
+                Text(
+                  s.connectSettingsDesc,
+                  style: TextStyle(fontSize: 12, color: c.ink3),
+                ),
               ],
             ),
           ),
@@ -384,25 +400,26 @@ class _ConnectionSettingsModalState
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
                 border: Border.all(color: c.border),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(s.cancel,
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: c.ink2)),
+              child: Text(
+                s.cancel,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: c.ink2,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 8),
           GestureDetector(
             onTap: ok ? _save : null,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
                 color: ok ? c.accent : c.surface3,
                 borderRadius: BorderRadius.circular(8),
@@ -410,9 +427,10 @@ class _ConnectionSettingsModalState
               child: Text(
                 s.save,
                 style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: ok ? Colors.white : c.ink3),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: ok ? Colors.white : c.ink3,
+                ),
               ),
             ),
           ),
@@ -445,7 +463,8 @@ class _ModeCard extends StatelessWidget {
   final String description;
   final bool detecting;
   final String? detectedPath;
-  final bool available; // true if tool can be used (detected or custom path set)
+  final bool
+  available; // true if tool can be used (detected or custom path set)
   final AppStrings s;
   final List<Widget> expandedChildren;
 
@@ -486,8 +505,10 @@ class _ModeCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(description,
-                            style: TextStyle(fontSize: 11.5, color: c.ink3)),
+                        Text(
+                          description,
+                          style: TextStyle(fontSize: 11.5, color: c.ink3),
+                        ),
                       ],
                     ),
                   ),
@@ -497,7 +518,9 @@ class _ModeCard extends StatelessWidget {
                       width: 14,
                       height: 14,
                       child: CircularProgressIndicator(
-                          strokeWidth: 1.5, color: c.ink4),
+                        strokeWidth: 1.5,
+                        color: c.ink4,
+                      ),
                     )
                   else
                     _StatusChip(found: detectedPath != null, s: s),
@@ -516,7 +539,8 @@ class _ModeCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: _DetectionRow(
-                          path: detectedPath ??
+                          path:
+                              detectedPath ??
                               'Not found in PATH — specify a path below',
                           found: detectedPath != null,
                           c: c,
@@ -581,8 +605,7 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        found ? const Color(0xFF16A34A) : const Color(0xFFD97706);
+    final color = found ? const Color(0xFF16A34A) : const Color(0xFFD97706);
     final bg = found
         ? const Color(0xFF22C55E).withValues(alpha: 0.10)
         : const Color(0xFFF59E0B).withValues(alpha: 0.10);
@@ -604,7 +627,10 @@ class _StatusChip extends StatelessWidget {
           Text(
             found ? s.toolFound : s.toolNotFound,
             style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w500, color: color),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: color,
+            ),
           ),
         ],
       ),
@@ -631,8 +657,7 @@ class _DetectionRow extends StatelessWidget {
               ? Icons.check_circle_outline_rounded
               : Icons.warning_amber_rounded,
           size: 13,
-          color:
-              found ? const Color(0xFF22C55E) : const Color(0xFFF59E0B),
+          color: found ? const Color(0xFF22C55E) : const Color(0xFFF59E0B),
         ),
         const SizedBox(width: 6),
         Expanded(
@@ -666,11 +691,14 @@ class _FormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w500,
-                color: c.ink2)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: c.ink2,
+          ),
+        ),
         const SizedBox(height: 4),
         TextFormField(
           controller: ctrl,
@@ -680,8 +708,10 @@ class _FormField extends StatelessWidget {
             hintText: placeholder,
             hintStyle: TextStyle(color: c.ink4, fontSize: 12),
             isDense: true,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 11,
+              vertical: 8,
+            ),
             border: OutlineInputBorder(
               borderSide: BorderSide(color: c.border),
               borderRadius: BorderRadius.circular(8),

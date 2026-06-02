@@ -14,23 +14,22 @@ PromptEntry _entry({
   bool isSkipped = false,
   String projectPath = '',
   DateTime? updatedAt,
-}) =>
-    PromptEntry(
-      id: id,
-      content: content,
-      branch: branch,
-      priority: priority,
-      status: status,
-      isSkipped: isSkipped,
-      projectPath: projectPath,
-      sessionId: '',
-      claudeSessionId: '',
-      claudeModel: '',
-      imagePaths: '',
-      commitAfterRun: false,
-      createdAt: DateTime(2024),
-      updatedAt: updatedAt ?? DateTime(2024),
-    );
+}) => PromptEntry(
+  id: id,
+  content: content,
+  branch: branch,
+  priority: priority,
+  status: status,
+  isSkipped: isSkipped,
+  projectPath: projectPath,
+  sessionId: '',
+  claudeSessionId: '',
+  claudeModel: '',
+  imagePaths: '',
+  commitAfterRun: false,
+  createdAt: DateTime(2024),
+  updatedAt: updatedAt ?? DateTime(2024),
+);
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -141,17 +140,24 @@ void main() {
   // ── applyPromptFilters ────────────────────────────────────────────────────
 
   group('applyPromptFilters', () {
-    final now = DateTime(2024);
     final prompts = [
-      _entry(id: 'p', content: 'pending task',
-          priority: 30),
-      _entry(id: 'r', content: 'running task', branch: 'dev',
-          priority: 20, status: PromptStatus.running),
+      _entry(id: 'p', content: 'pending task', priority: 30),
+      _entry(
+        id: 'r',
+        content: 'running task',
+        branch: 'dev',
+        priority: 20,
+        status: PromptStatus.running,
+      ),
       _entry(id: 'd', content: 'done task', status: PromptStatus.done),
-      _entry(id: 'f', content: 'failed task', branch: 'feature',
-          priority: 5, status: PromptStatus.failed),
-      _entry(id: 's', content: 'skipped task',
-          priority: 15, isSkipped: true),
+      _entry(
+        id: 'f',
+        content: 'failed task',
+        branch: 'feature',
+        priority: 5,
+        status: PromptStatus.failed,
+      ),
+      _entry(id: 's', content: 'skipped task', priority: 15, isSkipped: true),
     ];
 
     test('filter=all returns all prompts sorted by priority desc', () {
@@ -212,8 +218,7 @@ void main() {
     });
 
     test('query + status filter combine correctly', () {
-      final result =
-          applyPromptFilters(prompts, null, null, 'task', 'done');
+      final result = applyPromptFilters(prompts, null, null, 'task', 'done');
       expect(result.map((p) => p.id).toList(), ['d']);
     });
   });

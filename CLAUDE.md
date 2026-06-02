@@ -10,7 +10,7 @@ The package name in Dart imports is `assibant`. The primary target is **macOS de
 
 ## FVM (Flutter Version Manager)
 
-This project uses **FVM** to pin Flutter to version **3.38.8**. You **must** always prefix Flutter/Dart commands with `fvm`:
+This project uses **FVM** to pin Flutter (see `.fvmrc` — currently **3.44.0**). You **must** always prefix Flutter/Dart commands with `fvm`:
 
 | Instead of | Use |
 |---|---|
@@ -20,6 +20,28 @@ This project uses **FVM** to pin Flutter to version **3.38.8**. You **must** alw
 | `dart analyze` | `fvm dart analyze` |
 
 Never run bare `flutter` or `dart` — it may pick up the wrong SDK version.
+
+### FVM / Flutter が無い場合は自動でインストールする
+
+リモート実行環境（Claude Code on the web など）では `fvm` や Flutter SDK が
+プリインストールされていないことがあります。**`fvm` が見つからないときは、
+コマンドを実行する前に必ず以下の手順でインストールしてください**（「無い時は
+インストールする」）:
+
+```bash
+# 1. FVM 本体をインストール（root 実行時は環境変数を設定）
+export FVM_ALLOW_INSTALL_AS_ROOT=true
+curl -fsSL https://fvm.app/install.sh | bash
+export PATH="$HOME/fvm/bin:$PATH"
+
+# 2. .fvmrc に固定された Flutter SDK を取得
+fvm install
+```
+
+これで `flutter` / `dart` が未インストールの環境でも `fvm flutter ...` /
+`fvm dart ...` が使えるようになります。なお `fvm flutter build macos` は
+macOS 上でしか実行できないため、Linux 環境では `fvm flutter test` /
+`fvm dart analyze` / `fvm dart format` で検証してください。
 
 ## Important Rules
 
