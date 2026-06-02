@@ -53,26 +53,13 @@ class ExecutionService {
           ? prompt.projectPath
           : settings.workdir;
       final workdir = _expandHome(rawWorkdir);
-      final cliPath = settings.cliPath.isEmpty ? 'claude' : settings.cliPath;
 
-      // Aider モードは専用の実行パスへ
-      if (settings.cliTool == CliTool.aider) {
-        return _executeAider(
-          content: prompt.content,
-          aiderPath: settings.aiderPath.isEmpty ? 'aider' : settings.aiderPath,
-          modelName: settings.localModelName,
-          workdir: workdir,
-          envPrefix: _buildEnvPrefix(settings.envOverrides),
-          onOutput: onOutput,
-          cancelToken: cancelToken,
-        );
-      }
-
+      // 対象ブランチへの checkout は Claude Code / Aider のどちらで実行する
+      // 場合でも必要なので、ツール分岐より前に行う。
+      // （以前は Aider 分岐がこの前で return しており、Aider のときだけ
+      //   autoCheckout が無視され、現在のブランチ上で実行されてしまっていた）
       if (settings.autoCheckout) {
-        final checkout = await _runGit(
-          ['checkout', prompt.branch],
-          workdir,
-        );
+        final checkout = await _runGit(['checkout', prompt.branch], workdir);
         if (checkout.exitCode != 0) {
           // ローカルに存在しないブランチは新規作成する
           final create = await _runGit(
@@ -88,6 +75,26 @@ class ExecutionService {
           }
         }
       }
+
+      // Aider モードは専用の実行パスへ。
+      // Aider は Claude の stream-json / session 継続を持たないため、
+      // prompt.sessionId・prompt.claudeModel は使わず、モデルは常に
+      // settings.localModelName を渡す。環境変数はプロセス environment では
+      // なくシェルの export 前置詞（_buildEnvPrefix）で注入する。
+      if (settings.cliTool == CliTool.aider) {
+        return _executeAider(
+          content: prompt.content,
+          aiderPath: settings.aiderPath.isEmpty ? 'aider' : settings.aiderPath,
+          modelName: settings.localModelName,
+          workdir: workdir,
+          envPrefix: _buildEnvPrefix(settings.envOverrides),
+          onOutput: onOutput,
+          cancelToken: cancelToken,
+        );
+      }
+
+      // ── 以降は Claude Code パス ──
+      final cliPath = settings.cliPath.isEmpty ? 'claude' : settings.cliPath;
 
       // sessionId が設定されている = 会話継続が必要なプロンプト
       // stream-json モードは claudeSessionId を返すため会話の引き継ぎに必須
@@ -556,7 +563,14 @@ class ExecutionService {
     return buf.toString();
   }
 
-  /// Returns `['--model', name]` args when a model override is active.
+  /// Claude Code に渡す `--model` 引数を解決する（Aider では使われない）。
+  ///
+  /// - claude モード: prompt 個別指定 [promptModel] があればそれを優先。
+  ///   無ければ `--model` を付けず CLI 既定モデルに任せる。
+  /// - local モード: グローバルの [AppSettings.localModelName] を使う。
+  ///   prompt 個別指定は local モードでは無視される。
+  ///
+  /// どちらもモデル名が空なら空リストを返し、CLI の既定モデルで実行する。
   List<String> _resolveModelArgs(String promptModel, AppSettings settings) {
     if (settings.modelMode == ModelMode.claude && promptModel.isNotEmpty) {
       return ['--model', promptModel];
