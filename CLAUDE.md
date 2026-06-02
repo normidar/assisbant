@@ -10,7 +10,7 @@ The package name in Dart imports is `assibant`. The primary target is **macOS de
 
 ## FVM (Flutter Version Manager)
 
-This project uses **FVM** to pin Flutter to version **3.38.8**. You **must** always prefix Flutter/Dart commands with `fvm`:
+This project uses **FVM** to pin Flutter (see `.fvmrc` — currently **3.44.0**). You **must** always prefix Flutter/Dart commands with `fvm`:
 
 | Instead of | Use |
 |---|---|
