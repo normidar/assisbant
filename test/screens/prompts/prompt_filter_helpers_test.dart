@@ -141,7 +141,6 @@ void main() {
   // ── applyPromptFilters ────────────────────────────────────────────────────
 
   group('applyPromptFilters', () {
-    final now = DateTime(2024);
     final prompts = [
       _entry(id: 'p', content: 'pending task',
           priority: 30),

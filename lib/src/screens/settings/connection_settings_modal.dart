@@ -19,7 +19,6 @@ extension _ModeX on ConnectMode {
       ? ModelMode.claude
       : ModelMode.local;
   bool get usesAider => this == ConnectMode.aiderWithLocal;
-  bool get needsModel => this != ConnectMode.claudeWithClaude;
 }
 
 ConnectMode _modeFromSettings(AppSettings s) {

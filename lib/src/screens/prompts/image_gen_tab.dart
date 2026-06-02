@@ -222,7 +222,7 @@ class _ImageGenTabState extends ConsumerState<ImageGenTab> {
 
       if (_stopRequested || !_infiniteMode) break;
       if (_infiniteMode && mounted && !_stopRequested) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
       }
     } while (_infiniteMode && !_stopRequested && mounted);
 

@@ -398,7 +398,6 @@ class _PromptsScreenState extends ConsumerState<PromptsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.ac;
     final s = widget.strings;
     final promptsAsync = ref.watch(promptListNotifierProvider);
     final filter = ref.watch(filterNotifierProvider);
