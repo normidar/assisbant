@@ -1,6 +1,8 @@
 ---
 dependencies:
   bonsoir: ^5.1.2
+  mlx_llm:
+    path: packages/mlx_llm
   stable_diffusion_ffi:
     path: packages/stable_diffusion_ffi
   drift: ^2.20.0

@@ -207,6 +207,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
       comfyuiClipName:
           prefs.getString('comfyuiClipName') ?? 'qwen_3_4b.safetensors',
       comfyuiVaeName: prefs.getString('comfyuiVaeName') ?? 'ae.safetensors',
+      mlxModelDir: prefs.getString('mlxModelDir') ?? '',
     );
   }
 
@@ -238,6 +239,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
     await prefs.setString('comfyuiUnetName', s.comfyuiUnetName);
     await prefs.setString('comfyuiClipName', s.comfyuiClipName);
     await prefs.setString('comfyuiVaeName', s.comfyuiVaeName);
+    await prefs.setString('mlxModelDir', s.mlxModelDir);
   }
 
   static Map<String, String> _parseEnvOverrides(String raw) {
@@ -277,6 +279,7 @@ class AppSettings {
     this.comfyuiUnetName = 'z_image_turbo_bf16.safetensors',
     this.comfyuiClipName = 'qwen_3_4b.safetensors',
     this.comfyuiVaeName = 'ae.safetensors',
+    this.mlxModelDir = '',
   });
 
   final String cliPath; // claude CLI のパス。空の場合は PATH から検索
@@ -303,6 +306,7 @@ class AppSettings {
   final String comfyuiUnetName; // UNet モデルファイル名
   final String comfyuiClipName; // CLIP テキストエンコーダーファイル名
   final String comfyuiVaeName; // VAE ファイル名
+  final String mlxModelDir; // MLXモデルディレクトリのパス（safetensors + config）
 
   AppSettings copyWith({
     String? cliPath,
@@ -328,6 +332,7 @@ class AppSettings {
     String? comfyuiUnetName,
     String? comfyuiClipName,
     String? comfyuiVaeName,
+    String? mlxModelDir,
   }) => AppSettings(
     cliPath: cliPath ?? this.cliPath,
     workdir: workdir ?? this.workdir,
@@ -352,5 +357,6 @@ class AppSettings {
     comfyuiUnetName: comfyuiUnetName ?? this.comfyuiUnetName,
     comfyuiClipName: comfyuiClipName ?? this.comfyuiClipName,
     comfyuiVaeName: comfyuiVaeName ?? this.comfyuiVaeName,
+    mlxModelDir: mlxModelDir ?? this.mlxModelDir,
   );
 }
