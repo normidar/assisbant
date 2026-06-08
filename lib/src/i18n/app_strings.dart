@@ -224,6 +224,18 @@ class AppStrings {
     required this.modelPickerDownloadStart,
     required this.modelPickerDownloadDone,
     required this.modelPickerDownloadFailed,
+    required this.mlxInference,
+    required this.mlxInferenceDesc,
+    required this.mlxModelDir,
+    required this.mlxModelDirDesc,
+    required this.mlxModelDirPlaceholder,
+    required this.mlxTestInference,
+    required this.mlxLoadModel,
+    required this.mlxModelReady,
+    required this.mlxGenerating,
+    required this.mlxNotLoaded,
+    required this.mlxGenPromptHint,
+    required this.mlxGenerate,
   });
 
   final String prompts;
@@ -449,6 +461,18 @@ class AppStrings {
   final String modelPickerDownloadStart;
   final String modelPickerDownloadDone;
   final String modelPickerDownloadFailed;
+  final String mlxInference;
+  final String mlxInferenceDesc;
+  final String mlxModelDir;
+  final String mlxModelDirDesc;
+  final String mlxModelDirPlaceholder;
+  final String mlxTestInference;
+  final String mlxLoadModel;
+  final String mlxModelReady;
+  final String mlxGenerating;
+  final String mlxNotLoaded;
+  final String mlxGenPromptHint;
+  final String mlxGenerate;
 
   String batchCreateCount(int n) {
     if (this == _zh) return '创建 $n 条 Prompt';
@@ -727,6 +751,18 @@ class AppStrings {
     modelPickerDownloadStart: 'Download',
     modelPickerDownloadDone: 'Installed',
     modelPickerDownloadFailed: 'Failed',
+    mlxInference: 'Local MLX Inference',
+    mlxInferenceDesc: 'On-device LLM via Apple MLX — requires Apple Silicon (M-series) + macOS 14',
+    mlxModelDir: 'MLX Model Directory',
+    mlxModelDirDesc: 'Path to an MLX model directory (safetensors + config.json). Convert your .gguf with packages/mlx_llm/tools/gguf_to_mlx.py.',
+    mlxModelDirPlaceholder: '~/mlx_models/qwen3_coder_next',
+    mlxTestInference: 'Test Inference',
+    mlxLoadModel: 'Load Model',
+    mlxModelReady: 'Ready',
+    mlxGenerating: 'Generating…',
+    mlxNotLoaded: 'No model directory configured',
+    mlxGenPromptHint: 'Enter a prompt to test local inference…',
+    mlxGenerate: 'Generate',
   );
 
   static const _zh = AppStrings(
@@ -954,6 +990,18 @@ class AppStrings {
     modelPickerDownloadStart: '下载',
     modelPickerDownloadDone: '已安装',
     modelPickerDownloadFailed: '失败',
+    mlxInference: '本地 MLX 推理',
+    mlxInferenceDesc: '通过 Apple MLX 在本地运行 LLM — 需要 Apple Silicon（M系列）+ macOS 14',
+    mlxModelDir: 'MLX 模型目录',
+    mlxModelDirDesc: 'MLX 模型目录路径（含 safetensors + config.json）。可使用 packages/mlx_llm/tools/gguf_to_mlx.py 转换 .gguf 文件。',
+    mlxModelDirPlaceholder: '~/mlx_models/qwen3_coder_next',
+    mlxTestInference: '测试推理',
+    mlxLoadModel: '加载模型',
+    mlxModelReady: '已就绪',
+    mlxGenerating: '生成中…',
+    mlxNotLoaded: '未配置模型目录',
+    mlxGenPromptHint: '输入提示词测试本地推理…',
+    mlxGenerate: '生成',
   );
 
   static const _ja = AppStrings(
@@ -1180,5 +1228,17 @@ class AppStrings {
     modelPickerDownloadStart: 'ダウンロード',
     modelPickerDownloadDone: 'インストール済み',
     modelPickerDownloadFailed: '失敗',
+    mlxInference: 'ローカル MLX 推論',
+    mlxInferenceDesc: 'Apple MLX によるオンデバイス LLM — Apple Silicon（M シリーズ）+ macOS 14 が必要',
+    mlxModelDir: 'MLX モデルディレクトリ',
+    mlxModelDirDesc: 'MLX モデルディレクトリのパス（safetensors + config.json）。.gguf ファイルの変換は packages/mlx_llm/tools/gguf_to_mlx.py を使用してください。',
+    mlxModelDirPlaceholder: '~/mlx_models/qwen3_coder_next',
+    mlxTestInference: '推論テスト',
+    mlxLoadModel: 'モデルを読み込む',
+    mlxModelReady: '準備完了',
+    mlxGenerating: '生成中…',
+    mlxNotLoaded: 'モデルディレクトリが設定されていません',
+    mlxGenPromptHint: 'ローカル推論のテスト用プロンプトを入力…',
+    mlxGenerate: '生成',
   );
 }

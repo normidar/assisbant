@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:assibant/src/app/theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:assibant/src/data/services/import_export_service.dart';
 import 'package:assibant/src/i18n/app_strings.dart';
 import 'package:assibant/src/providers/database_providers.dart';
+import 'package:assibant/src/screens/mlx_inference/mlx_inference_screen.dart';
 import 'package:assibant/src/screens/settings/connection_settings_modal.dart';
 import 'package:assibant/src/screens/settings/env_overrides_dialog.dart';
 import 'package:assibant/src/screens/settings/export_dialog.dart';
@@ -73,6 +75,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if ((result ?? false) && mounted) {
       _showToast(widget.strings.exportSuccess);
     }
+  }
+
+  Future<void> _pickMlxModelDir() async {
+    final result = await FilePicker.platform.getDirectoryPath(
+      dialogTitle: widget.strings.mlxModelDir,
+    );
+    if (result == null || !mounted) return;
+    final settings = ref.read(settingsStateProvider);
+    ref
+        .read(settingsStateProvider.notifier)
+        .update(settings.copyWith(mlxModelDir: result));
+  }
+
+  Future<void> _openMlxTestScreen() async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => MlxInferenceScreen(strings: widget.strings),
+    );
   }
 
   Future<void> _doImport() async {
@@ -353,6 +373,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         lang: lang,
                       ),
                       const SizedBox(height: 14),
+
+                      // Local MLX inference card (macOS のみ表示)
+                      if (!kIsWeb && Platform.isMacOS) ...[
+                        SetCard(
+                          title: s.mlxInference,
+                          subtitle: s.mlxInferenceDesc,
+                          c: c,
+                          children: [
+                            SetRowInput(
+                              label: s.mlxModelDir,
+                              description: s.mlxModelDirDesc,
+                              value: settings.mlxModelDir,
+                              placeholder: s.mlxModelDirPlaceholder,
+                              onChanged: (v) =>
+                                  upd(settings.copyWith(mlxModelDir: v)),
+                              onPickFile: _pickMlxModelDir,
+                              c: c,
+                            ),
+                            SetRowWidget(
+                              label: s.mlxTestInference,
+                              description: lang == 'zh'
+                                  ? '打开推理测试对话框'
+                                  : lang == 'ja'
+                                  ? '推論テストダイアログを開く'
+                                  : 'Open the inference test dialog',
+                              c: c,
+                              child: SettingsActionBtn(
+                                label: s.mlxTestInference,
+                                onTap: _openMlxTestScreen,
+                                c: c,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                      ],
 
                       // Image generation card
                       ImageGenSettingsCard(

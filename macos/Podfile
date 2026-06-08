@@ -1,4 +1,5 @@
-platform :osx, '10.15'
+# MLX（Apple MLX推論フレームワーク）はmacOS 14.0+が必要
+platform :osx, '14.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
