@@ -55,6 +55,11 @@ class PromptRepository {
     return rows.map((r) => r.read(_db.prompts.branch)!).toList();
   }
 
+  /// ID でプロンプトを1件取得する。存在しない場合は null を返す。
+  Future<PromptEntry?> getById(String id) =>
+      (_db.select(_db.prompts)..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+
   /// 全プロンプトをブランチ名でグループ化して BranchSummary リストを返す。
   /// BranchSummary はDBに保存せず毎回集計する（ブランチごとの統計表示に使用）。
   Future<List<BranchSummary>> getBranchSummaries() async {

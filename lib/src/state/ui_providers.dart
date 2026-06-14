@@ -121,6 +121,11 @@ final newPromptDraftProvider =
       NewPromptDraftNotifier.new,
     );
 
+/// 新規プロンプト作成フォームの一時的な入力状態。
+///
+/// モーダルが閉じられた（キャンセル）際に [NewPromptDraftNotifier.save] で保存し、
+/// 再度開いたときに復元することで入力内容を失わないようにする。
+/// フォーム送信後は [NewPromptDraftNotifier.clear] でリセットする。
 class NewPromptDraft {
   const NewPromptDraft({
     this.content = '',
@@ -149,6 +154,28 @@ class NewPromptDraft {
       branch.isEmpty &&
       projectPath.isEmpty &&
       sessionId.isEmpty;
+
+  NewPromptDraft copyWith({
+    String? content,
+    String? branch,
+    String? projectPath,
+    String? sessionId,
+    String? priority,
+    bool? isSkipped,
+    bool? commitAfterAgent,
+    String? claudeModel,
+    List<String>? imagePaths,
+  }) => NewPromptDraft(
+    content: content ?? this.content,
+    branch: branch ?? this.branch,
+    projectPath: projectPath ?? this.projectPath,
+    sessionId: sessionId ?? this.sessionId,
+    priority: priority ?? this.priority,
+    isSkipped: isSkipped ?? this.isSkipped,
+    commitAfterAgent: commitAfterAgent ?? this.commitAfterAgent,
+    claudeModel: claudeModel ?? this.claudeModel,
+    imagePaths: imagePaths ?? this.imagePaths,
+  );
 }
 
 class NewPromptDraftNotifier extends Notifier<NewPromptDraft> {

@@ -507,6 +507,9 @@ class ExecutionService {
   }
 
   /// Spawns the Claude CLI process cross-platform.
+  ///
+  /// Unix: bash login shell (-l) でプロファイルを読み込み、さらに [_pathSetup] で
+  /// よくある claude インストール先を PATH に補完する。Aider と同じ方式。
   Future<Process> _spawnClaude(
     String cliPath,
     List<String> args,
@@ -522,7 +525,8 @@ class ExecutionService {
         environment: environment,
       );
     }
-    final buf = StringBuffer('exec ${_shellQuote(cliPath)}');
+    // _pathSetup で /opt/homebrew/bin 等を PATH に追加してから exec する
+    final buf = StringBuffer('${_pathSetup}exec ${_shellQuote(cliPath)}');
     for (final a in args) {
       buf.write(' ${_shellQuote(a)}');
     }
