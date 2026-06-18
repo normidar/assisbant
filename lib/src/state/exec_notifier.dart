@@ -264,6 +264,11 @@ class ExecNotifier extends Notifier<ExecState> {
   }
 }
 
+/// 全プロンプトリストから実行可能なプロンプトを priority 昇順で返す純粋関数。
+///
+/// UI 側が既に読み込んだ [promptListNotifierProvider] の値を再利用して
+/// キューの件数表示やプレビューに使うためのヘルパー。
+/// DB クエリは行わず、渡されたリストをフィルタ・ソートするだけ。
 List<PromptEntry> executableQueue(List<PromptEntry> prompts) =>
     (prompts
         .where((p) => !p.isSkipped && p.status == PromptStatus.pending)
